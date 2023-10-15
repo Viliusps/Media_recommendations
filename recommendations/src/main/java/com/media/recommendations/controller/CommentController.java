@@ -34,7 +34,7 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Comment> getCommentById(@PathVariable("id") long id) {
+    public ResponseEntity<Comment> getCommentById(@PathVariable long id) {
         if (commentService.existsComment(id)) {
             return new ResponseEntity<>(commentService.getCommentById(id), HttpStatus.OK);
         }
@@ -47,7 +47,7 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Comment> updateComment(@PathVariable("id") long id, @Valid @RequestBody Comment comment) {
+    public ResponseEntity<Comment> updateComment(@PathVariable long id, @Valid @RequestBody Comment comment) {
         if (commentService.existsComment(id)) {
             return new ResponseEntity<>(commentService.updateComment(id, comment), HttpStatus.OK);
         } else {
@@ -56,7 +56,7 @@ public class CommentController {
     }
 
     @DeleteMapping({"/{id}"})
-    public ResponseEntity<Comment> deleteComment(@PathVariable("id") Long id) {
+    public ResponseEntity<Comment> deleteComment(@PathVariable Long id) {
         if (commentService.existsComment(id)) {
             commentService.deleteComment(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
