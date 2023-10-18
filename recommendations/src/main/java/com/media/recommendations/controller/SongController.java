@@ -34,7 +34,7 @@ public class SongController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Song> getSongById(@PathVariable("id") long id) {
+    public ResponseEntity<Song> getSongById(@PathVariable long id) {
         if (songService.existsSong(id)) {
             return new ResponseEntity<>(songService.getSongById(id), HttpStatus.OK);
         }
@@ -47,7 +47,7 @@ public class SongController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Song> updateSong(@PathVariable("id") long id, @Valid @RequestBody Song song) {
+    public ResponseEntity<Song> updateSong(@PathVariable long id, @Valid @RequestBody Song song) {
         if (songService.existsSong(id)) {
             return new ResponseEntity<>(songService.updateSong(id, song), HttpStatus.OK);
         } else {
@@ -56,7 +56,7 @@ public class SongController {
     }
 
     @DeleteMapping({"/{id}"})
-    public ResponseEntity<Song> deleteSong(@PathVariable("id") Long id) {
+    public ResponseEntity<Song> deleteSong(@PathVariable Long id) {
         if (songService.existsSong(id)) {
             songService.deleteSong(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

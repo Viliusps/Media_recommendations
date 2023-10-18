@@ -1,0 +1,3 @@
+.env
+application.properties
+recommendations/src/main/resources/application.properties

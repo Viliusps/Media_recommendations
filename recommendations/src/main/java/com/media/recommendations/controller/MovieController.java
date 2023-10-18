@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,20 +35,22 @@ public class MovieController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovieById(@PathVariable("id") long id) {
+    public ResponseEntity<Movie> getMovieById(@PathVariable long id) {
         if (movieService.existsMovie(id)) {
             return new ResponseEntity<>(movieService.getMovieById(id), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
         return new ResponseEntity<>(movieService.createMovie(movie), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable("id") long id, @Valid @RequestBody Movie movie) {
+    public ResponseEntity<Movie> updateMovie(@PathVariable long id, @Valid @RequestBody Movie movie) {
         if (movieService.existsMovie(id)) {
             return new ResponseEntity<>(movieService.updateMovie(id, movie), HttpStatus.OK);
         } else {
@@ -55,8 +58,9 @@ public class MovieController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping({"/{id}"})
-    public ResponseEntity<Movie> deleteMovie(@PathVariable("id") Long id) {
+    public ResponseEntity<Movie> deleteMovie(@PathVariable Long id) {
         if (movieService.existsMovie(id)) {
             movieService.deleteMovie(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
