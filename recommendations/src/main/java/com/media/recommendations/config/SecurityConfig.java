@@ -3,6 +3,7 @@ package com.media.recommendations.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,8 +28,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                     .disable())
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/api/v1/comments/**", "/api/v1/songs/**", "/api/v1/auth/**")
-                    .permitAll()
+                    .requestMatchers(HttpMethod.GET,"/api/v1/comments/**", "/api/v1/songs/**", "/api/v1/movies/**").permitAll()
+                    .requestMatchers("/api/v1/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/api/v1/movies/**", "/api/v1/songs/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.PUT,"/api/v1/movies/**", "/api/v1/songs/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE,"/api/v1/movies/**", "/api/v1/songs/**").hasAuthority("ADMIN")
+                    .requestMatchers("/api/v1/users/admin/**").hasAuthority("ADMIN")
                     .anyRequest()
                     .authenticated())
                 .sessionManagement(management -> management

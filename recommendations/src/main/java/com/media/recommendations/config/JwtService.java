@@ -30,7 +30,7 @@ public class JwtService {
             .setSigningKey(getSignInKey())
             .build()
             .parseClaimsJws(token).getBody();
-        return (String) (claims.get("Role"));
+        return (String) (claims.get("role"));
     }
 
     public String extractId(String token) {
@@ -50,7 +50,7 @@ public class JwtService {
 
     public String generateToken(User userDetails) {
         HashMap<String, String> map = new HashMap<>();
-        map.put("Role", userDetails.getRole().toString() );
+        map.put("role", userDetails.getRole().toString() );
         map.put("UserID",userDetails.getId() + "");
         return generateToken(map, userDetails);
     }
