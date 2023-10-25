@@ -42,13 +42,11 @@ public class MovieController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Movie> createMovie(@Valid @RequestBody Movie movie) {
         return new ResponseEntity<>(movieService.createMovie(movie), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Movie> updateMovie(@PathVariable long id, @Valid @RequestBody Movie movie) {
         if (movieService.existsMovie(id)) {
@@ -58,7 +56,6 @@ public class MovieController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping({"/{id}"})
     public ResponseEntity<Movie> deleteMovie(@PathVariable Long id) {
         if (movieService.existsMovie(id)) {
