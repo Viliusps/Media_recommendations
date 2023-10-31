@@ -1,14 +1,21 @@
 {
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Spring Boot-RecommendationsApplication<recommendations>",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "com.media.recommendations.RecommendationsApplication",
-            "projectName": "recommendations",
-            "args": "",
-            "envFile": "${workspaceFolder}/.env"
-        }
-    ]
+  "configurations": [
+    {
+      "type": "java",
+      "name": "RecommendationsApplication",
+      "request": "launch",
+      "mainClass": "com.media.recommendations.RecommendationsApplication",
+      "projectName": ""
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-RecommendationsApplication<recommendations>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.media.recommendations.RecommendationsApplication",
+      "projectName": "recommendations",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
 }
