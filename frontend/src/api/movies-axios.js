@@ -4,6 +4,12 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const getMovies = async () => {
-  const response = await axios.get(URL + `/movies`, authHeader());
+  const response = await axios.get(`${URL}/movies`, authHeader());
+  return response.data;
+};
+
+export const getMovie = async (id) => {
+  const response = await axios.get(`${URL}/movies/${id}`, authHeader());
+  console.log(response.data);
   return response.data;
 };

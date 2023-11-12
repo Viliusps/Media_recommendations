@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { getMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
+import DisplayCard from '../components/Card';
+import { Paper, styled } from '@mui/material';
+
+const StyledPaper = styled(Paper)`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+`;
 
 export default function Movies() {
   const [movies, setMovies] = useState([]);
@@ -23,11 +32,11 @@ export default function Movies() {
   return (
     <div>
       <h1>Movies page</h1>
-      {movies.map((movie) => (
-        <h3 key={movie.id}>
-          {movie.id}: {movie.originalTitle}
-        </h3>
-      ))}
+      <StyledPaper>
+        {movies.map((movie) => (
+          <DisplayCard key={movie.id} movie={movie} />
+        ))}
+      </StyledPaper>
     </div>
   );
 }
