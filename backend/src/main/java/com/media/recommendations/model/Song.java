@@ -41,6 +41,10 @@ public class Song {
     @Column(name = "genre", nullable = false)
     private String genre;
 
+    @NotBlank(message = "Spotify id is mandatory")
+    @Column(name = "spotify_id", nullable = false)
+    private String spotifyId;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "song")
     private List<Movie> movies = new ArrayList<>();

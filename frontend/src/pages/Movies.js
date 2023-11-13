@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getMovies } from '../api/movies-axios';
+import { getPageMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/Card';
 import { Paper, styled } from '@mui/material';
@@ -13,10 +13,11 @@ const StyledPaper = styled(Paper)`
 
 export default function Movies() {
   const [movies, setMovies] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
   const Navigate = useNavigate();
 
   useEffect(() => {
-    getMovies()
+    getPageMovies(currentPage, 10)
       .then((data) => {
         setMovies(data);
       })
@@ -27,7 +28,17 @@ export default function Movies() {
           console.error('An error occurred:', error);
         }
       });
-  }, []);
+  }, [currentPage]);
+
+  const handleNextPage = () => {
+    setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <div>
@@ -37,6 +48,12 @@ export default function Movies() {
           <DisplayCard key={movie.id} movie={movie} />
         ))}
       </StyledPaper>
+      <div>
+        <button onClick={handlePrevPage} disabled={currentPage === 0}>
+          Previous Page
+        </button>
+        <button onClick={handleNextPage}>Next Page</button>
+      </div>
     </div>
   );
 }
