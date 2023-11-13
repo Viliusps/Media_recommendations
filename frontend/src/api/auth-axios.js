@@ -4,7 +4,7 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const login = async (username, password) => {
-  const response = await axios.post(URL + '/auth/authenticate', {
+  const response = await axios.post(`${URL}/auth/authenticate`, {
     username: username,
     password: password
   });
@@ -16,7 +16,7 @@ export const getRole = async () => {
   try {
     const token = localStorage.getItem('token');
     if (token != null) {
-      const response = await axios.post(URL + '/users/decode', token, authHeader());
+      const response = await axios.post(`${URL}/users/decode`, token, authHeader());
       return response.data;
     } else return 'GUEST';
   } catch {
