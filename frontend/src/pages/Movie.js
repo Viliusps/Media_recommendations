@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import DisplayCard from '../components/Card';
+import DisplayCard from '../components/MovieCard';
 import { Paper, styled } from '@mui/material';
 import { getMovie } from '../api/movies-axios';
 import { useParams } from 'react-router-dom';

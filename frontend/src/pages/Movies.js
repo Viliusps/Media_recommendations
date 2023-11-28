@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getPageMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
-import DisplayCard from '../components/Card';
+import DisplayCard from '../components/MovieCard';
 import { Paper, styled } from '@mui/material';
 
 const StyledPaper = styled(Paper)`

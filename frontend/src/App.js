@@ -7,6 +7,7 @@ import Songs from './pages/Songs';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
 import { getRole } from './api/auth-axios';
+import Recommendation from './pages/Recommendation';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -26,6 +27,7 @@ function App() {
     <div className="App">
       <Navbar />
       <Routes>
+        <Route path="/recommendation" element={<Recommendation />} />
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<Movie />} />
         <Route path="/songs" element={<Songs />} />
