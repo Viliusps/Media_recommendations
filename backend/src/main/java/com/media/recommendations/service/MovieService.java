@@ -2,6 +2,10 @@ package com.media.recommendations.service;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.media.recommendations.model.Movie;
@@ -14,6 +18,11 @@ public class MovieService {
 
     public List<Movie> getAllMovies() {
         return movieRepository.findAllByOrderByIdAsc();
+    }
+
+    public Page<Movie> getPageMovies(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return movieRepository.findAll(pageable);
     }
 
      public Movie getMovieById(long id) {

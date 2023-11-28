@@ -27,6 +27,7 @@ public class SongService {
         newSong.setGenre(song.getGenre());
         newSong.setName(song.getName());
         newSong.setSinger(song.getName());
+        newSong.setSpotifyId(song.getSpotifyId());
         newSong.setMovies(song.getMovies());
         return songRepository.save(newSong);
     }
@@ -40,6 +41,7 @@ public class SongService {
         songFromDb.setGenre(song.getGenre());
         songFromDb.setName(song.getName());
         songFromDb.setSinger(song.getName());
+        songFromDb.setSpotifyId(song.getSpotifyId());
         songFromDb.setMovies(song.getMovies());
         return songRepository.save(songFromDb);
     }
