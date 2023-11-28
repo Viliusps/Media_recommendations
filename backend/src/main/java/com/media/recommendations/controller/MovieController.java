@@ -36,8 +36,8 @@ public class MovieController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<Page<Movie>> getPageMovies(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<Movie>> getPageMovies(@RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
         return new ResponseEntity<>(movieService.getPageMovies(page, size), HttpStatus.OK);
     }
 
