@@ -1,10 +1,6 @@
-import * as React from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { CardActionArea } from '@mui/material';
+import { CardActionArea, Card, CardContent, CardMedia, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import movieImage from '../images/movie.png';
 
 export default function DisplayCard({ movie }) {
   const Navigate = useNavigate();
@@ -14,12 +10,7 @@ export default function DisplayCard({ movie }) {
         onClick={() => {
           Navigate(`/movies/${movie.id}`);
         }}>
-        <CardMedia
-          component="img"
-          height="140"
-          image="https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg"
-          alt="movie image"
-        />
+        <CardMedia component="img" height="140" image={movieImage} />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {movie.originalTitle}
