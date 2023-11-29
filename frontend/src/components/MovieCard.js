@@ -1,12 +1,20 @@
-import { CardActionArea, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import { CardActionArea, Card, CardContent, CardMedia, Typography, styled } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import movieImage from '../images/movie.png';
+
+const StyledCard = styled(Card)`
+  max-width: 345px;
+`;
+
+const StyledCardActionArea = styled(CardActionArea)`
+  height: 100%;
+`;
 
 export default function DisplayCard({ movie }) {
   const Navigate = useNavigate();
   return (
-    <Card sx={{ maxWidth: 345 }}>
-      <CardActionArea
+    <StyledCard>
+      <StyledCardActionArea
         onClick={() => {
           Navigate(`/movies/${movie.id}`);
         }}>
@@ -19,7 +27,7 @@ export default function DisplayCard({ movie }) {
             {movie.overview}
           </Typography>
         </CardContent>
-      </CardActionArea>
-    </Card>
+      </StyledCardActionArea>
+    </StyledCard>
   );
 }
