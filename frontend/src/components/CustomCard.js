@@ -1,4 +1,4 @@
-import { CardActionArea, Card, CardContent, CardMedia, Typography, styled } from '@mui/material';
+import { CardActionArea, Card, CardContent, Typography, styled } from '@mui/material';
 
 const StyledCard = styled(Card)`
   width: 600px;
@@ -16,7 +16,8 @@ export default function CustomCard({ title, image, handleOpen }) {
         onClick={() => {
           handleOpen();
         }}>
-        <CardMedia component="img" image={image} />
+        <img src={image} />
+
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {title}

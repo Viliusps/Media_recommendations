@@ -5,6 +5,7 @@ import Movies from './pages/Movies';
 import Movie from './pages/Movie';
 import Songs from './pages/Songs';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
@@ -32,7 +33,12 @@ function App() {
         <Route path="/movies/:id" element={<Movie />} />
         <Route path="/songs" element={<Songs />} />
 
-        {role === 'GUEST' && <Route path="/login" element={<Login />} />}
+        {role === 'GUEST' && (
+          <>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </>
+        )}
 
         <Route path="*" element={<Navigate to="/movies" replace />} />
       </Routes>

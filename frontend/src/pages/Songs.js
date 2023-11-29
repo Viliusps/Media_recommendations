@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSongs } from '../api/songs-axios';
-import { Button } from '@mui/material';
+import { Grid } from '@mui/material';
+import SongCard from '../components/SongCard';
 
 export default function Songs() {
   const [songs, setSongs] = useState([]);
@@ -10,6 +11,7 @@ export default function Songs() {
   useEffect(() => {
     getSongs()
       .then((data) => {
+        console.log(data);
         setSongs(data);
       })
       .catch((error) => {
@@ -22,19 +24,17 @@ export default function Songs() {
   }, []);
 
   return (
-    <div>
-      <h1>Songs list</h1>
+    <Grid container spacing={1}>
       {songs.map((song) => (
-        <>
-          <h3 key={song.id}>{song.name}</h3>
-          <Button
-            onClick={() => {
-              window.open(`https://open.spotify.com/track/${song.spotifyId}`, '_blank');
-            }}>
-            Listen on Spotify
-          </Button>
-        </>
+        <Grid item key={song.id} xs={12} sm={6} md={4} lg={2}>
+          <SongCard
+            title={song.name}
+            artist={song.singer}
+            imageUrl={song.imageUrl}
+            spotifyUrl={song.spotifyId}
+          />
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 }

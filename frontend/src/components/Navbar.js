@@ -86,9 +86,14 @@ function Navbar() {
                 <Typography textAlign="center">Songs</Typography>
               </MenuItem>
               {role === 'GUEST' && (
-                <MenuItem onClick={() => Navigate('/login')}>
-                  <Typography textAlign="center">Login</Typography>
-                </MenuItem>
+                <>
+                  <MenuItem onClick={() => Navigate('/login')}>
+                    <Typography textAlign="center">Login</Typography>
+                  </MenuItem>
+                  <MenuItem onClick={() => Navigate('/register')}>
+                    <Typography textAlign="center">Register</Typography>
+                  </MenuItem>
+                </>
               )}
             </Menu>
           </Box>
@@ -109,11 +114,18 @@ function Navbar() {
               Songs
             </Button>
             {role === 'GUEST' && (
-              <Button
-                onClick={() => Navigate('/login')}
-                sx={{ my: 2, color: 'white', display: 'block' }}>
-                Login
-              </Button>
+              <>
+                <Button
+                  onClick={() => Navigate('/login')}
+                  sx={{ my: 2, color: 'white', display: 'block' }}>
+                  Login
+                </Button>
+                <Button
+                  onClick={() => Navigate('/register')}
+                  sx={{ my: 2, color: 'white', display: 'block' }}>
+                  Register
+                </Button>
+              </>
             )}
           </Box>
 
