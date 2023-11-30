@@ -1,6 +1,7 @@
 package com.media.recommendations.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,11 @@ public class CommentService {
     }
 
      public Comment getCommentById(long id) {
-        return commentRepository.findById(id).get();
+        Optional<Comment> optionalComment = commentRepository.findById(id);
+        if (optionalComment.isPresent()) {
+            return optionalComment.get();
+        }
+        return null;
     }
 
     public Comment createComment(Comment comment) {
