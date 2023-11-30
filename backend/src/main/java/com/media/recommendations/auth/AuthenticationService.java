@@ -1,6 +1,5 @@
 package com.media.recommendations.auth;
 
-import java.util.IllegalFormatException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +26,7 @@ public class AuthenticationService {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         Pattern pattern = Pattern.compile(emailRegex);
         Matcher matcher = pattern.matcher(request.getEmail());
-        Boolean isValidEmail = matcher.matches();
+        boolean isValidEmail = matcher.matches();
         if(!isValidEmail) throw new IllegalArgumentException("Invalid email address");
 
         var user = User.builder()

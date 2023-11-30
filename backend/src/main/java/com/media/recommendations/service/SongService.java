@@ -1,6 +1,7 @@
 package com.media.recommendations.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +28,11 @@ public class SongService {
     }
 
      public Song getSongById(long id) {
-        return songRepository.findById(id).get();
+        Optional<Song> optionalSong = songRepository.findById(id);
+        if (optionalSong.isPresent()) {
+            return optionalSong.get();
+        }
+        return null;
     }
 
     public Song createSong(Song song) {

@@ -1,6 +1,5 @@
 package com.media.recommendations.auth;
 
-import java.util.IllegalFormatException;
 import java.util.NoSuchElementException;
 
 import lombok.RequiredArgsConstructor;

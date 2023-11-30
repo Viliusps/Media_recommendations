@@ -1,7 +1,6 @@
 import React from 'react';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { styled } from '@mui/material';
-import { CircularProgress, Alert } from '@mui/material';
+import { CircularProgress, Alert, styled } from '@mui/material';
 
 const StyledLoading = styled(CircularProgress)`
   height: 100vh;

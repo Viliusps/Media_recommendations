@@ -23,17 +23,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String songs = "/api/v1/songs/**";
+        String movies = "/api/v1/movies/**";
+        String comments = "/api/v1/comments/**";
+        String auth = "/api/v1/auth/**";
+        String admin = "/api/v1/users/admin/**";
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf
                     .disable())
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(HttpMethod.GET,"/api/v1/comments/**", "/api/v1/songs/**", "/api/v1/movies/**").permitAll()
-                    .requestMatchers("/api/v1/auth/**").permitAll()
-                    .requestMatchers(HttpMethod.POST,"/api/v1/movies/**", "/api/v1/songs/**").hasAuthority("ADMIN")
-                    .requestMatchers(HttpMethod.PUT,"/api/v1/movies/**", "/api/v1/songs/**").hasAuthority("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE,"/api/v1/movies/**", "/api/v1/songs/**").hasAuthority("ADMIN")
-                    .requestMatchers("/api/v1/users/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.GET, comments, songs, movies).permitAll()
+                    .requestMatchers(auth).permitAll()
+                    .requestMatchers(HttpMethod.POST, movies, songs).hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, movies, songs).hasAuthority("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, movies, songs).hasAuthority("ADMIN")
+                    .requestMatchers(admin).hasAuthority("ADMIN")
                     .anyRequest()
                     .authenticated())
                 .sessionManagement(management -> management

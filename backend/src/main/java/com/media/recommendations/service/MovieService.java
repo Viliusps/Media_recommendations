@@ -1,5 +1,6 @@
 package com.media.recommendations.service;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 
@@ -26,7 +27,11 @@ public class MovieService {
     }
 
      public Movie getMovieById(long id) {
-        return movieRepository.findById(id).get();
+        Optional<Movie> optionalMovie = movieRepository.findById(id);
+        if (optionalMovie.isPresent()) {
+            return optionalMovie.get();
+        }
+        return null;
     }
 
     public Movie createMovie(Movie movie) {
