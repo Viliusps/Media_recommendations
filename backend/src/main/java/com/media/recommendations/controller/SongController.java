@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.SongPageResponse;
 import com.media.recommendations.service.SongService;
 
 
@@ -36,7 +36,7 @@ public class SongController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<Page<Song>> getPageSongs(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<SongPageResponse> getPageSongs(@RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return new ResponseEntity<>(songService.getPageSongs(page, size), HttpStatus.OK);
     }

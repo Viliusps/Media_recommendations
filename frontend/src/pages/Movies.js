@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getPageMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
-import { Paper, styled } from '@mui/material';
+import { Paper, styled, Pagination } from '@mui/material';
 import LoadingWrapper from '../components/LoadingWrapper';
 
 const StyledPaper = styled(Paper)`
@@ -12,17 +12,26 @@ const StyledPaper = styled(Paper)`
   justify-content: center;
 `;
 
+const StyledPagination = styled(Pagination)`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
 export default function Movies() {
   const [movies, setMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalMovies, setTotalMovies] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const moviesPerPage = 10;
   const Navigate = useNavigate();
 
   useEffect(() => {
-    getPageMovies(currentPage, 10)
+    getPageMovies(currentPage, moviesPerPage)
       .then((data) => {
-        setMovies(data);
+        setMovies(data.movies);
+        setTotalMovies(data.totalMovies);
       })
       .catch((error) => {
         setError(true);
@@ -37,16 +46,6 @@ export default function Movies() {
       });
   }, [currentPage]);
 
-  const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
   return (
     <div>
       <h1>Movies page</h1>
@@ -56,12 +55,13 @@ export default function Movies() {
             <DisplayCard key={movie.id} movie={movie} />
           ))}
         </StyledPaper>
-        <div>
-          <button onClick={handlePrevPage} disabled={currentPage === 0}>
-            Previous Page
-          </button>
-          <button onClick={handleNextPage}>Next Page</button>
-        </div>
+        <StyledPagination
+          count={Math.ceil(totalMovies / moviesPerPage)}
+          page={currentPage + 1}
+          onChange={(event, value) => {
+            setCurrentPage(value - 1);
+          }}
+        />
       </LoadingWrapper>
     </div>
   );

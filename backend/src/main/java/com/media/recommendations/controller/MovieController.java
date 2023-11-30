@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.MoviePageResponse;
 import com.media.recommendations.service.MovieService;
 
 
@@ -36,7 +36,7 @@ public class MovieController {
     }
 
     @GetMapping("/page")
-    public ResponseEntity<Page<Movie>> getPageMovies(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<MoviePageResponse> getPageMovies(@RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return new ResponseEntity<>(movieService.getPageMovies(page, size), HttpStatus.OK);
     }
