@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.SongPageResponse;
 import com.media.recommendations.repository.SongRepository;
 
 import lombok.AllArgsConstructor;
@@ -22,9 +23,14 @@ public class SongService {
         return songRepository.findAllByOrderByIdAsc();
     }
 
-    public Page<Song> getPageSongs(int page, int size) {
+    public SongPageResponse getPageSongs(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return songRepository.findAll(pageable);
+        Page<Song> songsPage = songRepository.findAll(pageable);
+
+        List<Song> songs = songsPage.getContent();
+        long totalSongs = songRepository.count();
+
+        return new SongPageResponse(songs, totalSongs);
     }
 
      public Song getSongById(long id) {

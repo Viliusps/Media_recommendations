@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.MoviePageResponse;
 import com.media.recommendations.repository.MovieRepository;
 
 @AllArgsConstructor
@@ -21,9 +22,15 @@ public class MovieService {
         return movieRepository.findAllByOrderByIdAsc();
     }
 
-    public Page<Movie> getPageMovies(int page, int size) {
+    public MoviePageResponse getPageMovies(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return movieRepository.findAll(pageable);
+        Page<Movie> moviesPage = movieRepository.findAll(pageable);
+
+        List<Movie> movies = moviesPage.getContent();
+        long totalMovies = movieRepository.count();
+        System.out.println(totalMovies);
+
+        return new MoviePageResponse(movies, totalMovies);
     }
 
      public Movie getMovieById(long id) {

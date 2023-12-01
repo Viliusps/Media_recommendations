@@ -10,5 +10,5 @@ export const getSongs = async () => {
 
 export const getPageSongs = async (page, size) => {
   const response = await axios.get(`${URL}/songs/page?page=${page}&size=${size}`, authHeader());
-  return response.data.content;
+  return response.data;
 };

@@ -16,5 +16,5 @@ export const getMovie = async (id) => {
 
 export const getPageMovies = async (page, size) => {
   const response = await axios.get(`${URL}/movies/page?page=${page}&size=${size}`, authHeader());
-  return response.data.content;
+  return response.data;
 };

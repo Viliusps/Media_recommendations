@@ -1,22 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPageSongs } from '../api/songs-axios';
-import { Grid } from '@mui/material';
+import { Grid, Pagination, styled } from '@mui/material';
 import SongCard from '../components/SongCard';
 import LoadingWrapper from '../components/LoadingWrapper';
+
+const StyledPagination = styled(Pagination)`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+`;
 
 export default function Songs() {
   const [songs, setSongs] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalSongs, setTotalSongs] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const Navigate = useNavigate();
+  const songsPerPage = 10;
 
   useEffect(() => {
-    getPageSongs(currentPage, 10)
+    getPageSongs(currentPage, songsPerPage)
       .then((data) => {
-        console.log(data);
-        setSongs(data);
+        setSongs(data.songs);
+        setTotalSongs(data.totalSongs);
       })
       .catch((error) => {
         setError(true);
@@ -30,16 +38,6 @@ export default function Songs() {
         setLoading(false);
       });
   }, [currentPage]);
-
-  const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
 
   return (
     <div>
@@ -57,12 +55,13 @@ export default function Songs() {
             </Grid>
           ))}
         </Grid>
-        <div>
-          <button onClick={handlePrevPage} disabled={currentPage === 0}>
-            Previous Page
-          </button>
-          <button onClick={handleNextPage}>Next Page</button>
-        </div>
+        <StyledPagination
+          count={Math.ceil(totalSongs / songsPerPage)}
+          page={currentPage + 1}
+          onChange={(event, value) => {
+            setCurrentPage(value - 1);
+          }}
+        />
       </LoadingWrapper>
     </div>
   );
