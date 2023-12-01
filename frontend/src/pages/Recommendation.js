@@ -1,8 +1,20 @@
 import { useState } from 'react';
-import { Paper, styled, Typography, Modal, Box } from '@mui/material';
+import {
+  Paper,
+  styled,
+  Typography,
+  Modal,
+  Box,
+  TextField,
+  Autocomplete,
+  MenuItem,
+  Button
+} from '@mui/material';
 import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
+import { getSongs } from '../api/songs-axios';
+import { getMovies } from '../api/movies-axios';
 
 const StyledPaper = styled(Paper)`
   display: flex;
@@ -25,8 +37,29 @@ const StyledBox = styled(Box)`
 
 export default function Recommendation() {
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
+  const [selection, setSelection] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [type, setType] = useState('');
+
+  const handleOpen = (calledBy) => {
+    if (calledBy === 'Movie') {
+      setType('Movie');
+      getMovies().then((data) => {
+        setSuggestions(data);
+      });
+    } else if (calledBy === 'Song') {
+      setType('Song');
+      getSongs().then((data) => {
+        setSuggestions(data);
+      });
+    }
+    setOpen(true);
+  };
   const handleClose = () => setOpen(false);
+
+  const handleClick = () => {
+    console.log(selection);
+  };
 
   return (
     <>
@@ -34,8 +67,8 @@ export default function Recommendation() {
         <h1>Recommend me a...</h1>
 
         <StyledPaper sx={{ height: '100vh' }}>
-          <CustomCard title="Movie" image={movieImage} handleOpen={handleOpen} />
-          <CustomCard title="Song" image={songImage} handleOpen={handleOpen} />
+          <CustomCard title="Movie" image={movieImage} handleOpen={() => handleOpen('Movie')} />
+          <CustomCard title="Song" image={songImage} handleOpen={() => handleOpen('Song')} />
         </StyledPaper>
       </div>
 
@@ -46,11 +79,29 @@ export default function Recommendation() {
         aria-describedby="modal-modal-description">
         <StyledBox>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Text in a modal
+            Please select from the list, or enter a new {type.toLowerCase()}
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </Typography>
+
+          <Autocomplete
+            value={selection}
+            onChange={(event, newValue) => setSelection(newValue)}
+            options={suggestions}
+            getOptionLabel={(option) => option.title ?? ''}
+            getOptionSelected={(option, value) => option.title === value.title}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={`Search for a ${type.toLowerCase()}`}
+                variant="outlined"
+              />
+            )}
+            renderOption={(props, option) => (
+              <MenuItem {...props} key={option.title}>
+                {option.title}
+              </MenuItem>
+            )}
+          />
+          <Button onClick={() => handleClick()}>Recommend!</Button>
         </StyledBox>
       </Modal>
     </>

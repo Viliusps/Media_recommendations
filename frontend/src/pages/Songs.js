@@ -47,7 +47,7 @@ export default function Songs() {
           {songs.map((song) => (
             <Grid item key={song.id} xs={12} sm={6} md={4} lg={2}>
               <SongCard
-                title={song.name}
+                title={song.title}
                 artist={song.singer}
                 imageUrl={song.imageUrl}
                 spotifyUrl={song.spotifyId}

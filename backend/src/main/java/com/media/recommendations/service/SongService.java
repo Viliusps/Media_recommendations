@@ -44,8 +44,8 @@ public class SongService {
     public Song createSong(Song song) {
         Song newSong = new Song();
         newSong.setGenre(song.getGenre());
-        newSong.setName(song.getName());
-        newSong.setSinger(song.getName());
+        newSong.setTitle(song.getTitle());
+        newSong.setSinger(song.getSinger());
         newSong.setSpotifyId(song.getSpotifyId());
         newSong.setMovies(song.getMovies());
         return songRepository.save(newSong);
@@ -58,8 +58,8 @@ public class SongService {
     public Song updateSong(Long id, Song song) {
         Song songFromDb = songRepository.findById(id).get();
         songFromDb.setGenre(song.getGenre());
-        songFromDb.setName(song.getName());
-        songFromDb.setSinger(song.getName());
+        songFromDb.setTitle(song.getTitle());
+        songFromDb.setSinger(song.getSinger());
         songFromDb.setSpotifyId(song.getSpotifyId());
         songFromDb.setMovies(song.getMovies());
         return songRepository.save(songFromDb);
