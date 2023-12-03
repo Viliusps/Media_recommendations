@@ -14,7 +14,7 @@ import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
 import { getSongs } from '../api/songs-axios';
-import { getMovies } from '../api/movies-axios';
+import { getMovies, getOmdbMovie } from '../api/movies-axios';
 
 const StyledPaper = styled(Paper)`
   display: flex;
@@ -58,7 +58,10 @@ export default function Recommendation() {
   const handleClose = () => setOpen(false);
 
   const handleClick = () => {
-    console.log(selection);
+    //console.log(selection);
+    getOmdbMovie(selection.title).then((data) => {
+      console.log(data);
+    });
   };
 
   return (
@@ -87,7 +90,6 @@ export default function Recommendation() {
             onChange={(event, newValue) => setSelection(newValue)}
             options={suggestions}
             getOptionLabel={(option) => option.title ?? ''}
-            getOptionSelected={(option, value) => option.title === value.title}
             renderInput={(params) => (
               <TextField
                 {...params}

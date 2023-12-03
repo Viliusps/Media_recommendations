@@ -4,19 +4,35 @@ import java.util.Optional;
 
 import lombok.AllArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.MoviePageResponse;
+import com.media.recommendations.model.OmdbMovie;
 import com.media.recommendations.repository.MovieRepository;
 
-@AllArgsConstructor
+//@AllArgsConstructor
 @Service
 public class MovieService {
+    
+    @Value("${omdb.apiKey}")
+    private String apiKey;
+
+    private final String omdbApiUrl = "http://www.omdbapi.com/";
+
+    private final RestTemplate restTemplate;
     private final MovieRepository movieRepository;
+
+    public MovieService(@Value("${omdb.apiKey}") String apiKey, RestTemplate restTemplate, MovieRepository movieRepository) {
+        this.apiKey = apiKey;
+        this.restTemplate = restTemplate;
+        this.movieRepository = movieRepository;
+    }
 
     public List<Movie> getAllMovies() {
         return movieRepository.findAllByOrderByIdAsc();
@@ -89,6 +105,26 @@ public class MovieService {
 
     public void deleteMovie(Long id) {
         movieRepository.deleteById(id);
+    }
+
+    public Movie getMovieFromOmdb(String title) {
+        String apiUrl = String.format("%s?apikey=%s&t=%s", omdbApiUrl, apiKey, title);
+        OmdbMovie omdbMovie = restTemplate.getForObject(apiUrl, OmdbMovie.class);
+        Movie movie = new Movie();
+        movie.setAdult(false);
+        movie.setGenres(omdbMovie.getGenre());
+        movie.setImdbId(omdbMovie.getImdbID());
+        movie.setOriginalLanguage(omdbMovie.getLanguage());
+        movie.setOriginalTitle(omdbMovie.getTitle());
+        movie.setOverview(omdbMovie.getPlot());
+        movie.setProductionCountries(omdbMovie.getCountry());
+        movie.setReleaseDate(omdbMovie.getReleased());
+        movie.setRuntime(Float.parseFloat(omdbMovie.getRuntime().split(" ")[0]));
+        movie.setSpokenLanguages(omdbMovie.getLanguage());
+        movie.setTitle(omdbMovie.getTitle());
+        movie.setVoteAverage(Float.parseFloat(omdbMovie.getImdbRating()));
+        movie.setVoteCount(Integer.parseInt(omdbMovie.getImdbVotes().replaceAll(",", "")));
+        return movie;
     }
     
 }
