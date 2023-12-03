@@ -26,7 +26,7 @@ export default function Movie() {
     <div>
       {movie && (
         <>
-          <h1>{movie.originalTitle}</h1>
+          <h1>{movie.title}</h1>
           <StyledPaper>
             <DisplayCard key={movie.id} movie={movie} />
           </StyledPaper>

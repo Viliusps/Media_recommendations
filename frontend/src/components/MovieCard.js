@@ -21,7 +21,7 @@ export default function DisplayCard({ movie }) {
         <CardMedia component="img" height="140" image={movieImage} />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {movie.originalTitle}
+            {movie.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {movie.overview}

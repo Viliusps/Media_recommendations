@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.MoviePageResponse;
+import com.media.recommendations.model.OmdbRequest;
 import com.media.recommendations.service.MovieService;
 
 
@@ -47,6 +48,17 @@ public class MovieController {
             return new ResponseEntity<>(movieService.getMovieById(id), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/omdb")
+    public ResponseEntity<Movie> getMovieFromOmdb(@Valid @RequestBody OmdbRequest request) {
+        System.out.println(request.getTitle());
+        Movie movie = movieService.getMovieFromOmdb(request.getTitle());
+        if (movie != null) {
+            return new ResponseEntity<>(movie, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping

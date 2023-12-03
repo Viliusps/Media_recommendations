@@ -35,9 +35,11 @@ export default function SongCard({ title, artist, spotifyUrl }) {
         <Tooltip title="Listen on Spotify">
           <IconButton
             color="primary"
-            href={`https://open.spotify.com/track/${spotifyUrl}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={() => {
+              const spotifyUri = `spotify:track:${spotifyUrl}`;
+
+              window.location.href = spotifyUri;
+            }}
             style={{
               width: 'fit-content',
               height: 'fit-content',

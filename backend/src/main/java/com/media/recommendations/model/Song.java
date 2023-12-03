@@ -31,7 +31,7 @@ public class Song {
 
     @NotBlank(message = "Name is mandatory")
     @Column(name = "name", nullable = false)
-    private String name;
+    private String title;
 
     @NotBlank(message = "Singer is mandatory")
     @Column(name = "singer", nullable = false)
