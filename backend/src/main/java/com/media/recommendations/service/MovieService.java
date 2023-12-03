@@ -124,6 +124,7 @@ public class MovieService {
         movie.setTitle(omdbMovie.getTitle());
         movie.setVoteAverage(Float.parseFloat(omdbMovie.getImdbRating()));
         movie.setVoteCount(Integer.parseInt(omdbMovie.getImdbVotes().replaceAll(",", "")));
+        movie.setImageUrl(omdbMovie.getPoster());
         return movie;
     }
     

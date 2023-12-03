@@ -30,6 +30,7 @@ export default function Movies() {
   useEffect(() => {
     getPageMovies(currentPage, moviesPerPage)
       .then((data) => {
+        console.log(data);
         setMovies(data.movies);
         setTotalMovies(data.totalMovies);
       })

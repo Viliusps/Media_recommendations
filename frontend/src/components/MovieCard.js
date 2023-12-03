@@ -1,6 +1,5 @@
 import { CardActionArea, Card, CardContent, CardMedia, Typography, styled } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import movieImage from '../images/movie.png';
 
 const StyledCard = styled(Card)`
   max-width: 345px;
@@ -18,7 +17,7 @@ export default function DisplayCard({ movie }) {
         onClick={() => {
           Navigate(`/movies/${movie.id}`);
         }}>
-        <CardMedia component="img" height="140" image={movieImage} />
+        <CardMedia component="img" height="140" image={movie.imageUrl} />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
             {movie.title}
