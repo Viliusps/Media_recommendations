@@ -78,6 +78,9 @@ public class Movie {
     @Column(name = "vote_count")
     private int voteCount;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie")
     private List<Comment> comments = new ArrayList<>();
