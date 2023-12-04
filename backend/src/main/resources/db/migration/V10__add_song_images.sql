@@ -1,0 +1,36 @@
+ALTER TABLE songs
+ADD COLUMN image_url VARCHAR(255) DEFAULT 'https://placehold.co/600x400?text=Song+poster';
+
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273ba5db46f4b838ef6027e6f96' WHERE id = 4;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36' WHERE id = 5;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273c6f7af36ecdc3ed6e0a1f169' WHERE id = 6;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273fc2101e6889d6ce9025f85f2' WHERE id = 7;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2731ae7aee4284714dc20bf3e25' WHERE id = 8;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b27377fdcfda6535601aff081b6a' WHERE id = 9;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273072e9faef2ef7b6db63834a3' WHERE id = 10;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2739315690d3c5eada1e4443c5c' WHERE id = 11;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2734bc66095f8a70bc4e6593f4f' WHERE id = 12;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b27332e98e822cb537ecaaa4e6aa' WHERE id = 13;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273e2f15c0561a5093866f8a0cd' WHERE id = 14;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2734bc66095f8a70bc4e6593f4f' WHERE id = 15;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2739478c87599550dd73bfa7e02' WHERE id = 16;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273c07d5d2fdc02ae252fcd07e5' WHERE id = 17;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273f14aa81116510d3a6df8432b' WHERE id = 18;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2736040effba89b9b00a6f6743a' WHERE id = 19;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273de03bfc2991fd5bcfde65ba3' WHERE id = 20;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2737da2c78d117a66de466d89f4' WHERE id = 21;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273c820f033bd82bef4355d1563' WHERE id = 22;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2734528b7e595e57a9ce12fea51' WHERE id = 23;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b27350a3147b4edd7701a876c6ce' WHERE id = 24;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273cf62a33f18c5fe7f11bbe088' WHERE id = 25;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2736b18d0490878750cd69abf2c' WHERE id = 26;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273bf1e9b51916b115eb374b440' WHERE id = 27;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273de1a3a5eaa0c75bb18e7b597' WHERE id = 28;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2739416ed64daf84936d89e671c' WHERE id = 29;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273a71bbb7c311565dfe0b7ea54' WHERE id = 30;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273263acd7b99af9b60f59edd5d' WHERE id = 31;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b2733b11178cccd78ec77fc12dbc' WHERE id = 32;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273e1624da4db0068728d82430e' WHERE id = 33;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b27351c02a77d09dfcd53c8676d0' WHERE id = 1;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273570c46d1a3c0b590c7dfbb88' WHERE id = 2;
+UPDATE songs SET image_url = 'https://i.scdn.co/image/ab67616d0000b273f9f27162ab1ed45b8d7a7e98' WHERE id = 3;

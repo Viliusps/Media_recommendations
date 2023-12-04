@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Typography, IconButton, Tooltip, styled } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import songImage from '../images/song.png';
 
 const StyledCard = styled(Card)`
   height: 300px;
@@ -16,11 +15,11 @@ const StyledCardContent = styled(CardContent)`
   flex-direction: column;
 `;
 
-export default function SongCard({ title, artist, spotifyUrl }) {
+export default function SongCard({ title, artist, imageUrl, spotifyUrl }) {
   return (
     <StyledCard>
       <img
-        src={songImage || 'placeholder-image-url'}
+        src={imageUrl || 'placeholder-image-url'}
         alt="Album Cover"
         style={{
           width: '100%',
