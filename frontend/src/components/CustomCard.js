@@ -1,22 +1,21 @@
 import { CardActionArea, Card, CardContent, Typography, styled } from '@mui/material';
 
 const StyledCard = styled(Card)`
-  width: 600px;
-  height: 700px;
+  text-align: center;
 `;
 
 const StyledCardActionArea = styled(CardActionArea)`
   height: 100%;
 `;
 
-export default function CustomCard({ title, image, handleOpen }) {
+export default function CustomCard({ title, image, handleOpen, cardWidth, cardHeight }) {
   return (
-    <StyledCard>
+    <StyledCard style={{ width: cardWidth, height: cardHeight }}>
       <StyledCardActionArea
         onClick={() => {
           handleOpen();
         }}>
-        <img src={image} />
+        <img style={{ height: '200px', width: '200px' }} src={image} />
 
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">

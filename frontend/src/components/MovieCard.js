@@ -23,7 +23,7 @@ export default function DisplayCard({ movie }) {
             {movie.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {movie.overview}
+            {movie.overview?.length > 200 ? movie.overview.slice(0, 200) + '...' : movie.overview}
           </Typography>
         </CardContent>
       </StyledCardActionArea>
