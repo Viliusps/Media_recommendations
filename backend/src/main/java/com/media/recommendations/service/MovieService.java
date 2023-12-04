@@ -2,8 +2,6 @@ package com.media.recommendations.service;
 import java.util.List;
 import java.util.Optional;
 
-import lombok.AllArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +14,6 @@ import com.media.recommendations.model.MoviePageResponse;
 import com.media.recommendations.model.OmdbMovie;
 import com.media.recommendations.repository.MovieRepository;
 
-//@AllArgsConstructor
 @Service
 public class MovieService {
     
@@ -44,7 +41,6 @@ public class MovieService {
 
         List<Movie> movies = moviesPage.getContent();
         long totalMovies = movieRepository.count();
-        System.out.println(totalMovies);
 
         return new MoviePageResponse(movies, totalMovies);
     }

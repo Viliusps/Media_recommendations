@@ -45,6 +45,10 @@ public class Song {
     @Column(name = "spotify_id", nullable = false)
     private String spotifyId;
 
+    @NotBlank(message = "Image url is mandatory")
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "song")
     private List<Movie> movies = new ArrayList<>();
