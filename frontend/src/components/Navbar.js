@@ -85,17 +85,33 @@ function Navbar() {
               <MenuItem onClick={() => Navigate('/songs')}>
                 <Typography textAlign="center">Songs</Typography>
               </MenuItem>
-              {role === 'GUEST' && (
-                <>
-                  <MenuItem onClick={() => Navigate('/login')}>
-                    <Typography textAlign="center">Login</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={() => Navigate('/register')}>
-                    <Typography textAlign="center">Register</Typography>
-                  </MenuItem>
-                </>
-              )}
             </Menu>
+            {role === 'GUEST' && (
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left'
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left'
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+                sx={{
+                  display: { xs: 'block', md: 'none' }
+                }}>
+                <MenuItem onClick={() => Navigate('/login')}>
+                  <Typography textAlign="center">Login</Typography>
+                </MenuItem>
+                <MenuItem onClick={() => Navigate('/register')}>
+                  <Typography textAlign="center">Register</Typography>
+                </MenuItem>
+              </Menu>
+            )}
           </Box>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Button
@@ -119,6 +135,11 @@ function Navbar() {
                   onClick={() => Navigate('/login')}
                   sx={{ my: 2, color: 'white', display: 'block' }}>
                   Login
+                </Button>
+                <Button
+                  onClick={() => Navigate('/spotify')}
+                  sx={{ my: 2, color: 'white', display: 'block' }}>
+                  Spotify
                 </Button>
                 <Button
                   onClick={() => Navigate('/register')}

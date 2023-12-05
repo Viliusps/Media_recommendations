@@ -2,6 +2,7 @@ import { styled, Modal, Box, Paper } from '@mui/material';
 import CustomCard from './CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
+import { useNavigate } from 'react-router-dom';
 
 const StyledBox = styled(Box)`
   position: absolute;
@@ -21,6 +22,7 @@ const StyledPaper = styled(Paper)`
 `;
 
 export default function SelectionModal({ type, handleClose, open, handleOpen, setType }) {
+  const Navigate = useNavigate();
   return (
     <Modal
       open={open}
@@ -54,6 +56,12 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               cardHeight={350}
               cardWidth={300}
             />
+            <button
+              onClick={() => {
+                Navigate('/playlistRecommendation');
+              }}>
+              My spotify history
+            </button>
           </StyledPaper>
         </div>
       </StyledBox>

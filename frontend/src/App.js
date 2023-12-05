@@ -9,6 +9,8 @@ import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
+import SpotifyAuth from './pages/SpotifyAuth';
+import RecommendationFromPlaylist from './pages/RecommendationFromPlaylist';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -32,6 +34,8 @@ function App() {
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<Movie />} />
         <Route path="/songs" element={<Songs />} />
+        <Route path="/spotify" element={<SpotifyAuth />} />
+        <Route path="/playlistRecommendation" element={<RecommendationFromPlaylist />} />
 
         {role === 'GUEST' && (
           <>

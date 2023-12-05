@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.SongPageResponse;
+import com.media.recommendations.model.SpotifyUserSongsRequest;
 import com.media.recommendations.service.SongService;
 
 
@@ -71,6 +72,13 @@ public class SongController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+
+    @PostMapping("/spotify")
+    public ResponseEntity<List<String>> getUserSongs(@RequestBody SpotifyUserSongsRequest request) {
+        List<String> response = songService.getUserSongs(request.getToken());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
 }
