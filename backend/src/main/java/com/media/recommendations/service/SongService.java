@@ -1,5 +1,7 @@
 package com.media.recommendations.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.SongPageResponse;
 import com.media.recommendations.model.SpotifyAccessTokenResponse;
@@ -104,8 +108,6 @@ public class SongService {
         String apiUrl = spotifyUrl + "/v1/tracks/" + spotifyId;
         String authorizationHeader = "Bearer " + accessToken;
 
-        System.out.println(accessToken);
-
         RestTemplate restTemplate = new RestTemplate();
 
         // Set authorization header
@@ -154,6 +156,41 @@ public class SongService {
     private String getBase64ClientIdAndSecret() {
         String clientIdAndSecret = spotifyClientId + ":" + spotifyClientSecret;
         return java.util.Base64.getEncoder().encodeToString(clientIdAndSecret.getBytes());
+    }
+
+    public List<String> getUserSongs(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = spotifyUrl + "/v1/me/player/recently-played";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+        return extractSongNames(response.getBody());
+    }
+
+    private List<String> extractSongNames(String jsonResponse) {
+        List<String> songNames = new ArrayList<>();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(jsonResponse);
+
+            JsonNode items = root.path("items");
+            for (JsonNode item : items) {
+                JsonNode track = item.path("track");
+                if (track.has("name")) {
+                    String songName = track.get("name").asText();
+                    songNames.add(songName);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return songNames;
     }
     
 }

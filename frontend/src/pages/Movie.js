@@ -16,7 +16,6 @@ export default function Movie() {
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
-    console.log(id);
     getMovie(id).then((data) => {
       setMovie(data);
     });

@@ -10,7 +10,6 @@ export const getMovies = async () => {
 
 export const getMovie = async (id) => {
   const response = await axios.get(`${URL}/movies/${id}`, authHeader());
-  console.log(response.data);
   return response.data;
 };
 

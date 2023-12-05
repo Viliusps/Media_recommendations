@@ -52,7 +52,6 @@ public class MovieController {
 
     @PostMapping("/omdb")
     public ResponseEntity<Movie> getMovieFromOmdb(@Valid @RequestBody OmdbRequest request) {
-        System.out.println(request.getTitle());
         Movie movie = movieService.getMovieFromOmdb(request.getTitle());
         if (movie != null) {
             return new ResponseEntity<>(movie, HttpStatus.OK);
