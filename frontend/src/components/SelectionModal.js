@@ -1,4 +1,5 @@
-import { styled, Modal, Box, Paper } from '@mui/material';
+import { Modal, Box, Paper } from '@mui/material';
+import styled from 'styled-components';
 import CustomCard from './CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';

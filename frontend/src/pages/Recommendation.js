@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Paper, styled } from '@mui/material';
+import { Paper } from '@mui/material';
+import styled from 'styled-components';
 import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
