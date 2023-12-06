@@ -1,13 +1,5 @@
-import {
-  styled,
-  Typography,
-  Modal,
-  Box,
-  TextField,
-  Autocomplete,
-  MenuItem,
-  Button
-} from '@mui/material';
+import { Typography, Modal, Box, TextField, Autocomplete, MenuItem, Button } from '@mui/material';
+import styled from 'styled-components';
 
 const StyledBox = styled(Box)`
   position: absolute;

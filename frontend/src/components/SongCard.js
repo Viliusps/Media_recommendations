@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Typography, IconButton, Tooltip, styled } from '@mui/material';
+import { Card, CardContent, Typography, IconButton, Tooltip } from '@mui/material';
+import styled from 'styled-components';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 
 const StyledCard = styled(Card)`
@@ -15,19 +16,16 @@ const StyledCardContent = styled(CardContent)`
   flex-direction: column;
 `;
 
+const StyledImg = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+`;
 export default function SongCard({ title, artist, imageUrl, spotifyUrl }) {
   return (
     <StyledCard>
-      <img
-        src={imageUrl || 'placeholder-image-url'}
-        alt="Album Cover"
-        style={{
-          width: '100%',
-          height: '200px',
-          objectFit: 'cover',
-          borderRadius: '4px'
-        }}
-      />
+      <StyledImg src={imageUrl || 'placeholder-image-url'} alt="Album Cover" />
       <StyledCardContent>
         <Typography variant="h6">{title}</Typography>
         <Typography variant="body2">{artist}</Typography>

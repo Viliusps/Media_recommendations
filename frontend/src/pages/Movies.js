@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { getPageMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
-import { Paper, styled, Pagination } from '@mui/material';
+import { Paper, Pagination } from '@mui/material';
+import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 
 const StyledPaper = styled(Paper)`

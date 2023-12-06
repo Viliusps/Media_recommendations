@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPageSongs } from '../api/songs-axios';
-import { Grid, Pagination, styled } from '@mui/material';
+import { Grid, Pagination } from '@mui/material';
+import styled from 'styled-components';
 import SongCard from '../components/SongCard';
 import LoadingWrapper from '../components/LoadingWrapper';
 

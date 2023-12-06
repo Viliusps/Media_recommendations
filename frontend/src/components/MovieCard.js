@@ -1,8 +1,9 @@
-import { CardActionArea, Card, CardContent, CardMedia, Typography, styled } from '@mui/material';
+import { CardActionArea, Card, CardContent, CardMedia, Typography } from '@mui/material';
+import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
 const StyledCard = styled(Card)`
-  max-width: 345px;
+  width: 345px;
 `;
 
 const StyledCardActionArea = styled(CardActionArea)`
