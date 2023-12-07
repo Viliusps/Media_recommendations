@@ -36,6 +36,7 @@ public class AuthenticationService {
             .role(Role.USER)
             .build();
         Optional<User> temp = repository.userByUsername(user.getUsername());
+        if(!temp.isPresent()) temp = repository.userByEmail(user.getEmail());
         if (temp.isPresent()) {
             return false;
         }

@@ -11,15 +11,33 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../api/auth-axios';
+import { useState } from 'react';
+import styled from 'styled-components';
+
+const StyledText = styled(Typography)`
+  color: red;
+`;
 
 export default function SignUp() {
   const Navigate = useNavigate();
+  const [error, setError] = useState('');
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    register(data.get('userName'), data.get('email'), data.get('password')).then(() => {
-      Navigate('/movies');
-    });
+
+    if (data.get('userName') == '' || data.get('email') == '' || data.get('password') == '')
+      setError('All fields are required.');
+    else if (data.get('password') !== data.get('repeatPassword'))
+      setError('Passwords do not match.');
+    else if (!/\S+@\S+\.\S+/.test(data.get('email'))) setError('Incorrect email format.');
+    else {
+      setError('');
+      register(data.get('userName'), data.get('email'), data.get('password')).then((data) => {
+        if (data) Navigate('/login');
+        else setError('User already registerd.');
+      });
+    }
   };
 
   return (
@@ -47,7 +65,7 @@ export default function SignUp() {
                 required
                 fullWidth
                 id="userName"
-                label="Userame"
+                label="Username"
                 autoFocus
               />
             </Grid>
@@ -72,7 +90,19 @@ export default function SignUp() {
                 autoComplete="new-password"
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                name="repeatPassword"
+                label="Repeat password"
+                type="password"
+                id="repeatPassword"
+                autoComplete="new-password"
+              />
+            </Grid>
           </Grid>
+          <StyledText>{error}</StyledText>
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Sign Up
           </Button>

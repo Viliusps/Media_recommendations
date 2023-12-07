@@ -13,20 +13,12 @@ export const login = async (username, password) => {
 };
 
 export const register = async (username, email, password) => {
-  return axios
-    .post(`${URL}/auth/register`, {
-      username: username,
-      email: email,
-      password: password
-    })
-    .then(async () => {
-      const response = await axios.post(`${URL}/auth/authenticate`, {
-        username: username,
-        password: password
-      });
-      localStorage.setItem('token', response.data.token);
-      return response.data;
-    });
+  const response = await axios.post(`${URL}/auth/register`, {
+    username: username,
+    email: email,
+    password: password
+  });
+  return response.data;
 };
 
 export const getRole = async () => {
