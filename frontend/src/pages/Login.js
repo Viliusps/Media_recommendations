@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -13,16 +11,27 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { login } from '../api/auth-axios';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import styled from 'styled-components';
+
+const StyledText = styled(Typography)`
+  color: red;
+`;
 
 export default function SignIn() {
   const Navigate = useNavigate();
+  const [incorrect, setIncorrect] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     login(data.get('username'), data.get('password'))
       .then(() => {
+        setIncorrect(false);
         Navigate('/movies');
+      })
+      .catch(() => {
+        setIncorrect(true);
       })
       .catch((error) => {
         if (error.response && error.response.status === 403) {
@@ -70,10 +79,7 @@ export default function SignIn() {
             id="password"
             autoComplete="current-password"
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
+          {incorrect && <StyledText>Incorrect username or password.</StyledText>}
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Sign In
           </Button>
