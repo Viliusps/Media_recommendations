@@ -4,10 +4,9 @@ import styled from 'styled-components';
 import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
-import { getSongs } from '../api/songs-axios';
-import { getMovies, getOmdbMovie } from '../api/movies-axios';
 import RecommendationModal from '../components/RecommendationModal';
 import SelectionModal from '../components/SelectionModal';
+import { useNavigate } from 'react-router-dom';
 
 const StyledPaper = styled(Paper)`
   display: flex;
@@ -21,21 +20,15 @@ export default function Recommendation() {
   const [openSelection, setOpenSelection] = useState(false);
   const [openRecommendation, setOpenRecommendation] = useState(false);
   const [selection, setSelection] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
   const [type, setType] = useState('');
   const [recommendBy, setRecommendBy] = useState('');
+  const navigate = useNavigate();
 
   const handleOpenSelection = (calledBy) => {
     if (calledBy === 'Movie') {
       setType('Movie');
-      getMovies().then((data) => {
-        setSuggestions(data);
-      });
     } else if (calledBy === 'Song') {
       setType('Song');
-      getSongs().then((data) => {
-        setSuggestions(data);
-      });
     }
     setOpenSelection(true);
   };
@@ -48,9 +41,7 @@ export default function Recommendation() {
   const handleCloseRecommendation = () => setOpenRecommendation(false);
 
   const handleClick = () => {
-    getOmdbMovie(selection.title).then((data) => {
-      console.log(data);
-    });
+    navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
   };
 
   return (
@@ -87,10 +78,8 @@ export default function Recommendation() {
         handleClick={handleClick}
         open={openRecommendation}
         setSelection={setSelection}
-        suggestions={suggestions}
         type={type}
         recommendBy={recommendBy}
-        selection={selection}
       />
     </>
   );

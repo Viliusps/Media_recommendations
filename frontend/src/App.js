@@ -9,8 +9,10 @@ import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
-import SpotifyAuth from './pages/SpotifyAuth';
 import RecommendationFromPlaylist from './pages/RecommendationFromPlaylist';
+import RecommendationFromChoice from './pages/RecommendationFromChoice';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -22,20 +24,20 @@ function App() {
     });
   }, [location.pathname]);
 
-  if (role === null) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="App">
       <Navbar />
+      <ToastContainer />
       <Routes>
         <Route path="/recommendation" element={<Recommendation />} />
         <Route path="/movies" element={<Movies />} />
         <Route path="/movies/:id" element={<Movie />} />
         <Route path="/songs" element={<Songs />} />
-        <Route path="/spotify" element={<SpotifyAuth />} />
         <Route path="/playlistRecommendation" element={<RecommendationFromPlaylist />} />
+        <Route
+          path="/choiceRecommendation/:recommendingType/:recommendingBy/:recommendingByType"
+          element={<RecommendationFromChoice />}
+        />
 
         {role === 'GUEST' && (
           <>

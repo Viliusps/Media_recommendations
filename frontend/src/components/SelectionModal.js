@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import CustomCard from './CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
+import spotifyImage from '../images/spotify.png';
 import { useNavigate } from 'react-router-dom';
 
 const StyledBox = styled(Box)`
@@ -33,12 +34,12 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
       <StyledBox>
         <div>
           <h2>
-            Recommend me a <b>{type}</b> based on a...
+            Recommend me a <b>{type}</b> based on...
           </h2>
 
           <StyledPaper>
             <CustomCard
-              title="Movie"
+              title="A movie"
               image={movieImage}
               handleOpen={() => {
                 setType('Movie');
@@ -48,7 +49,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               cardWidth={300}
             />
             <CustomCard
-              title="Song"
+              title="A song"
               image={songImage}
               handleOpen={() => {
                 setType('Song');
@@ -57,12 +58,13 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               cardHeight={350}
               cardWidth={300}
             />
-            <button
-              onClick={() => {
-                Navigate('/playlistRecommendation');
-              }}>
-              My spotify history
-            </button>
+            <CustomCard
+              title="My Spotify history"
+              image={spotifyImage}
+              handleOpen={() => Navigate('/playlistRecommendation')}
+              cardHeight={350}
+              cardWidth={300}
+            />
           </StyledPaper>
         </div>
       </StyledBox>

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { postComment } from '../api/comments-axios';
 import { getMovie } from '../api/movies-axios';
+import { toast } from 'react-toastify';
 
 const CommentContainer = styled(Paper)`
   padding: 20px;
@@ -48,7 +49,7 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
   const currentComments = (dbMovie?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
 
-  const handlePageChange = (value) => {
+  const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
 
@@ -60,6 +61,7 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
       setErrorMessage('');
       postComment(id, comment, rating).then(() => {
         getMovie(id).then((data) => {
+          showToastMessage();
           setDbMovie(data);
         });
       });
@@ -68,6 +70,19 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
+  };
+
+  const showToastMessage = () => {
+    toast.success('Comment posted successfully!', {
+      position: 'top-center',
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: 'light'
+    });
   };
 
   return (

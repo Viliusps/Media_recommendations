@@ -10,13 +10,17 @@ const StyledCardActionArea = styled(CardActionArea)`
 `;
 
 const StyledImg = styled.img`
-  height: 200px;
-  width: 200px;
+  height: 100px;
+  width: 100px;
 `;
 
 export default function CustomCard({ title, image, handleOpen, cardWidth, cardHeight }) {
   return (
-    <StyledCard style={{ width: cardWidth, height: cardHeight }}>
+    <StyledCard
+      style={{
+        width: cardWidth,
+        height: cardHeight
+      }}>
       <StyledCardActionArea
         onClick={() => {
           handleOpen();
