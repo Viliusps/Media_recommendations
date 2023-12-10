@@ -137,11 +137,6 @@ function Navbar() {
                   Login
                 </Button>
                 <Button
-                  onClick={() => Navigate('/spotify')}
-                  sx={{ my: 2, color: 'white', display: 'block' }}>
-                  Spotify
-                </Button>
-                <Button
                   onClick={() => Navigate('/register')}
                   sx={{ my: 2, color: 'white', display: 'block' }}>
                   Register

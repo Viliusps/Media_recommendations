@@ -1,4 +1,4 @@
-import { Typography, Modal, Box, TextField, Autocomplete, MenuItem, Button } from '@mui/material';
+import { Typography, Modal, Box, TextField, Button } from '@mui/material';
 import styled from 'styled-components';
 
 const StyledBox = styled(Box)`
@@ -6,10 +6,13 @@ const StyledBox = styled(Box)`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 400;
   background-color: white;
   padding: 20px;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default function RecommendationModal({
@@ -17,10 +20,8 @@ export default function RecommendationModal({
   handleClick,
   open,
   setSelection,
-  suggestions,
   type,
-  recommendBy,
-  selection
+  recommendBy
 }) {
   return (
     <Modal
@@ -30,29 +31,13 @@ export default function RecommendationModal({
       aria-describedby="modal-modal-description">
       <StyledBox>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          Recommend me a {type.toLowerCase()} based on a {recommendBy.toLowerCase()}
+          Recommend me a <b>{type.toLowerCase()}</b> based on a <b>{recommendBy.toLowerCase()}.</b>
         </Typography>
-        <Typography>
-          Please select from the list, or enter a new {recommendBy.toLowerCase()}
-        </Typography>
-
-        <Autocomplete
-          value={selection}
-          onChange={(event, newValue) => setSelection(newValue)}
-          options={suggestions}
-          getOptionLabel={(option) => option.title ?? ''}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label={`Search for a ${recommendBy.toLowerCase()}`}
-              variant="outlined"
-            />
-          )}
-          renderOption={(props, option) => (
-            <MenuItem {...props} key={option.title}>
-              {option.title}
-            </MenuItem>
-          )}
+        <Typography>Please enter the name of the {recommendBy.toLowerCase()}.</Typography>
+        <TextField
+          onChange={(event) => {
+            setSelection(event.target.value);
+          }}
         />
         <Button onClick={() => handleClick()}>Recommend!</Button>
       </StyledBox>
