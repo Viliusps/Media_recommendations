@@ -11,6 +11,8 @@ import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
 import RecommendationFromPlaylist from './pages/RecommendationFromPlaylist';
 import RecommendationFromChoice from './pages/RecommendationFromChoice';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [role, setRole] = useState(null);
@@ -25,6 +27,7 @@ function App() {
   return (
     <div className="App">
       <Navbar />
+      <ToastContainer />
       <Routes>
         <Route path="/recommendation" element={<Recommendation />} />
         <Route path="/movies" element={<Movies />} />
