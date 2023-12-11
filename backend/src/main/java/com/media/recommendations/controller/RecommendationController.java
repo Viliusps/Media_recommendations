@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.media.recommendations.model.RecommendationRequest;
-import com.media.recommendations.model.RecommendationResponse;
+import com.media.recommendations.model.requests.RecommendationRequest;
+import com.media.recommendations.model.responses.RecommendationResponse;
 
 
 @AllArgsConstructor

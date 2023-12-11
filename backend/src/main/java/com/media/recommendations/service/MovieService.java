@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.media.recommendations.model.Movie;
-import com.media.recommendations.model.MoviePageResponse;
+import com.media.recommendations.model.responses.MoviePageResponse;
 import com.media.recommendations.repository.MovieRepository;
 
 @Service

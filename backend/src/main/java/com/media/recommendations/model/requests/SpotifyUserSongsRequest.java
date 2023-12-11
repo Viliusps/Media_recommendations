@@ -1,4 +1,4 @@
-package com.media.recommendations.model;
+package com.media.recommendations.model.requests;
 
 import lombok.Data;
 

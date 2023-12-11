@@ -62,7 +62,7 @@ export default function Movie() {
               <MovieDetails label="Release Date" value={movie?.Released} />
               <MovieDetails label="Runtime" value={`${movie?.Runtime}.`} />
               <MovieDetails label="Language" value={movie?.Language} />
-              <MovieDetails label="Production Countries" value={movie?.Production} />
+              <MovieDetails label="Produced by" value={movie?.Production} />
               <MovieDetails label="IMDB rating" value={movie?.imdbRating} />
               <MovieDetails label="Vote Count" value={movie?.imdbVotes} />
               <StyledButton
