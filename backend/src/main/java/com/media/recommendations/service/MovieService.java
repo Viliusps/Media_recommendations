@@ -11,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.MoviePageResponse;
-import com.media.recommendations.model.OmdbMovie;
 import com.media.recommendations.repository.MovieRepository;
 
 @Service
@@ -55,22 +54,6 @@ public class MovieService {
 
     public Movie createMovie(Movie movie) {
         Movie newMovie = new Movie();
-        newMovie.setAdult(movie.isAdult());
-        newMovie.setBelongsToCollection(movie.getBelongsToCollection());
-        newMovie.setComments(movie.getComments());
-        newMovie.setGenres(movie.getGenres());
-        newMovie.setImdbId(movie.getImdbId());
-        newMovie.setOriginalLanguage(movie.getOriginalLanguage());
-        newMovie.setOriginalTitle(movie.getOriginalTitle());
-        newMovie.setOverview(movie.getOverview());
-        newMovie.setPopularity(movie.getPopularity());
-        newMovie.setProductionCountries(movie.getProductionCountries());
-        newMovie.setReleaseDate(movie.getReleaseDate());
-        newMovie.setRuntime(movie.getRuntime());
-        newMovie.setSpokenLanguages(movie.getSpokenLanguages());
-        newMovie.setTitle(movie.getTitle());
-        newMovie.setVoteAverage(movie.getVoteAverage());
-        newMovie.setVoteCount(movie.getVoteCount());
         return movieRepository.save(newMovie);
     }
 
@@ -80,22 +63,6 @@ public class MovieService {
 
     public Movie updateMovie(Long id, Movie movie) {
         Movie movieFromDb = movieRepository.findById(id).get();
-        movieFromDb.setAdult(movie.isAdult());
-        movieFromDb.setBelongsToCollection(movie.getBelongsToCollection());
-        movieFromDb.setComments(movie.getComments());
-        movieFromDb.setGenres(movie.getGenres());
-        movieFromDb.setImdbId(movie.getImdbId());
-        movieFromDb.setOriginalLanguage(movie.getOriginalLanguage());
-        movieFromDb.setOriginalTitle(movie.getOriginalTitle());
-        movieFromDb.setOverview(movie.getOverview());
-        movieFromDb.setPopularity(movie.getPopularity());
-        movieFromDb.setProductionCountries(movie.getProductionCountries());
-        movieFromDb.setReleaseDate(movie.getReleaseDate());
-        movieFromDb.setRuntime(movie.getRuntime());
-        movieFromDb.setSpokenLanguages(movie.getSpokenLanguages());
-        movieFromDb.setTitle(movie.getTitle());
-        movieFromDb.setVoteAverage(movie.getVoteAverage());
-        movieFromDb.setVoteCount(movie.getVoteCount());
         return movieRepository.save(movieFromDb);
     }
 
@@ -105,22 +72,8 @@ public class MovieService {
 
     public Movie getMovieFromOmdb(String title) {
         String apiUrl = String.format("%s?apikey=%s&t=%s", omdbApiUrl, apiKey, title);
-        OmdbMovie omdbMovie = restTemplate.getForObject(apiUrl, OmdbMovie.class);
+        Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
         Movie movie = new Movie();
-        movie.setAdult(false);
-        movie.setGenres(omdbMovie.getGenre());
-        movie.setImdbId(omdbMovie.getImdbID());
-        movie.setOriginalLanguage(omdbMovie.getLanguage());
-        movie.setOriginalTitle(omdbMovie.getTitle());
-        movie.setOverview(omdbMovie.getPlot());
-        movie.setProductionCountries(omdbMovie.getCountry());
-        movie.setReleaseDate(omdbMovie.getReleased());
-        movie.setRuntime(Float.parseFloat(omdbMovie.getRuntime().split(" ")[0]));
-        movie.setSpokenLanguages(omdbMovie.getLanguage());
-        movie.setTitle(omdbMovie.getTitle());
-        movie.setVoteAverage(Float.parseFloat(omdbMovie.getImdbRating()));
-        movie.setVoteCount(Integer.parseInt(omdbMovie.getImdbVotes().replaceAll(",", "")));
-        movie.setImageUrl(omdbMovie.getPoster());
         return movie;
     }
     

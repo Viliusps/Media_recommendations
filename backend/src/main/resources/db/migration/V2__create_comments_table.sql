@@ -9,7 +9,7 @@ CREATE TABLE comments(
 
 INSERT INTO comments(movie, comment_text, rating) VALUES 
 (1, 'Very good movie!', 5),
-(2, 'Great acting.', 5),
-(3, 'A bit boring but enjoyable', 4),
-(4, 'Absolutely trash', 1),
-(5, 'Very good movie!', 3);
+(1, 'Great acting.', 5),
+(1, 'A bit boring but enjoyable', 4),
+(1, 'Absolutely trash', 1),
+(1, 'Very good movie!', 3);
