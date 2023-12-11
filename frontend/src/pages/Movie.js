@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMovie, getOmdbMovie } from '../api/movies-axios';
+import { getMovie } from '../api/movies-axios';
 import { Typography, Paper, Grid, Button } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
@@ -26,27 +26,19 @@ export default function Movie() {
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
-  const [dbMovie, setDbMovie] = useState(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     getMovie(id)
       .then((data) => {
         setError(false);
-        setDbMovie(data);
-        getOmdbMovie(data.title)
-          .then((result) => {
-            setMovie(result);
-          })
-          .catch(() => {
-            setError(true);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+        setMovie(data);
       })
       .catch(() => {
         setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [id]);
 
@@ -56,35 +48,35 @@ export default function Movie() {
         <ContentContainer elevation={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={3}>
-              <StyledImage src={movie?.imageUrl} alt={movie?.title} />
+              <StyledImage src={movie?.Poster} alt={movie?.Title} />
             </Grid>
             <Grid item xs={12} md={9}>
               <Typography variant="h4" gutterBottom>
-                {movie?.title}
+                {movie?.Title}
               </Typography>
               <Typography variant="h5" gutterBottom>
                 Overview
               </Typography>
-              <Typography variant="body1">{movie?.overview}</Typography>
-              <MovieDetails label="Genres" value={movie?.genres} />
-              <MovieDetails label="Release Date" value={movie?.releaseDate} />
-              <MovieDetails label="Runtime" value={`${movie?.runtime} minutes`} />
-              <MovieDetails label="Language" value={movie?.originalLanguage} />
-              <MovieDetails label="Production Countries" value={movie?.productionCountries} />
-              <MovieDetails label="Vote Average" value={movie?.voteAverage} />
-              <MovieDetails label="Vote Count" value={movie?.voteCount} />
+              <Typography variant="body1">{movie?.Plot}</Typography>
+              <MovieDetails label="Genre" value={movie?.Genre} />
+              <MovieDetails label="Release Date" value={movie?.Released} />
+              <MovieDetails label="Runtime" value={`${movie?.Runtime}.`} />
+              <MovieDetails label="Language" value={movie?.Language} />
+              <MovieDetails label="Production Countries" value={movie?.Production} />
+              <MovieDetails label="IMDB rating" value={movie?.imdbRating} />
+              <MovieDetails label="Vote Count" value={movie?.imdbVotes} />
               <StyledButton
                 variant="contained"
                 color="secondary"
                 onClick={() =>
-                  window.open(`https://www.imdb.com/title/${movie?.imdbId}`, '_blank')
+                  window.open(`https://www.imdb.com/title/${movie?.imdbID}`, '_blank')
                 }>
                 More Info
               </StyledButton>
             </Grid>
           </Grid>
         </ContentContainer>
-        <CommentSection dbMovie={dbMovie} id={id} setDbMovie={setDbMovie} />
+        <CommentSection movie={movie} id={id} setMovie={setMovie} />
       </>
     </LoadingWrapper>
   );

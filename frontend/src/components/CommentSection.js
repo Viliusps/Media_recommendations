@@ -38,7 +38,7 @@ const StyledDivider = styled(Divider)`
   max-width: 800px;
 `;
 
-export default function CommentSection({ dbMovie, id, setDbMovie }) {
+export default function CommentSection({ movie, id, setMovie }) {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [errorMesssage, setErrorMessage] = useState('');
@@ -47,7 +47,7 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
 
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-  const currentComments = (dbMovie?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
+  const currentComments = (movie?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
@@ -62,7 +62,7 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
       postComment(id, comment, rating).then(() => {
         getMovie(id).then((data) => {
           showToastMessage();
-          setDbMovie(data);
+          setMovie(data);
         });
       });
     }
@@ -113,7 +113,7 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
       <Typography variant="h5" gutterBottom>
         Comments
       </Typography>
-      {dbMovie.comments.length === 0 ? (
+      {movie.comments.length === 0 ? (
         <Typography variant="body2" color="textSecondary">
           No comments yet.
         </Typography>
@@ -129,7 +129,7 @@ export default function CommentSection({ dbMovie, id, setDbMovie }) {
         ))
       )}
       <StyledPagination
-        count={Math.ceil(dbMovie?.comments.length / commentsPerPage)}
+        count={Math.ceil(movie?.comments.length / commentsPerPage)}
         page={currentPage}
         onChange={handlePageChange}
         color="primary"
