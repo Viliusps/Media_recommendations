@@ -22,7 +22,6 @@ import com.media.recommendations.model.Song;
 import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
 import com.media.recommendations.model.responses.SongPageResponse;
-import com.media.recommendations.model.responses.SongSearchResponse;
 import com.media.recommendations.service.SongService;
 
 
@@ -84,8 +83,8 @@ public class SongController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<SongSearchResponse> searchSongs(@RequestBody @Valid SongSearchRequest request) {
-        SongSearchResponse songs = songService.search(request.getSearch());
+    public ResponseEntity<SongPageResponse> searchSongs(@RequestBody @Valid SongSearchRequest request) {
+        SongPageResponse songs = songService.search(request.getSearch());
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
     

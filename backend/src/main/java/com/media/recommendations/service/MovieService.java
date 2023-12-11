@@ -53,8 +53,7 @@ public class MovieService {
     }
 
     public Movie createMovie(Movie movie) {
-        Movie newMovie = new Movie();
-        return movieRepository.save(newMovie);
+        return movieRepository.save(movie);
     }
 
     public boolean existsMovie(long id) {
@@ -63,6 +62,7 @@ public class MovieService {
 
     public Movie updateMovie(Long id, Movie movie) {
         Movie movieFromDb = movieRepository.findById(id).get();
+        //needs updating
         return movieRepository.save(movieFromDb);
     }
 
@@ -73,8 +73,13 @@ public class MovieService {
     public Movie getMovieFromOmdb(String title) {
         String apiUrl = String.format("%s?apikey=%s&t=%s", omdbApiUrl, apiKey, title);
         Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
-        Movie movie = new Movie();
-        return movie;
+        return omdbMovie;
+    }
+
+        public MoviePageResponse search(String search) {
+        List<Movie> found = movieRepository.findByTitleContaining(search);
+        MoviePageResponse response = new MoviePageResponse(found, found.size());
+        return response;
     }
     
 }

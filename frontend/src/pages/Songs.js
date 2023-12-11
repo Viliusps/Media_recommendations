@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getPageSongs, searchSongs } from '../api/songs-axios'; // Add your searchSongs endpoint
+import { getPageSongs, searchSongs } from '../api/songs-axios';
 import { Grid, Pagination, TextField, InputAdornment, Button } from '@mui/material';
 import styled from 'styled-components';
 import SongCard from '../components/SongCard';

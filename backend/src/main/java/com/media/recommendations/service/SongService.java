@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.responses.SongPageResponse;
-import com.media.recommendations.model.responses.SongSearchResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
 import com.media.recommendations.repository.SongRepository;
 
@@ -194,9 +193,9 @@ public class SongService {
         return songNames;
     }
 
-    public SongSearchResponse search(String search) {
+    public SongPageResponse search(String search) {
         List<Song> found = songRepository.findByTitleContaining(search);
-        SongSearchResponse response = new SongSearchResponse(found, found.size());
+        SongPageResponse response = new SongPageResponse(found, found.size());
         return response;
     }
     
