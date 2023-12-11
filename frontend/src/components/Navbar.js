@@ -129,6 +129,15 @@ function Navbar() {
               sx={{ my: 2, color: 'white', display: 'block' }}>
               Songs
             </Button>
+            {role === 'ADMIN' && (
+              <>
+                <Button
+                  onClick={() => Navigate('/admin')}
+                  sx={{ my: 2, color: 'white', display: 'block' }}>
+                  Admin
+                </Button>
+              </>
+            )}
             {role === 'GUEST' && (
               <>
                 <Button

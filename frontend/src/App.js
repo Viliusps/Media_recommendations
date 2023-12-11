@@ -1,5 +1,5 @@
 import './App.css';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Movies from './pages/Movies';
 import Movie from './pages/Movie';
@@ -13,41 +13,62 @@ import RecommendationFromPlaylist from './pages/RecommendationFromPlaylist';
 import RecommendationFromChoice from './pages/RecommendationFromChoice';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AdminPanel from './pages/AdminPanel';
+import LoadingWrapper from './components/LoadingWrapper';
 
 function App() {
-  const [role, setRole] = useState(null);
-  const location = useLocation();
+  const [role, setRole] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    getRole().then((data) => {
-      setRole(data);
-    });
-  }, [location.pathname]);
+    setLoading(true);
+    getRole()
+      .then((data) => {
+        setRole(data);
+        console.log(data);
+      })
+      .catch((error) => {
+        setError(true);
+        console.error(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="App">
-      <Navbar />
-      <ToastContainer />
-      <Routes>
-        <Route path="/recommendation" element={<Recommendation />} />
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/movies/:id" element={<Movie />} />
-        <Route path="/songs" element={<Songs />} />
-        <Route path="/playlistRecommendation" element={<RecommendationFromPlaylist />} />
-        <Route
-          path="/choiceRecommendation/:recommendingType/:recommendingBy/:recommendingByType"
-          element={<RecommendationFromChoice />}
-        />
+      <LoadingWrapper loading={loading} error={error}>
+        <Navbar />
+        <ToastContainer />
+        <Routes>
+          <Route path="/recommendation" element={<Recommendation />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/movies/:id" element={<Movie />} />
+          <Route path="/songs" element={<Songs />} />
+          <Route path="/playlistRecommendation" element={<RecommendationFromPlaylist />} />
+          <Route
+            path="/choiceRecommendation/:recommendingType/:recommendingBy/:recommendingByType"
+            element={<RecommendationFromChoice />}
+          />
 
-        {role === 'GUEST' && (
-          <>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-          </>
-        )}
+          {role === 'GUEST' && (
+            <>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </>
+          )}
 
-        <Route path="*" element={<Navigate to="/movies" replace />} />
-      </Routes>
+          {role === 'ADMIN' && (
+            <>
+              <Route path="/admin" element={<AdminPanel />} />
+            </>
+          )}
+
+          <Route path="*" element={<Navigate to="/movies" replace />} />
+        </Routes>
+      </LoadingWrapper>
     </div>
   );
 }
