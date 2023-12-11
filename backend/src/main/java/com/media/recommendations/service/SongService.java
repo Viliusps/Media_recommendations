@@ -22,8 +22,8 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
-import com.media.recommendations.model.SongPageResponse;
-import com.media.recommendations.model.SpotifyAccessTokenResponse;
+import com.media.recommendations.model.responses.SongPageResponse;
+import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
 import com.media.recommendations.repository.SongRepository;
 
 @Service
@@ -191,6 +191,12 @@ public class SongService {
         }
 
         return songNames;
+    }
+
+    public SongPageResponse search(String search) {
+        List<Song> found = songRepository.findByTitleContaining(search);
+        SongPageResponse response = new SongPageResponse(found, found.size());
+        return response;
     }
     
 }

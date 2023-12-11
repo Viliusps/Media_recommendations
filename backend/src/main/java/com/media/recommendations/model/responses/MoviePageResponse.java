@@ -1,6 +1,8 @@
-package com.media.recommendations.model;
+package com.media.recommendations.model.responses;
 
 import java.util.List;
+
+import com.media.recommendations.model.Movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

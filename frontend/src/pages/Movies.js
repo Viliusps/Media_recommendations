@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getPageMovies } from '../api/movies-axios';
+import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
-import { Paper, Pagination } from '@mui/material';
+import { Paper, Pagination, Button, TextField, InputAdornment } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 
@@ -19,6 +19,16 @@ const StyledPagination = styled(Pagination)`
   margin-top: 20px;
 `;
 
+const SearchWrapper = styled.div`
+  margin: auto auto 20px auto;
+
+  width: 500px;
+`;
+
+const SearchButton = styled(Button)`
+  margin-left: 10px;
+`;
+
 export default function Movies() {
   const [movies, setMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -26,43 +36,87 @@ export default function Movies() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const moviesPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
 
-  useEffect(() => {
-    getPageMovies(currentPage, moviesPerPage)
-      .then((data) => {
-        setMovies(data.movies);
-        setTotalMovies(data.totalMovies);
+  const handleSearch = async () => {
+    setLoading(true);
+    searchMovies(searchTerm)
+      .then((result) => {
+        setMovies(result.movies);
+        setTotalMovies(result.totalMovies);
       })
       .catch((error) => {
         setError(true);
-        if (error.response && error.response.status === 403) {
-          Navigate('/login');
-        } else {
-          console.error('An error occurred:', error);
-        }
+        console.error(error);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [currentPage]);
+  };
+
+  useEffect(() => {
+    if (!searchTerm) {
+      getPageMovies(currentPage, moviesPerPage)
+        .then((data) => {
+          setMovies(data.movies);
+          setTotalMovies(data.totalMovies);
+        })
+        .catch((error) => {
+          setError(true);
+          if (error.response && error.response.status === 403) {
+            Navigate('/login');
+          } else {
+            console.error('An error occurred:', error);
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [currentPage, searchTerm, Navigate]);
 
   return (
     <div>
       <h1>Movies page</h1>
-      <LoadingWrapper loading={loading} error={error}>
-        <StyledPaper>
-          {movies.map((movie) => (
-            <DisplayCard key={movie.id} movie={movie} />
-          ))}
-        </StyledPaper>
-        <StyledPagination
-          count={Math.ceil(totalMovies / moviesPerPage)}
-          page={currentPage + 1}
-          onChange={(event, value) => {
-            setCurrentPage(value - 1);
+      <SearchWrapper>
+        <TextField
+          label="Search Songs"
+          variant="outlined"
+          size="small"
+          fullWidth
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchButton variant="contained" onClick={handleSearch}>
+                  Search
+                </SearchButton>
+              </InputAdornment>
+            )
           }}
         />
+      </SearchWrapper>
+      <LoadingWrapper loading={loading} error={error}>
+        {totalMovies > 0 ? (
+          <>
+            <StyledPaper>
+              {movies.map((movie) => (
+                <DisplayCard key={movie.id} movie={movie} />
+              ))}
+            </StyledPaper>
+            <StyledPagination
+              count={Math.ceil(totalMovies / moviesPerPage)}
+              page={currentPage + 1}
+              onChange={(event, value) => {
+                setCurrentPage(value - 1);
+              }}
+            />
+          </>
+        ) : (
+          <h1>No movies found</h1>
+        )}
       </LoadingWrapper>
     </div>
   );

@@ -19,8 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
-import com.media.recommendations.model.SongPageResponse;
-import com.media.recommendations.model.SpotifyUserSongsRequest;
+import com.media.recommendations.model.requests.SongSearchRequest;
+import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
+import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.service.SongService;
 
 
@@ -79,6 +80,12 @@ public class SongController {
     public ResponseEntity<List<String>> getUserSongs(@RequestBody SpotifyUserSongsRequest request) {
         List<String> response = songService.getUserSongs(request.getToken());
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<SongPageResponse> searchSongs(@RequestBody @Valid SongSearchRequest request) {
+        SongPageResponse songs = songService.search(request.getSearch());
+        return new ResponseEntity<>(songs, HttpStatus.OK);
     }
     
 }

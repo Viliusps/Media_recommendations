@@ -22,3 +22,8 @@ export const getOmdbMovie = async (title) => {
   const response = await axios.post(`${URL}/movies/omdb`, { title }, authHeader());
   return response.data;
 };
+
+export const searchMovies = async (search) => {
+  const response = await axios.post(`${URL}/movies/search`, { search: search }, authHeader());
+  return response.data;
+};

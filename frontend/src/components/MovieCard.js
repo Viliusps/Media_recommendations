@@ -18,13 +18,13 @@ export default function DisplayCard({ movie }) {
         onClick={() => {
           Navigate(`/movies/${movie.id}`);
         }}>
-        <CardMedia component="img" height="140" image={movie.imageUrl} />
+        <CardMedia component="img" height="140" image={movie.Poster} />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {movie.title}
+            {movie.Title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {movie.overview?.length > 200 ? movie.overview.slice(0, 200) + '...' : movie.overview}
+            {movie.Plot?.length > 200 ? movie.Plot.slice(0, 200) + '...' : movie.Plot}
           </Typography>
         </CardContent>
       </StyledCardActionArea>

@@ -18,3 +18,8 @@ export const getUserSpotifySongs = async () => {
   const response = await axios.post(`${URL}/songs/spotify`, { token: token }, authHeader());
   return response.data;
 };
+
+export const searchSongs = async (search) => {
+  const response = await axios.post(`${URL}/songs/search`, { search: search }, authHeader());
+  return response.data;
+};

@@ -11,75 +11,128 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.Table;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Entity
 @Table(name = "movies")
 public class Movie {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    @NotNull(message = "Adult field is mandatory")
-    @Column(name = "adult", nullable = false)
-    private boolean adult;
-
-    @Column(name="belongs_to_collection")
-    private String belongsToCollection;
-
-    @NotBlank(message = "Genres are mandatory")
-    @Column(name="genres", nullable = false)
-    private String genres;
-
-    @Column(name = "imdb_id")
-    private String imdbId;
-
-    @Column(name = "original_language")
-    private String originalLanguage;
-
-    @NotBlank(message = "Original title is mandatory")
-    @Column(name = "original_title", nullable = false)
-    private String originalTitle;
-
-    @Column(name = "overview")
-    private String overview;
-
-    @Column(name = "popularity")
-    private String popularity;
-
-    @Column(name = "production_countries")
-    private String productionCountries;
-
-    @Column(name = "release_date")
-    private String releaseDate;
-
-    @Column(name = "runtime")
-    private float runtime;
-
-    @Column(name = "spoken_languages")
-    private String spokenLanguages;
-
+    
+    @NotBlank
+    @JsonProperty("Title")
     @Column(name = "title")
     private String title;
 
-    @Column(name = "vote_average")
-    private float voteAverage;
+    @NotBlank
+    @JsonProperty("Year")
+    @Column(name = "year")
+    private String year;
 
-    @Column(name = "vote_count")
-    private int voteCount;
+    @NotBlank
+    @JsonProperty("Rated")
+    @Column(name = "rated")
+    private String rated;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @JsonProperty("Released")
+    @Column(name = "released")
+    private String released;
+
+    @JsonProperty("Runtime")
+    @Column(name = "runtime")
+    private String runtime;
+
+    @JsonProperty("Genre")
+    @Column(name = "genre")
+    private String genre;
+
+    @JsonProperty("Director")
+    @Column(name = "director")
+    private String director;
+
+    @JsonProperty("Writer")
+    @Column(name = "writer")
+    private String writer;
+
+    @JsonProperty("Actors")
+    @Column(name = "actors")
+    private String actors;
+
+    @JsonProperty("Plot")
+    @Column(name = "plot", length = 1000)
+    private String plot;
+
+    @JsonProperty("Language")
+    @Column(name = "language")
+    private String language;
+
+    @JsonProperty("Country")
+    @Column(name = "country")
+    private String country;
+
+    @JsonProperty("Awards")
+    @Column(name = "awards")
+    private String awards;
+
+    @JsonProperty("Poster")
+    @Column(name = "poster")
+    private String poster;
+
+    @JsonProperty("Metascore")
+    @Column(name = "metascore")
+    private String metascore;
+
+    @JsonProperty("imdbRating")
+    @Column(name = "imdb_rating")
+    private String imdbRating;
+
+    @JsonProperty("imdbVotes")
+    @Column(name = "imdb_votes")
+    private String imdbVotes;
+
+    @NotNull
+    @JsonProperty("imdbID")
+    @Column(name = "imdb_id")
+    private String imdbID;
+
+    @JsonProperty("Type")
+    @Column(name = "type")
+    private String type;
+
+    @JsonProperty("DVD")
+    @Column(name = "dvd")
+    private String dvd;
+
+    @JsonProperty("BoxOffice")
+    @Column(name = "box_office")
+    private String boxOffice;
+
+    @JsonProperty("Production")
+    @Column(name = "production")
+    private String production;
+
+    @JsonProperty("Website")
+    @Column(name = "website")
+    private String website;
+
+    @NotBlank
+    @JsonProperty("Response")
+    @Column(name = "response")
+    private String response;
+    
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "movie")
+    @JsonProperty("Ratings")
+    private List<MovieRating> ratings = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie")
