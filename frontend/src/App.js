@@ -14,32 +14,22 @@ import RecommendationFromChoice from './pages/RecommendationFromChoice';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminPanel from './pages/AdminPanel';
-import LoadingWrapper from './components/LoadingWrapper';
+import { useLocation } from 'react-router-dom';
 
 function App() {
   const [role, setRole] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
-    setLoading(true);
-    getRole()
-      .then((data) => {
-        setRole(data);
-        console.log(data);
-      })
-      .catch((error) => {
-        setError(true);
-        console.error(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+    getRole().then((data) => {
+      setRole(data);
+    });
+  }, [location.pathname]);
 
-  return (
-    <div className="App">
-      <LoadingWrapper loading={loading} error={error}>
+  if (!role) return null;
+  else
+    return (
+      <div className="App">
         <Navbar />
         <ToastContainer />
         <Routes>
@@ -68,9 +58,8 @@ function App() {
 
           <Route path="*" element={<Navigate to="/movies" replace />} />
         </Routes>
-      </LoadingWrapper>
-    </div>
-  );
+      </div>
+    );
 }
 
 export default App;
