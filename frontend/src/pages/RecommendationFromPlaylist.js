@@ -79,6 +79,13 @@ const StyledH2 = styled.h2`
   color: #333333;
 `;
 
+const StyledH1 = styled.h1`
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 24px;
+  text-align: center;
+  text-transform: uppercase;
+`;
+
 export default function RecommendationFromPlaylist() {
   const [userSongs, setUserSongs] = useState([]);
   const [loggedin, setLoggedin] = useState(false);
@@ -137,7 +144,7 @@ export default function RecommendationFromPlaylist() {
     <PageContainer>
       {loggedin ? (
         <>
-          <h1>Recommending based on a playlist.</h1>
+          <StyledH1>Recommending based on a playlist.</StyledH1>
           <ContinueButton variant="contained" onClick={handleShowSongs}>
             {showSongs ? 'Hide songs' : 'Show my most recent songs'}
           </ContinueButton>
@@ -167,7 +174,21 @@ export default function RecommendationFromPlaylist() {
             <RecommendationBox>
               <StyledH2>Your Recommendation:</StyledH2>
               <LoadingWrapper loading={loading} error={error}>
-                <RecommendationText>{recommendation.id}</RecommendationText>
+                {recommendation && (
+                  <>
+                    {recommendation.id.length > 22 ? (
+                      <RecommendationText>{recommendation.id}</RecommendationText>
+                    ) : (
+                      <RecommendationText
+                        onClick={() => {
+                          const spotifyUri = `spotify:track:${recommendation.id}`;
+                          window.location.href = spotifyUri;
+                        }}>
+                        Click here!
+                      </RecommendationText>
+                    )}
+                  </>
+                )}
               </LoadingWrapper>
             </RecommendationBox>
           </Section>

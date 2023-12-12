@@ -10,13 +10,6 @@ const StyledContainer = styled.div`
   padding: 20px;
 `;
 
-const Header = styled.div`
-  background-color: #3498db;
-  color: #ffffff;
-  padding: 10px;
-  text-align: center;
-`;
-
 const Section = styled.div`
   margin: 20px 0;
 `;
@@ -38,6 +31,7 @@ const RecommendationText = styled.p`
   font-size: 18px;
   font-weight: bold;
   color: #27ae60;
+  cursor: pointer;
 `;
 
 const StyledH1 = styled.h1`
@@ -58,7 +52,7 @@ const RecommendingBy = styled.p`
 const RecommendationFromChoice = () => {
   const params = useParams();
   const { recommendingType, recommendingBy, recommendingByType } = params;
-  const [recommendation, setRecommendation] = useState('');
+  const [recommendation, setRecommendation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -79,10 +73,6 @@ const RecommendationFromChoice = () => {
 
   return (
     <StyledContainer>
-      <Header>
-        <h1>Recommendation Details</h1>
-      </Header>
-
       <Section>
         <StyledH1>Recommending a: {recommendingType}</StyledH1>
         <RecommendingBy>
@@ -94,7 +84,35 @@ const RecommendationFromChoice = () => {
         <RecommendationBox>
           <StyledH2>Your Recommendation</StyledH2>
           <LoadingWrapper loading={loading} error={error}>
-            <RecommendationText>{recommendation.id}</RecommendationText>
+            {recommendation && (
+              <>
+                {recommendingType === 'Song' && recommendation.id.length > 22 ? (
+                  <RecommendationText>{recommendation.id}</RecommendationText>
+                ) : (
+                  recommendingType === 'Song' && (
+                    <RecommendationText
+                      onClick={() => {
+                        const spotifyUri = `spotify:track:${recommendation.id}`;
+                        window.location.href = spotifyUri;
+                      }}>
+                      Click here!
+                    </RecommendationText>
+                  )
+                )}
+                {recommendingType === 'Movie' && recommendation.id.length > 9 ? (
+                  <RecommendationText>{recommendation.id}</RecommendationText>
+                ) : (
+                  recommendingType === 'Movie' && (
+                    <RecommendationText
+                      onClick={() =>
+                        window.open(`https://www.imdb.com/title/${recommendation.id}`, '_blank')
+                      }>
+                      Click here!
+                    </RecommendationText>
+                  )
+                )}
+              </>
+            )}
           </LoadingWrapper>
         </RecommendationBox>
       </Section>
