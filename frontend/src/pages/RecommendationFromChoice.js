@@ -81,7 +81,7 @@ const RecommendationFromChoice = () => {
       <Section>
         <RecommendationBox>
           <StyledH2>Your Recommendation</StyledH2>
-          <RecommendationText>{recommendation}</RecommendationText>
+          <RecommendationText>{recommendation.id}</RecommendationText>
         </RecommendationBox>
       </Section>
     </StyledContainer>

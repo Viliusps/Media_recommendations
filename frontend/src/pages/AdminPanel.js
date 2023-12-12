@@ -5,24 +5,37 @@ import LoadingWrapper from '../components/LoadingWrapper';
 import UserModal from '../components/UserModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { toast } from 'react-toastify';
+import { Button } from '@mui/material';
 
 const UserContainer = styled.div`
+  width: 33%;
   border: 1px solid #ccc;
   padding: 10px;
-  margin: 10px;
+  margin: 10px auto 10px auto;
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
-const Username = styled.h1`
+const Username = styled.h3`
   margin: 0;
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 10px;
+`;
+
+const DeleteButton = styled(Button)`
+  && {
+    background-color: red;
+    color: white;
+
+    &:hover {
+      background-color: darkred;
+    }
+  }
 `;
 
 export default function AdminPanel() {
@@ -112,22 +125,25 @@ export default function AdminPanel() {
 
   return (
     <LoadingWrapper loading={loading} error={error}>
+      <h1>User list</h1>
       {users.map((user) => (
         <UserContainer key={user.id}>
           <Username>{user.username}</Username>
           <ActionButtons>
-            <button
+            <Button
+              variant="contained"
               onClick={() => {
                 handleOpen(user);
               }}>
               Edit
-            </button>
-            <button
+            </Button>
+            <DeleteButton
+              variant="contained"
               onClick={() => {
                 handleOpenConfirmation(user);
               }}>
               Delete
-            </button>
+            </DeleteButton>
           </ActionButtons>
         </UserContainer>
       ))}

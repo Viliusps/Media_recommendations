@@ -4,6 +4,7 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const login = async (username, password) => {
+  localStorage.clear();
   const response = await axios.post(`${URL}/auth/authenticate`, {
     username: username,
     password: password
