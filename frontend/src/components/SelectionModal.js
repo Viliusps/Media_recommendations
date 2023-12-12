@@ -62,7 +62,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               <CustomCard
                 title="My Spotify history"
                 image={spotifyImage}
-                handleOpen={() => Navigate('/playlistRecommendation')}
+                handleOpen={() => Navigate(`/playlistRecommendation/${type}`)}
                 cardHeight={350}
                 cardWidth={300}
               />

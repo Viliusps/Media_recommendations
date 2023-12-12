@@ -3,6 +3,8 @@ import { getUserSpotifySongs } from '../api/songs-axios';
 import { Button, Typography, Tooltip, IconButton } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import styled from 'styled-components';
+import { recommend } from '../api/recommendation-axios';
+import { useParams } from 'react-router-dom';
 
 // eslint-disable-next-line no-undef
 const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -60,13 +62,16 @@ export default function RecommendationFromPlaylist() {
   const [userSongs, setUserSongs] = useState([]);
   const [loggedin, setLoggedin] = useState(false);
   const [showSongs, setShowSongs] = useState(false);
+  const [recommendation, setRecommendation] = useState('');
+  const params = useParams();
+  const { type } = params;
 
   const handleShowSongs = () => {
     setShowSongs(!showSongs);
   };
 
   const handleLogin = () => {
-    const redirectUri = 'http://localhost:3000/playlistRecommendation';
+    const redirectUri = `http://localhost:3000/playlistRecommendation/${type}`;
     const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
       redirectUri
     )}&response_type=token&scope=user-read-recently-played`;
@@ -83,11 +88,18 @@ export default function RecommendationFromPlaylist() {
     if (token || localStorage.getItem('spotifyAuthToken')) {
       setLoggedin(true);
       getUserSpotifySongs().then((data) => {
-        console.log(data);
         setUserSongs(data);
       });
     }
-  }, []);
+  }, [recommendation]);
+
+  const getRecommendation = () => {
+    const songNames = userSongs.map((song) => song.title);
+    const resultString = songNames.join(', ');
+    recommend(type, 'Spotify', resultString).then((result) => {
+      setRecommendation(result);
+    });
+  };
 
   return (
     <PageContainer>
@@ -118,9 +130,9 @@ export default function RecommendationFromPlaylist() {
               </SongCard>
             ))}
           </SongListContainer>
-          <ContinueButton>Continue</ContinueButton>
+          <ContinueButton onClick={() => getRecommendation()}>Continue</ContinueButton>
           <RecommendationPlaceholder style={{ display: 'block' }}>
-            <Typography>Movie Recommendation: Placeholder</Typography>
+            <Typography>Recommendation: {recommendation.id}</Typography>
           </RecommendationPlaceholder>
         </>
       ) : (

@@ -44,6 +44,7 @@ public class RecommendationService {
                         prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a spotify id of your song, add nothing else.";
                         break;
                     case "Spotify":
+                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a spotify id of your song, add nothing else.";
                         break;
                 }
                 break;
@@ -57,12 +58,12 @@ public class RecommendationService {
                             prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with an imdb id of your movie, add nothing else.";
                             break;
                         case "Spotify":
+                            prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with an imdb id of your movie, add nothing else.";
                             break;
                     }
                     break;
 
         }
-        System.out.println(prompt);
         ChatRequest request = new ChatRequest(model, prompt);
         ChatResponse response = restTemplate.postForObject(apiUrl, request, ChatResponse.class);
         String responseId = response.getChoices().get(0).getMessage().getContent();

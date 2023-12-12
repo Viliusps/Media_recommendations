@@ -58,7 +58,10 @@ function App() {
 
           {role !== 'GUEST' && (
             <>
-              <Route path="/playlistRecommendation" element={<RecommendationFromPlaylist />} />
+              <Route
+                path="/playlistRecommendation/:type"
+                element={<RecommendationFromPlaylist />}
+              />
             </>
           )}
 
