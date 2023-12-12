@@ -23,7 +23,7 @@ const StyledPaper = styled(Paper)`
   justify-content: center;
 `;
 
-export default function SelectionModal({ type, handleClose, open, handleOpen, setType }) {
+export default function SelectionModal({ type, handleClose, open, handleOpen, setType, role }) {
   const Navigate = useNavigate();
   return (
     <Modal
@@ -58,13 +58,15 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               cardHeight={350}
               cardWidth={300}
             />
-            <CustomCard
-              title="My Spotify history"
-              image={spotifyImage}
-              handleOpen={() => Navigate('/playlistRecommendation')}
-              cardHeight={350}
-              cardWidth={300}
-            />
+            {role !== 'GUEST' && (
+              <CustomCard
+                title="My Spotify history"
+                image={spotifyImage}
+                handleOpen={() => Navigate(`/playlistRecommendation/${type}`)}
+                cardHeight={350}
+                cardWidth={300}
+              />
+            )}
           </StyledPaper>
         </div>
       </StyledBox>

@@ -9,8 +9,10 @@ import {
   Avatar,
   Button,
   Tooltip,
-  MenuItem
+  MenuItem,
+  Hidden
 } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../api/auth-axios';
@@ -25,7 +27,7 @@ function Navbar() {
     getRole().then((data) => {
       setRole(data);
     });
-  });
+  }, []);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -51,41 +53,12 @@ function Navbar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+          <Hidden mdUp>
+            <IconButton size="large" aria-label="menu" color="inherit" onClick={handleOpenNavMenu}>
+              <MenuIcon />
+            </IconButton>
+          </Hidden>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"></IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left'
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left'
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' }
-              }}>
-              <MenuItem onClick={() => Navigate('/recommendation')}>
-                <Typography textAlign="center">Recommendation</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => Navigate('/movies')}>
-                <Typography textAlign="center">Movies</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => Navigate('/songs')}>
-                <Typography textAlign="center">Songs</Typography>
-              </MenuItem>
-            </Menu>
             {role === 'GUEST' && (
               <Menu
                 id="menu-appbar"
@@ -113,6 +86,32 @@ function Navbar() {
               </Menu>
             )}
           </Box>
+          <Hidden mdUp>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'left'
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left'
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}>
+              <MenuItem onClick={() => Navigate('/recommendation')}>
+                <Typography textAlign="center">Recommendation</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => Navigate('/movies')}>
+                <Typography textAlign="center">Movies</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => Navigate('/songs')}>
+                <Typography textAlign="center">Songs</Typography>
+              </MenuItem>
+            </Menu>
+          </Hidden>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Button
               onClick={() => Navigate('/recommendation')}
@@ -158,7 +157,7 @@ function Navbar() {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar />
                 </IconButton>
               </Tooltip>
               <Menu

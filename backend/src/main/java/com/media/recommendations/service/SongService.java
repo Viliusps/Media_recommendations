@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,7 +70,6 @@ public class SongService {
         Optional<Song> optionalSong = songRepository.findById(id);
         if (optionalSong.isPresent()) {
             String imageUrl = getCoverImage(optionalSong.get().getSpotifyId());
-            System.out.println(imageUrl);
             return optionalSong.get();
         }
         return null;
@@ -207,5 +207,70 @@ public class SongService {
         SongPageResponse response = new SongPageResponse(found, found.size());
         return response;
     }
-    
+
+    public Boolean checkIfSongExists(String name) {
+        String accessToken = getAccessToken();
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+
+            String searchQuery = "%" + name + "%";
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", searchQuery)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("tracks")) {
+                Map<String, Object> tracks = (Map<String, Object>) responseBody.get("tracks");
+                Integer total = (Integer) tracks.get("total");
+
+                return total > 0;
+            }
+        }
+
+        return false;
+    }
+
+    public String getSongIdByName(String songName) {
+        String accessToken = getAccessToken();
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+
+            String searchQuery = "%" + songName + "%";
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", searchQuery)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("tracks")) {
+                Map<String, Object> tracks = (Map<String, Object>) responseBody.get("tracks");
+                JsonNode items = new ObjectMapper().convertValue(tracks.get("items"), JsonNode.class);
+
+                if (items.isArray() && items.size() > 0) {
+                    JsonNode firstItem = items.get(0);
+                    if (firstItem.has("id")) {
+                        return firstItem.get("id").asText();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

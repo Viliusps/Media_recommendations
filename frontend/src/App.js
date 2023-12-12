@@ -37,7 +37,7 @@ function App() {
           <Route path="/movies" element={<Movies />} />
           <Route path="/movies/:id" element={<Movie />} />
           <Route path="/songs" element={<Songs />} />
-          <Route path="/playlistRecommendation" element={<RecommendationFromPlaylist />} />
+
           <Route
             path="/choiceRecommendation/:recommendingType/:recommendingBy/:recommendingByType"
             element={<RecommendationFromChoice />}
@@ -53,6 +53,15 @@ function App() {
           {role === 'ADMIN' && (
             <>
               <Route path="/admin" element={<AdminPanel />} />
+            </>
+          )}
+
+          {role !== 'GUEST' && (
+            <>
+              <Route
+                path="/playlistRecommendation/:type"
+                element={<RecommendationFromPlaylist />}
+              />
             </>
           )}
 

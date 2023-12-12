@@ -23,3 +23,8 @@ export const searchSongs = async (search) => {
   const response = await axios.post(`${URL}/songs/search`, { search: search }, authHeader());
   return response.data;
 };
+
+export const checkIfSongExists = async (name) => {
+  const response = await axios.post(`${URL}/songs/check`, { name: name }, authHeader());
+  return response.data;
+};

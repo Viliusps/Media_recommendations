@@ -2,6 +2,9 @@ import axios from 'axios';
 import authHeader from '../auth/auth-header';
 // eslint-disable-next-line no-undef
 const URL = process.env.REACT_APP_API_URL;
+const OMDB_API_BASE_URL = 'http://www.omdbapi.com/';
+// eslint-disable-next-line no-undef
+const apiKey = process.env.REACT_APP_OMDB_KEY;
 
 export const getMovies = async () => {
   const response = await axios.get(`${URL}/movies`, authHeader());
@@ -26,4 +29,24 @@ export const getOmdbMovie = async (title) => {
 export const searchMovies = async (search) => {
   const response = await axios.post(`${URL}/movies/search`, { search: search }, authHeader());
   return response.data;
+};
+
+export const checkIfMovieExists = async (movieName) => {
+  try {
+    const response = await axios.get(OMDB_API_BASE_URL, {
+      params: {
+        apikey: apiKey,
+        t: movieName
+      }
+    });
+
+    if (response.data.Response === 'True') {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('Error checking movie existence:', error);
+    return false;
+  }
 };
