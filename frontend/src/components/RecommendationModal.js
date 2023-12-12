@@ -21,7 +21,8 @@ export default function RecommendationModal({
   open,
   setSelection,
   type,
-  recommendBy
+  recommendBy,
+  errorLabel
 }) {
   return (
     <Modal
@@ -39,6 +40,7 @@ export default function RecommendationModal({
             setSelection(event.target.value);
           }}
         />
+        <Typography style={{ color: 'red' }}>{errorLabel}</Typography>
         <Button onClick={() => handleClick()}>Recommend!</Button>
       </StyledBox>
     </Modal>

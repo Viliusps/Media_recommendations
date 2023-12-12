@@ -7,6 +7,8 @@ import songImage from '../images/song.png';
 import RecommendationModal from '../components/RecommendationModal';
 import SelectionModal from '../components/SelectionModal';
 import { useNavigate } from 'react-router-dom';
+import { checkIfMovieExists } from '../api/movies-axios';
+import { checkIfSongExists } from '../api/songs-axios';
 
 const StyledPaper = styled(Paper)`
   display: flex;
@@ -23,6 +25,7 @@ export default function Recommendation() {
   const [type, setType] = useState('');
   const [recommendBy, setRecommendBy] = useState('');
   const navigate = useNavigate();
+  const [errorLabel, setErrorLabel] = useState('');
 
   const handleOpenSelection = (calledBy) => {
     if (calledBy === 'Movie') {
@@ -41,7 +44,24 @@ export default function Recommendation() {
   const handleCloseRecommendation = () => setOpenRecommendation(false);
 
   const handleClick = () => {
-    navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+    setErrorLabel('');
+    if (recommendBy === 'Movie') {
+      checkIfMovieExists(selection).then((result) => {
+        if (result) {
+          navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+        } else {
+          setErrorLabel('Movie not found.');
+        }
+      });
+    } else if (recommendBy === 'Song') {
+      checkIfSongExists(selection).then((result) => {
+        if (result) {
+          navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+        } else {
+          setErrorLabel('Song not found.');
+        }
+      });
+    }
   };
 
   return (
@@ -80,6 +100,7 @@ export default function Recommendation() {
         setSelection={setSelection}
         type={type}
         recommendBy={recommendBy}
+        errorLabel={errorLabel}
       />
     </>
   );

@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -207,5 +208,34 @@ public class SongService {
         SongPageResponse response = new SongPageResponse(found, found.size());
         return response;
     }
-    
+
+    public Boolean checkIfSongExists(String name) {
+        String accessToken = getAccessToken();
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+
+            String searchQuery = "%" + name + "%";
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", searchQuery)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("tracks")) {
+                Map<String, Object> tracks = (Map<String, Object>) responseBody.get("tracks");
+                Integer total = (Integer) tracks.get("total");
+
+                return total > 0;
+            }
+        }
+
+        return false;
+    }
 }

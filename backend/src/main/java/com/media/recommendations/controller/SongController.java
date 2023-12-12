@@ -87,5 +87,11 @@ public class SongController {
         SongPageResponse songs = songService.search(request.getSearch());
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
+
+    @PostMapping("/check")
+    public ResponseEntity<Boolean> checkIfSongExists(@RequestBody String name) {
+        Boolean result = songService.checkIfSongExists(name);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
     
 }
