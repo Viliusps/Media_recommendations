@@ -5,6 +5,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import styled from 'styled-components';
 import { recommend } from '../api/recommendation-axios';
 import { useParams } from 'react-router-dom';
+import LoadingWrapper from '../components/LoadingWrapper';
 
 // eslint-disable-next-line no-undef
 const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -46,16 +47,36 @@ const SongCardContent = styled.div`
   padding: 10px;
 `;
 
-const RecommendationPlaceholder = styled.div`
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
+const Section = styled.div`
+  margin: 20px 0;
+`;
+
+const RecommendationBox = styled.div`
+  background-color: #ffffff;
+  border: 1px solid #ddd;
   border-radius: 5px;
-  display: none;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const RecommendationText = styled.p`
+  font-size: 18px;
+  font-weight: bold;
+  color: #27ae60;
 `;
 
 const ContinueButton = styled(Button)`
   margin-top: 20px;
+`;
+
+const StyledH2 = styled.h2`
+  margin-bottom: 10px;
+  color: #333333;
 `;
 
 export default function RecommendationFromPlaylist() {
@@ -65,6 +86,8 @@ export default function RecommendationFromPlaylist() {
   const [recommendation, setRecommendation] = useState('');
   const params = useParams();
   const { type } = params;
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleShowSongs = () => {
     setShowSongs(!showSongs);
@@ -96,18 +119,27 @@ export default function RecommendationFromPlaylist() {
   const getRecommendation = () => {
     const songNames = userSongs.map((song) => song.title);
     const resultString = songNames.join(', ');
-    recommend(type, 'Spotify', resultString).then((result) => {
-      setRecommendation(result);
-    });
+    setLoading(true);
+    recommend(type, 'Spotify', resultString)
+      .then((result) => {
+        setRecommendation(result);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <PageContainer>
       {loggedin ? (
         <>
-          <h1>Recommending based on a playlist. Here are your most recent songs</h1>
+          <h1>Recommending based on a playlist.</h1>
           <ContinueButton variant="contained" onClick={handleShowSongs}>
-            {showSongs ? 'Hide songs' : 'Show songs'}
+            {showSongs ? 'Hide songs' : 'Show my most recent songs'}
           </ContinueButton>
           <SongListContainer style={{ display: showSongs ? 'flex' : 'none' }}>
             {userSongs.map((song, index) => (
@@ -131,9 +163,14 @@ export default function RecommendationFromPlaylist() {
             ))}
           </SongListContainer>
           <ContinueButton onClick={() => getRecommendation()}>Continue</ContinueButton>
-          <RecommendationPlaceholder style={{ display: 'block' }}>
-            <Typography>Recommendation: {recommendation.id}</Typography>
-          </RecommendationPlaceholder>
+          <Section>
+            <RecommendationBox>
+              <StyledH2>Your Recommendation:</StyledH2>
+              <LoadingWrapper loading={loading} error={error}>
+                <RecommendationText>{recommendation.id}</RecommendationText>
+              </LoadingWrapper>
+            </RecommendationBox>
+          </Section>
         </>
       ) : (
         <>

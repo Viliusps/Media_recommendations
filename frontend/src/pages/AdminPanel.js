@@ -137,13 +137,15 @@ export default function AdminPanel() {
               }}>
               Edit
             </Button>
-            <DeleteButton
-              variant="contained"
-              onClick={() => {
-                handleOpenConfirmation(user);
-              }}>
-              Delete
-            </DeleteButton>
+            {user.role !== 'ADMIN' && (
+              <DeleteButton
+                variant="contained"
+                onClick={() => {
+                  handleOpenConfirmation(user);
+                }}>
+                Delete
+              </DeleteButton>
+            )}
           </ActionButtons>
         </UserContainer>
       ))}

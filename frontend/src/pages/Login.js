@@ -29,7 +29,7 @@ export default function SignIn() {
       .then(() => {
         localStorage.setItem('userName', data.get('username'));
         setIncorrect(false);
-        Navigate('/movies');
+        window.location.href = '/movies';
       })
       .catch(() => {
         setIncorrect(true);

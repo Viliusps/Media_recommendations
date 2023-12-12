@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { recommend } from '../api/recommendation-axios';
 import { useEffect, useState } from 'react';
+import LoadingWrapper from '../components/LoadingWrapper';
 
 const StyledContainer = styled.div`
   max-width: 800px;
@@ -58,11 +59,22 @@ const RecommendationFromChoice = () => {
   const params = useParams();
   const { recommendingType, recommendingBy, recommendingByType } = params;
   const [recommendation, setRecommendation] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    recommend(recommendingType, recommendingByType, recommendingBy).then((result) => {
-      setRecommendation(result);
-    });
+    setLoading(true);
+    recommend(recommendingType, recommendingByType, recommendingBy)
+      .then((result) => {
+        setRecommendation(result);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError(true);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -81,7 +93,9 @@ const RecommendationFromChoice = () => {
       <Section>
         <RecommendationBox>
           <StyledH2>Your Recommendation</StyledH2>
-          <RecommendationText>{recommendation.id}</RecommendationText>
+          <LoadingWrapper loading={loading} error={error}>
+            <RecommendationText>{recommendation.id}</RecommendationText>
+          </LoadingWrapper>
         </RecommendationBox>
       </Section>
     </StyledContainer>
