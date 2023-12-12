@@ -158,7 +158,7 @@ public class SongService {
         return java.util.Base64.getEncoder().encodeToString(clientIdAndSecret.getBytes());
     }
 
-    public List<String> getUserSongs(String accessToken) {
+    public List<Song> getUserSongs(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
         String url = spotifyUrl + "/v1/me/player/recently-played";
         HttpHeaders headers = new HttpHeaders();
@@ -168,11 +168,11 @@ public class SongService {
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        return extractSongNames(response.getBody());
+        return extractSongData(response.getBody());
     }
 
-    private List<String> extractSongNames(String jsonResponse) {
-        List<String> songNames = new ArrayList<>();
+    private List<Song> extractSongData(String jsonResponse) {
+        List<Song> songs = new ArrayList<>();
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -183,14 +183,23 @@ public class SongService {
                 JsonNode track = item.path("track");
                 if (track.has("name")) {
                     String songName = track.get("name").asText();
-                    songNames.add(songName);
+                    String artistName = track.path("artists").path(0).path("name").asText();
+
+                    Song song = Song.builder()
+                            .title(songName)
+                            .singer(artistName)
+                            .spotifyId(track.get("id").asText())
+                            .imageUrl(track.path("album").path("images").path(0).path("url").asText())
+                            .build();
+
+                    songs.add(song);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return songNames;
+        return songs;
     }
 
     public SongPageResponse search(String search) {

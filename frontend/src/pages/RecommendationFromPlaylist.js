@@ -1,12 +1,69 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getUserSpotifySongs } from '../api/songs-axios';
-import { Button, Typography } from '@mui/material';
+import { Button, Typography, Tooltip, IconButton } from '@mui/material';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import styled from 'styled-components';
+
 // eslint-disable-next-line no-undef
 const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
+
+const PageContainer = styled.div`
+  padding: 20px;
+  text-align: center;
+`;
+
+const SongListContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+`;
+
+const SongCard = styled.div`
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  overflow: hidden;
+  width: 200px;
+  text-align: center;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
+
+const SongImg = styled.img`
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+`;
+
+const SongCardContent = styled.div`
+  padding: 10px;
+`;
+
+const RecommendationPlaceholder = styled.div`
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: none;
+`;
+
+const ContinueButton = styled(Button)`
+  margin-top: 20px;
+`;
 
 export default function RecommendationFromPlaylist() {
   const [userSongs, setUserSongs] = useState([]);
   const [loggedin, setLoggedin] = useState(false);
+  const [showSongs, setShowSongs] = useState(false);
+
+  const handleShowSongs = () => {
+    setShowSongs(!showSongs);
+  };
 
   const handleLogin = () => {
     const redirectUri = 'http://localhost:3000/playlistRecommendation';
@@ -26,27 +83,54 @@ export default function RecommendationFromPlaylist() {
     if (token || localStorage.getItem('spotifyAuthToken')) {
       setLoggedin(true);
       getUserSpotifySongs().then((data) => {
+        console.log(data);
         setUserSongs(data);
       });
     }
   }, []);
 
   return (
-    <div>
+    <PageContainer>
       {loggedin ? (
         <>
           <h1>Recommending based on a playlist. Here are your most recent songs</h1>
-          {userSongs.map((song, index) => (
-            <Typography key={index}>{song}</Typography>
-          ))}
-          <Button>Continue</Button>
+          <ContinueButton variant="contained" onClick={handleShowSongs}>
+            {showSongs ? 'Hide songs' : 'Show songs'}
+          </ContinueButton>
+          <SongListContainer style={{ display: showSongs ? 'flex' : 'none' }}>
+            {userSongs.map((song, index) => (
+              <SongCard key={index}>
+                <SongImg src={song.imageUrl || 'placeholder-image-url'} alt="Album Cover" />
+                <SongCardContent>
+                  <Typography variant="h6">{song.title}</Typography>
+                  <Typography variant="body2">{song.artist}</Typography>
+                  <Tooltip title="Listen on Spotify">
+                    <IconButton
+                      color="primary"
+                      onClick={() => {
+                        const spotifyUri = `spotify:track:${song.spotifyId}`;
+                        window.location.href = spotifyUri;
+                      }}>
+                      <PlayCircleOutlineIcon />
+                    </IconButton>
+                  </Tooltip>
+                </SongCardContent>
+              </SongCard>
+            ))}
+          </SongListContainer>
+          <ContinueButton>Continue</ContinueButton>
+          <RecommendationPlaceholder style={{ display: 'block' }}>
+            <Typography>Movie Recommendation: Placeholder</Typography>
+          </RecommendationPlaceholder>
         </>
       ) : (
         <>
           <h1>Not logged in</h1>
-          <button onClick={() => handleLogin()}>Login with Spotify</button>
+          <Button variant="contained" onClick={() => handleLogin()}>
+            Login with Spotify
+          </Button>
         </>
       )}
-    </div>
+    </PageContainer>
   );
 }
