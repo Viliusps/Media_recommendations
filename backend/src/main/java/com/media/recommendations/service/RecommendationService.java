@@ -23,11 +23,14 @@ public class RecommendationService {
     @Value("${OAI.api.url}")
     private String apiUrl;
 
-    public RecommendationService(@Qualifier("openaiRestTemplate")@Autowired RestTemplate restTemplate, @Value("${OAI.model}") String model, @Value("${OAI.api.url}") String apiUrl)
+    private SongService songService;
+
+    public RecommendationService(@Qualifier("openaiRestTemplate")@Autowired RestTemplate restTemplate, @Value("${OAI.model}") String model, @Value("${OAI.api.url}") String apiUrl, SongService songService)
     {
         this.restTemplate = restTemplate;
         this.model = model;
         this.apiUrl = apiUrl;
+        this.songService = songService;
     }
 
     public RecommendationResponse getRecommendation(RecommendationRequest originalRequest) {
@@ -38,13 +41,13 @@ public class RecommendationService {
                 prompt += "Recommend me a song, based on ";
                 switch(originalRequest.getRecommendingByType()){
                     case "Song":
-                        prompt += "a song that I like. The song's name is " + originalRequest.getRecommendingBy() + ". Reply only with a spotify id of your song, add nothing else.";
+                        prompt += "a song that I like. The song's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
                         break;
                     case "Movie":
-                        prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a spotify id of your song, add nothing else.";
+                        prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
                         break;
                     case "Spotify":
-                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a spotify id of your song, add nothing else.";
+                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, add nothing else.";
                         break;
                 }
                 break;
@@ -67,6 +70,11 @@ public class RecommendationService {
         ChatRequest request = new ChatRequest(model, prompt);
         ChatResponse response = restTemplate.postForObject(apiUrl, request, ChatResponse.class);
         String responseId = response.getChoices().get(0).getMessage().getContent();
+
+        if(originalRequest.getRecommendingType().compareTo("Song") == 0)
+        {
+            responseId = songService.getSongIdByName(responseId);
+        }
         
         if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
             return null;

@@ -70,7 +70,6 @@ public class SongService {
         Optional<Song> optionalSong = songRepository.findById(id);
         if (optionalSong.isPresent()) {
             String imageUrl = getCoverImage(optionalSong.get().getSpotifyId());
-            System.out.println(imageUrl);
             return optionalSong.get();
         }
         return null;
@@ -238,4 +237,40 @@ public class SongService {
 
         return false;
     }
+
+    public String getSongIdByName(String songName) {
+        String accessToken = getAccessToken();
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+
+            String searchQuery = "%" + songName + "%";
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", searchQuery)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("tracks")) {
+                Map<String, Object> tracks = (Map<String, Object>) responseBody.get("tracks");
+                JsonNode items = new ObjectMapper().convertValue(tracks.get("items"), JsonNode.class);
+
+                if (items.isArray() && items.size() > 0) {
+                    JsonNode firstItem = items.get(0);
+                    if (firstItem.has("id")) {
+                        return firstItem.get("id").asText();
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

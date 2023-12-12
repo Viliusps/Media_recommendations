@@ -68,6 +68,7 @@ const RecommendationText = styled.p`
   font-size: 18px;
   font-weight: bold;
   color: #27ae60;
+  cursor: pointer;
 `;
 
 const ContinueButton = styled(Button)`
@@ -176,16 +177,30 @@ export default function RecommendationFromPlaylist() {
               <LoadingWrapper loading={loading} error={error}>
                 {recommendation && (
                   <>
-                    {recommendation.id.length > 22 ? (
+                    {type === 'Song' && recommendation.id.length > 22 ? (
                       <RecommendationText>{recommendation.id}</RecommendationText>
                     ) : (
-                      <RecommendationText
-                        onClick={() => {
-                          const spotifyUri = `spotify:track:${recommendation.id}`;
-                          window.location.href = spotifyUri;
-                        }}>
-                        Click here!
-                      </RecommendationText>
+                      type === 'Song' && (
+                        <RecommendationText
+                          onClick={() => {
+                            const spotifyUri = `spotify:track:${recommendation.id}`;
+                            window.location.href = spotifyUri;
+                          }}>
+                          Click here!
+                        </RecommendationText>
+                      )
+                    )}
+                    {type === 'Movie' && recommendation.id.length > 9 ? (
+                      <RecommendationText>{recommendation.id}</RecommendationText>
+                    ) : (
+                      type === 'Movie' && (
+                        <RecommendationText
+                          onClick={() =>
+                            window.open(`https://www.imdb.com/title/${recommendation.id}`, '_blank')
+                          }>
+                          Click here!
+                        </RecommendationText>
+                      )
                     )}
                   </>
                 )}
