@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Paper } from '@mui/material';
 import styled from 'styled-components';
 import CustomCard from '../components/CustomCard';
@@ -9,6 +9,7 @@ import SelectionModal from '../components/SelectionModal';
 import { useNavigate } from 'react-router-dom';
 import { checkIfMovieExists } from '../api/movies-axios';
 import { checkIfSongExists } from '../api/songs-axios';
+import { getRole } from '../api/auth-axios';
 
 const StyledPaper = styled(Paper)`
   display: flex;
@@ -26,6 +27,13 @@ export default function Recommendation() {
   const [recommendBy, setRecommendBy] = useState('');
   const navigate = useNavigate();
   const [errorLabel, setErrorLabel] = useState('');
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    getRole().then((data) => {
+      setRole(data);
+    });
+  }, []);
 
   const handleOpenSelection = (calledBy) => {
     if (calledBy === 'Movie') {
@@ -92,6 +100,7 @@ export default function Recommendation() {
         open={openSelection}
         handleOpen={handleOpenRecommendation}
         setType={setRecommendBy}
+        role={role}
       />
       <RecommendationModal
         handleClose={handleCloseRecommendation}
