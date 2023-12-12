@@ -1,5 +1,7 @@
 package com.media.recommendations.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,8 +25,10 @@ public class MovieRating {
     private long movie;
 
     @Column(name = "source")
+    @JsonProperty("Source")
     private String source;
 
     @Column(name = "value")
+    @JsonProperty("Value")
     private String value;
 }

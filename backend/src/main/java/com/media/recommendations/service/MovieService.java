@@ -1,4 +1,5 @@
 package com.media.recommendations.service;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +63,32 @@ public class MovieService {
 
     public Movie updateMovie(Long id, Movie movie) {
         Movie movieFromDb = movieRepository.findById(id).get();
-        //needs updating
+        movieFromDb.setActors(movie.getActors());
+        movieFromDb.setAwards(movie.getAwards());
+        movieFromDb.setBoxOffice(movie.getBoxOffice());
+        movieFromDb.setComments(movie.getComments());
+        movieFromDb.setCountry(movie.getCountry());
+        movieFromDb.setDirector(movie.getDirector());
+        movieFromDb.setDvd(movie.getDvd());
+        movieFromDb.setGenre(movie.getGenre());
+        movieFromDb.setImdbID(movie.getImdbID());
+        movieFromDb.setImdbRating(movie.getImdbRating());
+        movieFromDb.setImdbVotes(movie.getImdbVotes());
+        movieFromDb.setLanguage(movie.getLanguage());
+        movieFromDb.setMetascore(movie.getMetascore());
+        movieFromDb.setPlot(movie.getPlot());
+        movieFromDb.setPoster(movie.getPoster());
+        movieFromDb.setProduction(movie.getProduction());
+        movieFromDb.setRated(movie.getRated());
+        movieFromDb.setRatings(movie.getRatings());
+        movieFromDb.setReleased(movie.getReleased());
+        movieFromDb.setResponse(movie.getResponse());
+        movieFromDb.setRuntime(movie.getRuntime());
+        movieFromDb.setTitle(movie.getTitle());
+        movieFromDb.setType(movie.getType());
+        movieFromDb.setWebsite(movie.getWebsite());
+        movieFromDb.setWriter(movie.getWriter());
+        movieFromDb.setYear(movie.getYear());
         return movieRepository.save(movieFromDb);
     }
 
@@ -76,7 +102,7 @@ public class MovieService {
         return omdbMovie;
     }
 
-        public MoviePageResponse search(String search) {
+    public MoviePageResponse search(String search) {
         List<Movie> found = movieRepository.findByTitleContaining(search);
         MoviePageResponse response = new MoviePageResponse(found, found.size());
         return response;
