@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.requests.MovieSearchRequest;
 import com.media.recommendations.model.requests.OmdbRequest;
-import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.responses.MoviePageResponse;
-import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.service.MovieService;
 
 

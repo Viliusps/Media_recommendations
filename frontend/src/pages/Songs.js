@@ -30,7 +30,7 @@ export default function Songs() {
   const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
-  const songsPerPage = 10;
+  const songsPerPage = 12;
 
   const handleSearch = async () => {
     setLoading(true);
