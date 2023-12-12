@@ -27,6 +27,7 @@ export default function SignIn() {
     const data = new FormData(event.currentTarget);
     login(data.get('username'), data.get('password'))
       .then(() => {
+        localStorage.setItem('userName', data.get('username'));
         setIncorrect(false);
         Navigate('/movies');
       })
