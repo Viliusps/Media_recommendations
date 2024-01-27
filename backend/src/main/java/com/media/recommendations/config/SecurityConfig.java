@@ -23,6 +23,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String games = "/api/v1/games/**";
         String songs = "/api/v1/songs/**";
         String movies = "/api/v1/movies/**";
         String comments = "/api/v1/comments/**";
@@ -33,7 +34,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                     .disable())
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(HttpMethod.GET, comments, songs, movies).permitAll()
+                    .requestMatchers(HttpMethod.GET, comments, songs, movies, games).permitAll()
                     .requestMatchers(auth).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/movies/omdb").permitAll()
                     .requestMatchers(HttpMethod.POST, movies, songs).permitAll()

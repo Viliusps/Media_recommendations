@@ -15,6 +15,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
+import SteamLogin from './pages/Steam';
 
 function App() {
   const [role, setRole] = useState('');
@@ -64,6 +65,7 @@ function App() {
               />
             </>
           )}
+          <Route path="/steam" element={<SteamLogin />} />
 
           <Route path="*" element={<Navigate to="/movies" replace />} />
         </Routes>
