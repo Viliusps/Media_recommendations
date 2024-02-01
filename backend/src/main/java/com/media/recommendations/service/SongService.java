@@ -1,6 +1,7 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -69,7 +71,6 @@ public class SongService {
      public Song getSongById(long id) {
         Optional<Song> optionalSong = songRepository.findById(id);
         if (optionalSong.isPresent()) {
-            String imageUrl = getCoverImage(optionalSong.get().getSpotifyId());
             return optionalSong.get();
         }
         return null;
@@ -103,32 +104,6 @@ public class SongService {
         songRepository.deleteById(id);
     }
 
-    public String getCoverImage(String spotifyId) {
-        String accessToken = getAccessToken();
-        String apiUrl = spotifyUrl + "/v1/tracks/" + spotifyId;
-        String authorizationHeader = "Bearer " + accessToken;
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Set authorization header
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", authorizationHeader);
-
-        // Make the request to Spotify API
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
-
-        // Extract the cover image URL from the response
-        Map<String, Object> trackInfo = response.getBody();
-        if (trackInfo != null && trackInfo.containsKey("album")) {
-            Map<String, Object> albumInfo = (Map<String, Object>) trackInfo.get("album");
-            List<Map<String, Object>> images = (List<Map<String, Object>>) albumInfo.get("images");
-            if (images != null && !images.isEmpty()) {
-                return (String) images.get(0).get("url");
-            }
-        }
-
-        return null;
-    }
 
     public String getAccessToken() {
         String authHeader = "Basic " + getBase64ClientIdAndSecret();
@@ -157,6 +132,7 @@ public class SongService {
         String clientIdAndSecret = spotifyClientId + ":" + spotifyClientSecret;
         return java.util.Base64.getEncoder().encodeToString(clientIdAndSecret.getBytes());
     }
+
 
     public List<Song> getUserSongs(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
@@ -190,8 +166,8 @@ public class SongService {
                             .singer(artistName)
                             .spotifyId(track.get("id").asText())
                             .imageUrl(track.path("album").path("images").path(0).path("url").asText())
+                            .isrc(track.path("external_ids").path("isrc").asText(""))
                             .build();
-
                     songs.add(song);
                 }
             }
@@ -199,6 +175,9 @@ public class SongService {
             e.printStackTrace();
         }
 
+        //getMultipleSongsFeatures(songs);
+        //after getting a list with isrc, iterate and find the correct name and author
+        getSongFeatures(songs.get(4).getSpotifyId());
         return songs;
     }
 
@@ -206,6 +185,33 @@ public class SongService {
         List<Song> found = songRepository.findByTitleContaining(search);
         SongPageResponse response = new SongPageResponse(found, found.size());
         return response;
+    }
+
+    public String getCoverImage(String spotifyId) {
+        String accessToken = getAccessToken();
+        String apiUrl = spotifyUrl + "/v1/tracks/" + spotifyId;
+        String authorizationHeader = "Bearer " + accessToken;
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Set authorization header
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", authorizationHeader);
+
+        // Make the request to Spotify API
+        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
+
+        // Extract the cover image URL from the response
+        Map<String, Object> trackInfo = response.getBody();
+        if (trackInfo != null && trackInfo.containsKey("album")) {
+            Map<String, Object> albumInfo = (Map<String, Object>) trackInfo.get("album");
+            List<Map<String, Object>> images = (List<Map<String, Object>>) albumInfo.get("images");
+            if (images != null && !images.isEmpty()) {
+                return (String) images.get(0).get("url");
+            }
+        }
+
+        return null;
     }
 
     public Boolean checkIfSongExists(String name) {
@@ -268,6 +274,120 @@ public class SongService {
                     }
                 }
             }
+        }
+
+        return null;
+    }
+
+    public String getISRCBySongName(String songName) {
+        String spotifyId = getSongIdByName(songName);
+
+        if (spotifyId != null) {
+            return getISRCByTrackId(spotifyId);
+        }
+
+        return null;
+    }
+
+    public void getSongFeatures(String trackId) {
+        String isrc = getISRCByTrackId(trackId);
+        System.out.println(isrc);
+        if(isrc != null) {
+            String mbid = getMBIDByISRC(isrc);
+            System.out.println(mbid);
+            if(mbid != null) {
+                String features = getSongFeaturesByMBID(mbid);
+                System.out.println(features);
+            }
+        }
+    }
+
+    public void getMultipleSongsFeatures(List<Song> songs) {
+
+        String joinedMBIDS = "";
+        for(Song song : songs) {
+            String mbid = getMBIDByISRC(song.getIsrc());
+            if(mbid != null) joinedMBIDS += mbid + ";";
+        }
+
+        if(joinedMBIDS != null) {
+            String features = getSongFeaturesByMBID(joinedMBIDS);
+            System.out.println(features);
+        }
+
+    }
+
+    public String getSongFeaturesByMBID(String mbid) {
+        String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/high-level";
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Construct the URL with the recording_ids parameter
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(acousticBrainzUrl)
+                .queryParam("recording_ids", mbid);
+
+        // Make the API request
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                null,
+                String.class
+        );
+
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        } else {
+            return null;
+        }
+    }
+
+    private String getISRCByTrackId(String trackId) {
+        String apiUrl = spotifyUrl + "/v1/tracks/" + trackId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + getAccessToken());
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = new RestTemplate().exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            Map<String, String> externalIds = (Map<String, String>) response.getBody().get("external_ids");
+            return externalIds.get("isrc");
+        } else {
+            // Handle error cases
+            return null;
+        }
+    }
+
+    public String getMBIDByISRC(String isrc) {
+        String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
+
+        // Construct the URL with the ISRC parameter
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
+                .queryParam("query", "isrc:" + isrc)
+                .queryParam("fmt", "json");
+
+        // Set up headers or any other configuration if needed
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.USER_AGENT, "MyUniProject/0.0.1 (viliusps@gmail.com)");
+        // Create a RequestEntity with headers
+        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, builder.build().toUri());
+
+        // Make the API request
+        ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
+
+        // Extract the MBID from the response
+        if (responseEntity.getStatusCode().is2xxSuccessful()) {
+            List<Map<String, String>> recordings = (List<Map<String, String>>) responseEntity.getBody().get("recordings");
+
+            if (!recordings.isEmpty()) {
+                // Assuming you want the MBID of the first recording in the list
+                return recordings.get(0).get("id");
+            }
+        } else {
+            // Handle error cases
+            // You might want to log or throw an exception depending on your use case
+            System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCodeValue());
         }
 
         return null;
