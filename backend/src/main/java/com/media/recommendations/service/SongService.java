@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -177,7 +178,7 @@ public class SongService {
 
         //getMultipleSongsFeatures(songs);
         //after getting a list with isrc, iterate and find the correct name and author
-        getSongFeatures(songs.get(4).getSpotifyId());
+        getSongFeatures(songs.get(0).getSpotifyId(), songs.get(0).getTitle());
         return songs;
     }
 
@@ -289,12 +290,14 @@ public class SongService {
         return null;
     }
 
-    public void getSongFeatures(String trackId) {
+    public void getSongFeatures(String trackId, String title) {
+        System.out.println("TITLE: " + title);
         String isrc = getISRCByTrackId(trackId);
-        System.out.println(isrc);
+        System.out.println("ISRC: " + isrc);
         if(isrc != null) {
-            String mbid = getMBIDByISRC(isrc);
-            System.out.println(mbid);
+            String mbid = getMBIDByISRC(isrc, title);
+            //String mbid = getMBIDByISRC("USUM71118074", "Where Have You Been?");
+            System.out.println("MBID: " + mbid);
             if(mbid != null) {
                 String features = getSongFeaturesByMBID(mbid);
                 System.out.println(features);
@@ -306,7 +309,7 @@ public class SongService {
 
         String joinedMBIDS = "";
         for(Song song : songs) {
-            String mbid = getMBIDByISRC(song.getIsrc());
+            String mbid = getMBIDByISRC(song.getIsrc(), song.getTitle());
             if(mbid != null) joinedMBIDS += mbid + ";";
         }
 
@@ -354,40 +357,39 @@ public class SongService {
             Map<String, String> externalIds = (Map<String, String>) response.getBody().get("external_ids");
             return externalIds.get("isrc");
         } else {
-            // Handle error cases
             return null;
         }
     }
 
-    public String getMBIDByISRC(String isrc) {
+    public String getMBIDByISRC(String isrc, String title) {
+        System.out.println("GETTING MBID");
         String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
 
-        // Construct the URL with the ISRC parameter
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
                 .queryParam("query", "isrc:" + isrc)
                 .queryParam("fmt", "json");
 
-        // Set up headers or any other configuration if needed
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.USER_AGENT, "MyUniProject/0.0.1 (viliusps@gmail.com)");
-        // Create a RequestEntity with headers
+
         RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, builder.build().toUri());
 
-        // Make the API request
         ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
 
-        // Extract the MBID from the response
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            List<Map<String, String>> recordings = (List<Map<String, String>>) responseEntity.getBody().get("recordings");
+            List<Map<String, String>> recordings = Optional.ofNullable(responseEntity.getBody())
+                    .map(body -> (List<Map<String, String>>) body.get("recordings"))
+                    .orElse(null);
 
-            if (!recordings.isEmpty()) {
-                // Assuming you want the MBID of the first recording in the list
-                return recordings.get(0).get("id");
+            if (recordings != null && !recordings.isEmpty()) {
+                Optional<Map<String, String>> matchingRecording = recordings.stream()
+                        .filter(entry -> Objects.equals(entry.get("title"), title))
+                        .findFirst();
+
+                return matchingRecording.map(entry -> entry.get("id")).orElse(null);
             }
         } else {
-            // Handle error cases
-            // You might want to log or throw an exception depending on your use case
-            System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCodeValue());
+            System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCode());
         }
 
         return null;

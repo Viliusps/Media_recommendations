@@ -1,0 +1,2 @@
+ALTER TABLE songs
+ADD COLUMN isrc VARCHAR(20)

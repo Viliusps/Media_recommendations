@@ -99,11 +99,4 @@ public class SongController {
         String result = songService.getISRCBySongName(name);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
-    @PostMapping("/mbid")
-    public ResponseEntity<String> getSongMBID(@RequestBody String isrc) {
-        String result = songService.getMBIDByISRC(isrc);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-    
 }
