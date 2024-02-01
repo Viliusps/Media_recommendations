@@ -10,9 +10,11 @@ public class GameService {
     @Value("${steam.api.key}")
     private String apiKey;
 
-    public ResponseEntity<String> getRecentlyPlayedGames() {
+    public ResponseEntity<String> getRecentlyPlayedGames(String userId) {
         String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
-            String url = apiUrl + "?key=" + apiKey + "&steamid=76561198132196957";
+            String url = apiUrl + "?key=" + apiKey + "&steamid=" + userId;
+
+            System.out.println(url);
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);

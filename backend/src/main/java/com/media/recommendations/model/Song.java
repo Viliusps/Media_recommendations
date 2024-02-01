@@ -48,6 +48,8 @@ public class Song {
     @Column(name = "image_url")
     private String imageUrl;
 
+    private String isrc;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "song")
     private List<Movie> movies = new ArrayList<>();

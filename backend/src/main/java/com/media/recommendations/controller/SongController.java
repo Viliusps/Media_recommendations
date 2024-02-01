@@ -93,5 +93,17 @@ public class SongController {
         Boolean result = songService.checkIfSongExists(name);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @PostMapping("/isrc")
+    public ResponseEntity<String> getSongISRC(@RequestBody String name) {
+        String result = songService.getISRCBySongName(name);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/mbid")
+    public ResponseEntity<String> getSongMBID(@RequestBody String isrc) {
+        String result = songService.getMBIDByISRC(isrc);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
     
 }

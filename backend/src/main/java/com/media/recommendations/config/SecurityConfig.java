@@ -37,7 +37,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, comments, songs, movies, games).permitAll()
                     .requestMatchers(auth).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/movies/omdb").permitAll()
-                    .requestMatchers(HttpMethod.POST, movies, songs).permitAll()
+                    .requestMatchers(HttpMethod.POST, movies, songs, games).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/recommend").permitAll()
                     .requestMatchers(HttpMethod.PUT, movies, songs).hasAuthority("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/v1/users").hasAuthority("ADMIN")

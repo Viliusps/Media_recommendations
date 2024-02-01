@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.media.recommendations.model.requests.SteamRequest;
 import com.media.recommendations.service.GameService;
 
 
@@ -19,9 +21,10 @@ public class GameController {
     GameService gameService;
 
 
-    @GetMapping("/getRecentlyPlayedGames")
-    public ResponseEntity<String> getRecentlyPlayedGames() {
-        return gameService.getRecentlyPlayedGames();
+    @PostMapping("/getRecentlyPlayedGames")
+    public ResponseEntity<String> getRecentlyPlayedGames(@RequestBody SteamRequest request) {
+        System.out.println(request.getUserId());
+        return gameService.getRecentlyPlayedGames(request.getUserId());
     }
     
 }
