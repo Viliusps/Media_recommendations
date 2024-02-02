@@ -1,11 +1,11 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
@@ -177,8 +178,7 @@ public class SongService {
         }
 
         //getMultipleSongsFeatures(songs);
-        //after getting a list with isrc, iterate and find the correct name and author
-        getSongFeatures(songs.get(0).getSpotifyId(), songs.get(0).getTitle());
+        getSongFeatures(songs.get(8).getSpotifyId(), songs.get(8).getTitle());
         return songs;
     }
 
@@ -195,14 +195,11 @@ public class SongService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        // Set authorization header
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authorizationHeader);
 
-        // Make the request to Spotify API
         ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
 
-        // Extract the cover image URL from the response
         Map<String, Object> trackInfo = response.getBody();
         if (trackInfo != null && trackInfo.containsKey("album")) {
             Map<String, Object> albumInfo = (Map<String, Object>) trackInfo.get("album");
@@ -291,16 +288,15 @@ public class SongService {
     }
 
     public void getSongFeatures(String trackId, String title) {
-        System.out.println("TITLE: " + title);
         String isrc = getISRCByTrackId(trackId);
-        System.out.println("ISRC: " + isrc);
         if(isrc != null) {
             String mbid = getMBIDByISRC(isrc, title);
             //String mbid = getMBIDByISRC("USUM71118074", "Where Have You Been?");
-            System.out.println("MBID: " + mbid);
             if(mbid != null) {
-                String features = getSongFeaturesByMBID(mbid);
-                System.out.println(features);
+                Map<String, String> features = getSongFeaturesByMBID(mbid);
+                for (Map.Entry<String, String> entry : features.entrySet()) {
+                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                }
             }
         }
     }
@@ -314,33 +310,58 @@ public class SongService {
         }
 
         if(joinedMBIDS != null) {
-            String features = getSongFeaturesByMBID(joinedMBIDS);
-            System.out.println(features);
+            Map<String, String> features = getSongFeaturesByMBID(joinedMBIDS);
         }
 
     }
 
-    public String getSongFeaturesByMBID(String mbid) {
-        String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/high-level";
+    public Map<String, String> getSongFeaturesByMBID(String mbid) {
+        String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/" + mbid + "/low-level";
         RestTemplate restTemplate = new RestTemplate();
 
-        // Construct the URL with the recording_ids parameter
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(acousticBrainzUrl)
-                .queryParam("recording_ids", mbid);
-
-        // Make the API request
         ResponseEntity<String> responseEntity = restTemplate.exchange(
-                builder.toUriString(),
+                acousticBrainzUrl,
                 HttpMethod.GET,
                 null,
                 String.class
         );
 
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
-        } else {
+        try {
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = objectMapper.readTree(responseEntity.getBody());
+
+                Map<String, String> selectedFeatures = new HashMap<>();
+
+                JsonNode tonalNode = rootNode.path("tonal");
+                selectedFeatures.put("chords_changes_rate", tonalNode.path("chords_changes_rate").asText());
+                selectedFeatures.put("key_strength", tonalNode.path("key_strength").asText());
+
+                JsonNode rhythmNode = rootNode.path("rhythm");
+                selectedFeatures.put("danceability", rhythmNode.path("danceability").asText());
+                selectedFeatures.put("bpm", rhythmNode.path("bpm").asText());
+                selectedFeatures.put("beats_loudness_mean", rhythmNode.path("beats_loudness").path("mean").asText());
+                selectedFeatures.put("beats_count", rhythmNode.path("beats_count").asText());
+
+                JsonNode lowlevelNode = rootNode.path("lowlevel");
+                selectedFeatures.put("spectral_energy_mean", lowlevelNode.path("spectral_energy").path("mean").asText());
+                selectedFeatures.put("silence_rate_60dB_mean", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
+                selectedFeatures.put("silence_rate_20dB_mean", lowlevelNode.path("silence_rate_20dB").path("mean").asText());
+                selectedFeatures.put("dissonance_mean", lowlevelNode.path("dissonance").path("mean").asText());
+                selectedFeatures.put("average_loudness", lowlevelNode.path("average_loudness").asText());
+                selectedFeatures.put("silence_rate_30dB_mean", lowlevelNode.path("silence_rate_30dB").path("mean").asText());
+                selectedFeatures.put("dynamic_complexity", lowlevelNode.path("dynamic_complexity").asText());
+                selectedFeatures.put("pitch_salience_mean", lowlevelNode.path("pitch_salience").path("mean").asText());
+
+                return selectedFeatures;
+            } else {
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            System.err.println("Error processing JSON response: " + e.getMessage());
             return null;
         }
+        
     }
 
     private String getISRCByTrackId(String trackId) {
@@ -362,7 +383,6 @@ public class SongService {
     }
 
     public String getMBIDByISRC(String isrc, String title) {
-        System.out.println("GETTING MBID");
         String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
@@ -383,7 +403,7 @@ public class SongService {
 
             if (recordings != null && !recordings.isEmpty()) {
                 Optional<Map<String, String>> matchingRecording = recordings.stream()
-                        .filter(entry -> Objects.equals(entry.get("title"), title))
+                         .filter(entry -> isSubstring(entry.get("title"), title) || isSubstring(title, entry.get("title")))
                         .findFirst();
 
                 return matchingRecording.map(entry -> entry.get("id")).orElse(null);
@@ -393,6 +413,10 @@ public class SongService {
         }
 
         return null;
+    }
+
+    private static boolean isSubstring(String str1, String str2) {
+        return str1 != null && str2 != null && (str1.contains(str2) || str2.contains(str1));
     }
 
 }
