@@ -81,7 +81,6 @@ const StyledH2 = styled.h2`
 `;
 
 const StyledH1 = styled.h1`
-  font-family: 'Comic Sans MS', cursive, sans-serif;
   font-size: 24px;
   text-align: center;
   text-transform: uppercase;
