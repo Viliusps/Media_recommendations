@@ -14,6 +14,33 @@ const Container = styled('div')`
   gap: 10px;
 `;
 
+const GamesGrid = styled('div')`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+`;
+
+const GameCard = styled('div')`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const GameImage = styled('img')`
+  width: 100%;
+  height: auto;
+  border-radius: 8px 8px 0 0;
+`;
+
+const GameName = styled('span')`
+  margin: 10px 0;
+  text-align: center;
+`;
+
 const Games = () => {
   const [recentGames, setRecentGames] = useState([]);
   const [userId, setUserId] = useState('');
@@ -80,11 +107,17 @@ const Games = () => {
       {recentGames.length > 0 && (
         <div>
           <h3>Recently Played Games:</h3>
-          <ul>
+          <GamesGrid>
             {recentGames.map((game) => (
-              <li key={game.appid}>{game.name}</li>
+              <GameCard key={game.appid}>
+                <GameImage
+                  src={`https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`}
+                  alt={game.name}
+                />
+                <GameName>{game.name}</GameName>
+              </GameCard>
             ))}
-          </ul>
+          </GamesGrid>
         </div>
       )}
     </Container>

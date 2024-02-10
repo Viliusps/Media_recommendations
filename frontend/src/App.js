@@ -63,9 +63,9 @@ function App() {
                 path="/playlistRecommendation/:type"
                 element={<RecommendationFromPlaylist />}
               />
+              <Route path="/games/:type" element={<Games />} />
             </>
           )}
-          <Route path="/games" element={<Games />} />
 
           <Route path="*" element={<Navigate to="/movies" replace />} />
         </Routes>
