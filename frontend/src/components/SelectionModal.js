@@ -4,6 +4,7 @@ import CustomCard from './CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
 import spotifyImage from '../images/spotify.png';
+import steamImage from '../images/steam.png';
 import { useNavigate } from 'react-router-dom';
 
 const StyledBox = styled(Box)`
@@ -59,13 +60,22 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               cardWidth={300}
             />
             {role !== 'GUEST' && (
-              <CustomCard
-                title="My Spotify history"
-                image={spotifyImage}
-                handleOpen={() => Navigate(`/playlistRecommendation/${type}`)}
-                cardHeight={350}
-                cardWidth={300}
-              />
+              <>
+                <CustomCard
+                  title="My Spotify history"
+                  image={spotifyImage}
+                  handleOpen={() => Navigate(`/playlistRecommendation/${type}`)}
+                  cardHeight={350}
+                  cardWidth={300}
+                />
+                <CustomCard
+                  title="My Steam history"
+                  image={steamImage}
+                  handleOpen={() => Navigate(`/games/${type}`)}
+                  cardHeight={350}
+                  cardWidth={300}
+                />
+              </>
             )}
           </StyledPaper>
         </div>
