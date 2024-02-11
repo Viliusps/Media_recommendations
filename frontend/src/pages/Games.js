@@ -65,7 +65,6 @@ const Games = () => {
 
     GetRecentlyPlayedGames(trimmedUserId)
       .then((result) => {
-        console.log(result);
         if (result.response.games.length == 0) setError(true);
         else {
           setRecentGames(result.response.games);
