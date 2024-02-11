@@ -176,10 +176,27 @@ public class SongService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        //getSongFeatures(songs.get(8).getSpotifyId(), songs.get(8).getTitle());
         //getMultipleSongsFeatures(songs);
-        getSongFeatures(songs.get(8).getSpotifyId(), songs.get(8).getTitle());
+        
         return songs;
+    }
+
+    
+    public void getMultipleSongsFeatures(List<Song> songs) {
+
+        String joinedMBIDS = "";
+        for(Song song : songs) {
+            String mbid = getMBIDByISRC(song.getIsrc(), song.getTitle());
+            if(mbid != null) joinedMBIDS += mbid + ";";
+        }
+        if(joinedMBIDS != null) {
+            Map<String, String> features = getSongFeaturesByMBID(joinedMBIDS);
+            for (Map.Entry<String, String> entry : features.entrySet()) {
+                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                }
+        }
+
     }
 
     public SongPageResponse search(String search) {
@@ -290,8 +307,9 @@ public class SongService {
     public void getSongFeatures(String trackId, String title) {
         String isrc = getISRCByTrackId(trackId);
         if(isrc != null) {
-            String mbid = getMBIDByISRC(isrc, title);
-            //String mbid = getMBIDByISRC("USUM71118074", "Where Have You Been?");
+            //String mbid = getMBIDByISRC(isrc, title);
+            //System.out.println("MBID: " + mbid);
+            String mbid = getMBIDByISRC("USUM71118074", "Where Have You Been?");
             if(mbid != null) {
                 Map<String, String> features = getSongFeaturesByMBID(mbid);
                 for (Map.Entry<String, String> entry : features.entrySet()) {
@@ -301,22 +319,8 @@ public class SongService {
         }
     }
 
-    public void getMultipleSongsFeatures(List<Song> songs) {
-
-        String joinedMBIDS = "";
-        for(Song song : songs) {
-            String mbid = getMBIDByISRC(song.getIsrc(), song.getTitle());
-            if(mbid != null) joinedMBIDS += mbid + ";";
-        }
-
-        if(joinedMBIDS != null) {
-            Map<String, String> features = getSongFeaturesByMBID(joinedMBIDS);
-        }
-
-    }
-
     public Map<String, String> getSongFeaturesByMBID(String mbid) {
-        String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/" + mbid + "/low-level";
+        String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/low-level?recording_ids=" + mbid;
         RestTemplate restTemplate = new RestTemplate();
 
         ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -330,30 +334,16 @@ public class SongService {
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode rootNode = objectMapper.readTree(responseEntity.getBody());
-
-                Map<String, String> selectedFeatures = new HashMap<>();
-
-                JsonNode tonalNode = rootNode.path("tonal");
-                selectedFeatures.put("chords_changes_rate", tonalNode.path("chords_changes_rate").asText());
-                selectedFeatures.put("key_strength", tonalNode.path("key_strength").asText());
-
-                JsonNode rhythmNode = rootNode.path("rhythm");
-                selectedFeatures.put("danceability", rhythmNode.path("danceability").asText());
-                selectedFeatures.put("bpm", rhythmNode.path("bpm").asText());
-                selectedFeatures.put("beats_loudness_mean", rhythmNode.path("beats_loudness").path("mean").asText());
-                selectedFeatures.put("beats_count", rhythmNode.path("beats_count").asText());
-
-                JsonNode lowlevelNode = rootNode.path("lowlevel");
-                selectedFeatures.put("spectral_energy_mean", lowlevelNode.path("spectral_energy").path("mean").asText());
-                selectedFeatures.put("silence_rate_60dB_mean", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
-                selectedFeatures.put("silence_rate_20dB_mean", lowlevelNode.path("silence_rate_20dB").path("mean").asText());
-                selectedFeatures.put("dissonance_mean", lowlevelNode.path("dissonance").path("mean").asText());
-                selectedFeatures.put("average_loudness", lowlevelNode.path("average_loudness").asText());
-                selectedFeatures.put("silence_rate_30dB_mean", lowlevelNode.path("silence_rate_30dB").path("mean").asText());
-                selectedFeatures.put("dynamic_complexity", lowlevelNode.path("dynamic_complexity").asText());
-                selectedFeatures.put("pitch_salience_mean", lowlevelNode.path("pitch_salience").path("mean").asText());
-
-                return selectedFeatures;
+                if (!mbid.contains(";")) {
+                    JsonNode mbidNode = rootNode.get(mbid);
+                    if (mbidNode.size() == 1 && mbidNode.has("0")) {
+                        mbidNode = mbidNode.get("0");
+                    }
+                    return extractFeaturesFromNode(mbidNode);
+                } else {
+                    // If multiple MBIDs are provided, calculate average features
+                    return calculateAverageFeatures(rootNode);
+                }
             } else {
                 return null;
             }
@@ -362,6 +352,73 @@ public class SongService {
             return null;
         }
         
+    }
+
+    private Map<String, String> calculateAverageFeatures(JsonNode rootNode) {
+        Map<String, Double> sumFeatures = new HashMap<>();
+        Map<String, Integer> countFeatures = new HashMap<>();
+
+        // Iterate over each MBID node
+        Iterator<Map.Entry<String, JsonNode>> fields = rootNode.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> entry = fields.next();
+            if (entry.getKey().equals("mbid_mapping")) {
+                continue;
+            }
+            JsonNode mbidNode = entry.getValue();
+            if (mbidNode.size() == 1 && mbidNode.has("0")) {
+                mbidNode = mbidNode.get("0");
+            }
+
+            Map<String, String> features = extractFeaturesFromNode(mbidNode);
+
+            // Accumulate feature values
+            for (Map.Entry<String, String> featureEntry : features.entrySet()) {
+                String featureName = featureEntry.getKey();
+                double featureValue = Double.parseDouble(featureEntry.getValue());
+
+                sumFeatures.put(featureName, sumFeatures.getOrDefault(featureName, 0.0) + featureValue);
+                countFeatures.put(featureName, countFeatures.getOrDefault(featureName, 0) + 1);
+            }
+        }
+
+        // Calculate averages
+        Map<String, String> averageFeatures = new HashMap<>();
+        for (Map.Entry<String, Double> sumEntry : sumFeatures.entrySet()) {
+            String featureName = sumEntry.getKey();
+            double sum = sumEntry.getValue();
+            int count = countFeatures.get(featureName);
+            double average = sum / count;
+            averageFeatures.put(featureName, String.valueOf(average));
+        }
+
+        return averageFeatures;
+    }
+
+    private Map<String, String> extractFeaturesFromNode(JsonNode rootNode) {
+         Map<String, String> selectedFeatures = new HashMap<>();
+
+        JsonNode tonalNode = rootNode.path("tonal");
+        selectedFeatures.put("chords_changes_rate", tonalNode.path("chords_changes_rate").asText());
+        selectedFeatures.put("key_strength", tonalNode.path("key_strength").asText());
+
+        JsonNode rhythmNode = rootNode.path("rhythm");
+        selectedFeatures.put("danceability", rhythmNode.path("danceability").asText());
+        selectedFeatures.put("bpm", rhythmNode.path("bpm").asText());
+        selectedFeatures.put("beats_loudness_mean", rhythmNode.path("beats_loudness").path("mean").asText());
+        selectedFeatures.put("beats_count", rhythmNode.path("beats_count").asText());
+
+        JsonNode lowlevelNode = rootNode.path("lowlevel");
+        selectedFeatures.put("spectral_energy_mean", lowlevelNode.path("spectral_energy").path("mean").asText());
+        selectedFeatures.put("silence_rate_60dB_mean", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
+        selectedFeatures.put("silence_rate_20dB_mean", lowlevelNode.path("silence_rate_20dB").path("mean").asText());
+        selectedFeatures.put("dissonance_mean", lowlevelNode.path("dissonance").path("mean").asText());
+        selectedFeatures.put("average_loudness", lowlevelNode.path("average_loudness").asText());
+        selectedFeatures.put("silence_rate_30dB_mean", lowlevelNode.path("silence_rate_30dB").path("mean").asText());
+        selectedFeatures.put("dynamic_complexity", lowlevelNode.path("dynamic_complexity").asText());
+        selectedFeatures.put("pitch_salience_mean", lowlevelNode.path("pitch_salience").path("mean").asText());
+
+        return selectedFeatures;
     }
 
     private String getISRCByTrackId(String trackId) {
@@ -383,36 +440,43 @@ public class SongService {
     }
 
     public String getMBIDByISRC(String isrc, String title) {
-        String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
+        try {
+            Thread.sleep(1000);
+            String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
-                .queryParam("query", "isrc:" + isrc)
-                .queryParam("fmt", "json");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
+                    .queryParam("query", "isrc:" + isrc)
+                    .queryParam("fmt", "json");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.USER_AGENT, "MyUniProject/0.0.1 (viliusps@gmail.com)");
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.USER_AGENT, "MyUniProject/0.0.1 (viliusps@gmail.com)");
 
-        RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, builder.build().toUri());
+            RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, builder.build().toUri());
 
-        ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
+            ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
 
-        if (responseEntity.getStatusCode().is2xxSuccessful()) {
-            List<Map<String, String>> recordings = Optional.ofNullable(responseEntity.getBody())
-                    .map(body -> (List<Map<String, String>>) body.get("recordings"))
-                    .orElse(null);
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                List<Map<String, String>> recordings = Optional.ofNullable(responseEntity.getBody())
+                        .map(body -> (List<Map<String, String>>) body.get("recordings"))
+                        .orElse(null);
 
-            if (recordings != null && !recordings.isEmpty()) {
-                Optional<Map<String, String>> matchingRecording = recordings.stream()
-                         .filter(entry -> isSubstring(entry.get("title"), title) || isSubstring(title, entry.get("title")))
-                        .findFirst();
+                if (recordings != null && !recordings.isEmpty()) {
+                    Optional<Map<String, String>> matchingRecording = recordings.stream()
+                            .filter(entry -> isSubstring(entry.get("title"), title) || isSubstring(title, entry.get("title")))
+                            .findFirst();
 
-                return matchingRecording.map(entry -> entry.get("id")).orElse(null);
+                    return matchingRecording.map(entry -> entry.get("id")).orElse(null);
+                }
+            } else {
+                System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCode());
             }
-        } else {
-            System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCode());
-        }
 
-        return null;
+            return null;
+        } catch(InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+        
     }
 
     private static boolean isSubstring(String str1, String str2) {

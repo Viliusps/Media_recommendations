@@ -4,7 +4,6 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const GetRecentlyPlayedGames = async (userId) => {
-  console.log(userId);
   const response = await axios.post(
     `${URL}/games/getRecentlyPlayedGames`,
     { userId: userId },

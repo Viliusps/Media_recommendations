@@ -121,7 +121,7 @@ export default function RecommendationFromPlaylist() {
         setUserSongs(data);
       });
     }
-  }, [recommendation]);
+  }, []);
 
   const getRecommendation = () => {
     const songNames = userSongs.map((song) => song.title);

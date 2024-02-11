@@ -14,8 +14,6 @@ public class GameService {
         String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
             String url = apiUrl + "?key=" + apiKey + "&steamid=" + userId;
 
-            System.out.println(url);
-
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
