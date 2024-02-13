@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import CustomCard from './CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
+import gameImage from '../images/game.png';
 import spotifyImage from '../images/spotify.png';
 import steamImage from '../images/steam.png';
 import { useNavigate } from 'react-router-dom';
@@ -54,6 +55,16 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
               image={songImage}
               handleOpen={() => {
                 setType('Song');
+                handleOpen();
+              }}
+              cardHeight={350}
+              cardWidth={300}
+            />
+            <CustomCard
+              title="A game"
+              image={gameImage}
+              handleOpen={() => {
+                setType('Game');
                 handleOpen();
               }}
               cardHeight={350}

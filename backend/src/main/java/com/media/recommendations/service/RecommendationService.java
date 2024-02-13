@@ -49,6 +49,9 @@ public class RecommendationService {
                     case "Spotify":
                         prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, add nothing else.";
                         break;
+                    case "Game":
+                        prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
+                        break;
                 }
                 break;
             case "Movie":
@@ -62,6 +65,26 @@ public class RecommendationService {
                             break;
                         case "Spotify":
                             prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with an imdb id of your movie, add nothing else.";
+                            break;
+                        case "Game":
+                            prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with an imdb id of your movie, add nothing else.";
+                            break;
+                    }
+                    break;
+            case "Game":
+                prompt += "Recommend me a game, based on ";
+                switch(originalRequest.getRecommendingByType()){
+                        case "Song":
+                            prompt += "a song that I like. The song's name is " + originalRequest.getRecommendingBy() + ". Reply only with the name of your game, add nothing else.";
+                            break;
+                        case "Movie":
+                            prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with the name of your game, add nothing else.";
+                            break;
+                        case "Spotify":
+                            prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with the name of your game, add nothing else.";
+                            break;
+                        case "Game":
+                            prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your game, add nothing else.";
                             break;
                     }
                     break;

@@ -111,6 +111,9 @@ const RecommendationFromChoice = () => {
                     </RecommendationText>
                   )
                 )}
+                {recommendingType === 'Game' && (
+                  <RecommendationText>{recommendation.id}</RecommendationText>
+                )}
               </>
             )}
           </LoadingWrapper>

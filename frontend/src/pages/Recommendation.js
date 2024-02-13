@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
+import gameImage from '../images/game.png';
 import RecommendationModal from '../components/RecommendationModal';
 import SelectionModal from '../components/SelectionModal';
 import { useNavigate } from 'react-router-dom';
@@ -36,11 +37,7 @@ export default function Recommendation() {
   }, []);
 
   const handleOpenSelection = (calledBy) => {
-    if (calledBy === 'Movie') {
-      setType('Movie');
-    } else if (calledBy === 'Song') {
-      setType('Song');
-    }
+    setType(calledBy);
     setOpenSelection(true);
   };
   const handleCloseSelection = () => setOpenSelection(false);
@@ -69,6 +66,15 @@ export default function Recommendation() {
           setErrorLabel('Song not found.');
         }
       });
+    } else if (recommendBy === 'Game') {
+      // checkIfGameExists(selection).then((result) => {
+      //   if (result) {
+      //     navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+      //   } else {
+      //     setErrorLabel('Game not found.');
+      //   }
+      // });
+      navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
     }
   };
 
@@ -89,6 +95,13 @@ export default function Recommendation() {
             title="Song"
             image={songImage}
             handleOpen={() => handleOpenSelection('Song')}
+            cardHeight={700}
+            cardWidth={600}
+          />
+          <CustomCard
+            title="Game"
+            image={gameImage}
+            handleOpen={() => handleOpenSelection('Game')}
             cardHeight={700}
             cardWidth={600}
           />
