@@ -1,8 +1,6 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.media.recommendations.model.GameFeatures;
+import com.media.recommendations.model.Game;
 
 @Service
 public class GameService {
@@ -34,19 +32,19 @@ public class GameService {
     }
 
     public ResponseEntity<String> getRecentlyPlayedGames(String userId) {
-        String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
+            String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
             String url = apiUrl + "?key=" + apiKey + "&steamid=" + userId;
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-            GameFeatures features = getGameFeatures("Red Dead Redemption 2");
+            Game features = getgame("Red Dead Redemption 2");
             System.out.println(features.toString());
 
             return response;
     }
 
-    public GameFeatures getGameFeatures(String gameName) {
+    public Game getgame(String gameName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("User-Agent", "MyUniProject/v1.0");
@@ -64,7 +62,7 @@ public class GameService {
 
             String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
 
-            return parseGameFeaturesFromDetailsResponse(gameDetailsResponse);
+            return parsegameFromDetailsResponse(gameDetailsResponse);
         } else {
             return null;
         }
@@ -84,32 +82,20 @@ public class GameService {
         return null;
     }
 
-    private GameFeatures parseGameFeaturesFromDetailsResponse(String detailsResponse) {
+    private Game parsegameFromDetailsResponse(String detailsResponse) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(detailsResponse);
-            GameFeatures gameFeatures = new GameFeatures();
-            gameFeatures.setName(root.get("name").asText());
-            gameFeatures.setReleaseDate(root.get("released").asText());
-            gameFeatures.setGenres(parseGenres(root.get("genres")));
-            gameFeatures.setRating(root.get("rating").asDouble());
-            gameFeatures.setPlaytime(root.get("playtime").asInt());
-            return gameFeatures;
+            Game game = new Game();
+            game.setName(root.get("name").asText());
+            game.setReleaseDate(root.get("released").asText());
+            game.setGenre(root.get("genres").get(0).get("name").asText());
+            game.setRating(root.get("rating").asDouble());
+            game.setPlaytime(root.get("playtime").asInt());
+            return game;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
-
-    private List<String> parseGenres(JsonNode genresNode) {
-        List<String> genres = new ArrayList<>();
-        if (genresNode.isArray()) {
-            for (JsonNode genreNode : genresNode) {
-                genres.add(genreNode.get("name").asText());
-            }
-        }
-        return genres;
-    }
-
-
 }

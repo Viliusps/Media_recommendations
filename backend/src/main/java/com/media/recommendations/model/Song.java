@@ -1,16 +1,10 @@
 package com.media.recommendations.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -48,9 +42,42 @@ public class Song {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "isrc")
     private String isrc;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "song")
-    private List<Movie> movies = new ArrayList<>();
+    @Column(name = "chords_changes_rate")
+    private String chordsChangesRate;
+
+    @Column(name = "key_strength")
+    private String keyStrength;
+
+    @Column(name = "danceability")
+    private String danceability;
+
+    @Column(name = "bpm")
+    private String bpm;
+
+    @Column(name = "beats_loudness")
+    private String beatsLoudness;
+
+    @Column(name = "beats_count")
+    private String beatsCount;
+
+    @Column(name = "spectral_energy")
+    private String spectralEnergy;
+
+    @Column(name = "silence_rate")
+    private String silenceRate;
+
+    @Column(name = "dissonance")
+    private String dissonance;
+
+    @Column(name = "average_loudness")
+    private String averageLoudness;
+
+    @Column(name = "dynamic_complexity")
+    private String dynamicComplexity;
+
+    @Column(name = "pitch_salience")
+    private String pitchSalience;
 }

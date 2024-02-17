@@ -84,7 +84,6 @@ public class SongService {
         newSong.setTitle(song.getTitle());
         newSong.setSinger(song.getSinger());
         newSong.setSpotifyId(song.getSpotifyId());
-        newSong.setMovies(song.getMovies());
         return songRepository.save(newSong);
     }
 
@@ -98,7 +97,6 @@ public class SongService {
         songFromDb.setTitle(song.getTitle());
         songFromDb.setSinger(song.getSinger());
         songFromDb.setSpotifyId(song.getSpotifyId());
-        songFromDb.setMovies(song.getMovies());
         return songRepository.save(songFromDb);
     }
 
@@ -411,10 +409,8 @@ public class SongService {
         JsonNode lowlevelNode = rootNode.path("lowlevel");
         selectedFeatures.put("spectral_energy_mean", lowlevelNode.path("spectral_energy").path("mean").asText());
         selectedFeatures.put("silence_rate_60dB_mean", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
-        selectedFeatures.put("silence_rate_20dB_mean", lowlevelNode.path("silence_rate_20dB").path("mean").asText());
         selectedFeatures.put("dissonance_mean", lowlevelNode.path("dissonance").path("mean").asText());
         selectedFeatures.put("average_loudness", lowlevelNode.path("average_loudness").asText());
-        selectedFeatures.put("silence_rate_30dB_mean", lowlevelNode.path("silence_rate_30dB").path("mean").asText());
         selectedFeatures.put("dynamic_complexity", lowlevelNode.path("dynamic_complexity").asText());
         selectedFeatures.put("pitch_salience_mean", lowlevelNode.path("pitch_salience").path("mean").asText());
 
