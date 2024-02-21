@@ -3,9 +3,11 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Input, Flatten
+from keras.optimizers import Adam
 import joblib
 import psycopg2
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 db_params = {
     'dbname': 'media_recommendations',
@@ -77,4 +79,43 @@ for first_id, second_id, first_type, second_type in recommendations:
 cur.close()
 conn.close()
 
+features = []
+target_features = []
+types = []
+target_types = []
+
+for pair in data_pairs:
+    features.append(pair["first_item"]["features"])
+    target_features.append(pair["second_item"]["features"])
+    types.append(pair["first_item"]["type"])
+    target_types.append(pair["second_item"]["type"])
+
+
+type_encoder = LabelEncoder()
+encoded_types = type_encoder.fit_transform(types + target_types).reshape(-1, 1)
+split_index = len(types)
+encoded_input_types = encoded_types[:split_index]
+encoded_target_types = encoded_types[split_index:]
+
+max_len = max(max(len(f) for f in features), max(len(f) for f in target_features))
+padded_features = pad_sequences(features, maxlen=max_len, padding='post', dtype='float32')
+padded_target_features = pad_sequences(target_features, maxlen=max_len, padding='post', dtype='float32')
+
+final_features = np.hstack([padded_features, encoded_input_types])
+final_target_features = np.hstack([padded_target_features, encoded_target_types])
+
+X_train, X_test, y_train, y_test = train_test_split(final_features, final_target_features, test_size=0.2, random_state=42)
+
+model = Sequential([
+    Input(shape=(X_train.shape[1],)),
+    Dense(128, activation='relu'),
+    Dense(64, activation='relu'),
+    Dense(max_len + 1, activation='linear')
+])
+
+model.compile(optimizer=Adam(), loss='mean_squared_error')
+
+model.fit(X_train, y_train, epochs=50, batch_size=32, validation_split=0.2)
+
+model.save('recommendation_model.h5')
 
