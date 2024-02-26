@@ -1,5 +1,9 @@
 package com.media.recommendations.model.responses;
 
+import com.media.recommendations.model.Game;
+import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.Song;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,5 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RecommendationResponse {
     private String type;
-    private String id;
+    private Song song;
+    private Game game;
+    private Movie movie;
 }

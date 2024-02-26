@@ -257,6 +257,56 @@ public class SongService {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
+    public Song getSongByName(String name) {
+        String accessToken = getAccessToken();
+        Song song = null;
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", name)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
+                if (!tracks.isEmpty()) {
+                    Map<String, Object> track = tracks.get(0);
+                    String songName = (String) track.get("name");
+                    List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
+                    String artist = artists.isEmpty() ? "" : (String) artists.get(0).get("name");
+                    Map<String, Object> album = (Map<String, Object>) track.get("album");
+                    String spotifyId = (String) track.get("id");
+                    List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
+                    String imageUrl = images.isEmpty() ? "" : (String) images.get(0).get("url");
+                    Map<String, Object> externalIds = (Map<String, Object>) track.get("external_ids");
+                    String isrc = externalIds == null ? "" : (String) externalIds.get("isrc");
+                    
+                    song = Song.builder()
+                                .title(songName)
+                                .singer(artist)
+                                .spotifyId(spotifyId)
+                                .imageUrl(imageUrl)
+                                .isrc(isrc)
+                                .build();
+                }
+            }
+        }
+        return song;
+    }
+
+
+    @SuppressWarnings("unchecked")
     public String getSongIdByName(String songName) {
         String accessToken = getAccessToken();
 

@@ -97,9 +97,13 @@ split_index = len(types)
 encoded_input_types = encoded_types[:split_index]
 encoded_target_types = encoded_types[split_index:]
 
+
 max_len = max(max(len(f) for f in features), max(len(f) for f in target_features))
 padded_features = pad_sequences(features, maxlen=max_len, padding='post', dtype='float32')
 padded_target_features = pad_sequences(target_features, maxlen=max_len, padding='post', dtype='float32')
+
+print("First encoded Item:", padded_features, encoded_input_types)
+print("Second encoded Item:", padded_target_features, encoded_target_types)
 
 final_features = np.hstack([padded_features, encoded_input_types])
 final_target_features = np.hstack([padded_target_features, encoded_target_types])

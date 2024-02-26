@@ -60,7 +60,10 @@ const RecommendationFromChoice = () => {
     setLoading(true);
     recommend(recommendingType, recommendingByType, recommendingBy)
       .then((result) => {
-        setRecommendation(result);
+        console.log(result);
+        if (result.type == 'Movie') setRecommendation(result.movie);
+        else if (result.type == 'Song') setRecommendation(result.song);
+        else if (result.type == 'Game') setRecommendation(result.game);
       })
       .catch((error) => {
         console.error(error);
@@ -86,33 +89,44 @@ const RecommendationFromChoice = () => {
           <LoadingWrapper loading={loading} error={error}>
             {recommendation && (
               <>
-                {recommendingType === 'Song' && recommendation.id.length > 22 ? (
-                  <RecommendationText>{recommendation.id}</RecommendationText>
+                {recommendingType === 'Song' && recommendation.spotifyId.length > 22 ? (
+                  <RecommendationText>{recommendation.spotifyId}</RecommendationText>
                 ) : (
                   recommendingType === 'Song' && (
-                    <RecommendationText
-                      onClick={() => {
-                        const spotifyUri = `spotify:track:${recommendation.id}`;
-                        window.location.href = spotifyUri;
-                      }}>
-                      Click here!
-                    </RecommendationText>
+                    <>
+                      <h3>{recommendation.title}</h3>
+                      <h4>By: {recommendation.singer}</h4>
+                      <RecommendationText
+                        onClick={() => {
+                          const spotifyUri = `spotify:track:${recommendation.spotifyId}`;
+                          window.location.href = spotifyUri;
+                        }}>
+                        Click here!
+                      </RecommendationText>
+                    </>
                   )
                 )}
-                {recommendingType === 'Movie' && recommendation.id.length > 9 ? (
-                  <RecommendationText>{recommendation.id}</RecommendationText>
+                {recommendingType === 'Movie' && recommendation.imdbID.length > 9 ? (
+                  <RecommendationText>{recommendation.imdbID}</RecommendationText>
                 ) : (
                   recommendingType === 'Movie' && (
-                    <RecommendationText
-                      onClick={() =>
-                        window.open(`https://www.imdb.com/title/${recommendation.id}`, '_blank')
-                      }>
-                      Click here!
-                    </RecommendationText>
+                    <>
+                      <h3>{recommendation.Title}</h3>
+                      <h4>By: {recommendation.Director}</h4>
+                      <RecommendationText
+                        onClick={() =>
+                          window.open(
+                            `https://www.imdb.com/title/${recommendation.imdbID}`,
+                            '_blank'
+                          )
+                        }>
+                        Click here!
+                      </RecommendationText>
+                    </>
                   )
                 )}
                 {recommendingType === 'Game' && (
-                  <RecommendationText>{recommendation.id}</RecommendationText>
+                  <RecommendationText>{recommendation.name}</RecommendationText>
                 )}
               </>
             )}
