@@ -10,6 +10,7 @@ import com.media.recommendations.model.Game;
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.requests.ChatRequest;
+import com.media.recommendations.model.requests.RecommendationRatingRequest;
 import com.media.recommendations.model.requests.RecommendationRequest;
 import com.media.recommendations.model.responses.ChatResponse;
 import com.media.recommendations.model.responses.RecommendationResponse;
@@ -128,6 +129,64 @@ public class RecommendationService {
             return null;
         }
         return new RecommendationResponse(originalRequest.getRecommendingType(), song, game, movie);
+    }
+
+    public void rateRecommendation(RecommendationRatingRequest request) {
+        String recommendingType = request.getRecommendingType();
+        String recommendingByType = request.getRecommendingByType();
+        Object recommending = request.getRecommending();
+        Object recommendingBy = request.getRecommendingBy();
+        Boolean rating = request.getRating();
+
+        Movie movie = null;
+        Song song = null;
+        Game game = null;
+        Movie movieBy = null;
+        Song songBy = null;
+        Game gameBy = null;
+
+        long recommendingID = -1;
+        long recommendingByID = -1;
+
+        if ("Movie".equals(recommendingType)) {
+            movie = (Movie) recommending;
+            if(!movieService.existsMovie(movie)) {
+                Movie newMovie = movieService.createMovie(movie);
+                recommendingID = newMovie.getId();
+            }
+        } else if ("Song".equals(recommendingType)) {
+            song = (Song) recommending;
+            if(!songService.existsSong(song)) {
+                Song newSong = songService.createSong(song);
+                recommendingID = newSong.getId();
+            }
+        } else if ("Game".equals(recommendingType)) {
+            game = (Game) recommending;
+            if(!gameService.existsGame(game)) {
+                Game newGame = gameService.createGame(game);
+                recommendingID = newGame.getId();
+            }
+        }
+
+        if ("Movie".equals(recommendingByType)) {
+            movieBy = (Movie) recommendingBy;
+            if(!movieService.existsMovie(movieBy)) {
+                Movie newMovie = movieService.createMovie(movieBy);
+                recommendingByID = newMovie.getId();
+            }
+        } else if ("Song".equals(recommendingByType)) {
+            songBy = (Song) recommendingBy;
+            if(!songService.existsSong(songBy)) {
+                Song newSong = songService.createSong(songBy);
+                recommendingByID = newSong.getId();
+            }
+        } else if ("Game".equals(recommendingByType)) {
+            gameBy = (Game) recommendingBy;
+            if(!gameService.existsGame(gameBy)) {
+                Game newGame = gameService.createGame(gameBy);
+                recommendingByID = newGame.getId();
+            }
+        }
     }
     
 }

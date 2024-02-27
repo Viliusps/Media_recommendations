@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { recommend } from '../api/recommendation-axios';
+import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
+import { Button } from '@mui/material';
 
 const StyledContainer = styled.div`
   max-width: 800px;
@@ -55,6 +57,7 @@ const RecommendationFromChoice = () => {
   const [recommendation, setRecommendation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [openRating, setOpenRating] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -74,6 +77,13 @@ const RecommendationFromChoice = () => {
       });
   }, []);
 
+  const handleOpenRating = () => setOpenRating(true);
+  const handleCloseRating = () => setOpenRating(false);
+
+  const handleRatingClick = (rating) => {
+    console.log(rating);
+  };
+
   return (
     <StyledContainer>
       <Section>
@@ -82,7 +92,6 @@ const RecommendationFromChoice = () => {
           Recommending by: {recommendingBy} which is a {recommendingByType}
         </RecommendingBy>
       </Section>
-
       <Section>
         <RecommendationBox>
           <StyledH2>Your Recommendation</StyledH2>
@@ -131,8 +140,14 @@ const RecommendationFromChoice = () => {
               </>
             )}
           </LoadingWrapper>
+          <Button onClick={() => handleOpenRating()}>Rate the recommendation.</Button>
         </RecommendationBox>
       </Section>
+      <RatingModal
+        handleClose={handleCloseRating}
+        open={openRating}
+        handleClick={handleRatingClick}
+      />
     </StyledContainer>
   );
 };
