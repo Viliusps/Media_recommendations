@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
+import com.media.recommendations.repository.GameRepository;
 
 @Service
 public class GameService {
@@ -27,8 +28,26 @@ public class GameService {
 
     private final RestTemplate restTemplate;
 
-    public GameService() {
+    private final GameRepository gameRepository;
+
+    public GameService(GameRepository gameRepository) {
         this.restTemplate = new RestTemplate();
+        this.gameRepository = gameRepository;
+    }
+
+    public boolean existsGame(Game game) {
+        if (game == null) {
+            return false;
+        }
+        return gameRepository.existsByName(game.getName());
+    }
+
+    public Game getByName(String name) {
+        return gameRepository.getByName(name);
+    }
+
+    public Game createGame(Game game) {
+        return gameRepository.save(game);
     }
 
     public ResponseEntity<String> getRecentlyPlayedGames(String userId) {
@@ -38,13 +57,13 @@ public class GameService {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-            Game features = getgame("Red Dead Redemption 2");
+            Game features = getGameFromRAWG("Red Dead Redemption 2");
             System.out.println(features.toString());
 
             return response;
     }
 
-    public Game getgame(String gameName) {
+    public Game getGameFromRAWG(String gameName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("User-Agent", "MyUniProject/v1.0");

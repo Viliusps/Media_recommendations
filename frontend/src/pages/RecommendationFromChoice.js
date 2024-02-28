@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { recommend } from '../api/recommendation-axios';
+import { rateRecommendation, recommend } from '../api/recommendation-axios';
 import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
@@ -55,6 +55,7 @@ const RecommendationFromChoice = () => {
   const params = useParams();
   const { recommendingType, recommendingBy, recommendingByType } = params;
   const [recommendation, setRecommendation] = useState(null);
+  const [originalRequest, setOriginalRequest] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [openRating, setOpenRating] = useState(false);
@@ -67,6 +68,10 @@ const RecommendationFromChoice = () => {
         if (result.type == 'Movie') setRecommendation(result.movie);
         else if (result.type == 'Song') setRecommendation(result.song);
         else if (result.type == 'Game') setRecommendation(result.game);
+
+        if (result.originalType == 'Movie') setOriginalRequest(result.originalMovie);
+        else if (result.originalType == 'Song') setOriginalRequest(result.originalSong);
+        else if (result.originalType == 'Game') setOriginalRequest(result.originalGame);
       })
       .catch((error) => {
         console.error(error);
@@ -82,6 +87,15 @@ const RecommendationFromChoice = () => {
 
   const handleRatingClick = (rating) => {
     console.log(rating);
+    rateRecommendation(
+      recommendingType,
+      recommendingByType,
+      recommendation,
+      originalRequest,
+      rating
+    ).then(() => {
+      console.log('DONE');
+    });
   };
 
   return (

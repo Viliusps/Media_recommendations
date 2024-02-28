@@ -16,4 +16,9 @@ public class RecommendationResponse {
     private Song song;
     private Game game;
     private Movie movie;
+
+    private String originalType;
+    private Song originalSong;
+    private Game originalGame;
+    private Movie originalMovie;
 }

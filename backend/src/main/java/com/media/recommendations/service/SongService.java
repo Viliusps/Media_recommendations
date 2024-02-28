@@ -26,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
@@ -78,12 +79,36 @@ public class SongService {
         return null;
     }
 
+    public boolean existsSong(Song song) {
+        if (song == null) {
+            return false;
+        }
+        return songRepository.existsByisrc(song.getIsrc());
+    }
+
+    public Song getByISRC(String ISRC) {
+        return songRepository.getByisrc(ISRC);
+    }
+
+
     public Song createSong(Song song) {
         Song newSong = new Song();
         newSong.setGenre(song.getGenre());
         newSong.setTitle(song.getTitle());
         newSong.setSinger(song.getSinger());
         newSong.setSpotifyId(song.getSpotifyId());
+        newSong.setAverageLoudness(song.getAverageLoudness());
+        newSong.setBeatsCount(song.getBeatsCount());
+        newSong.setBeatsLoudness(song.getBeatsLoudness());
+        newSong.setBpm(song.getBpm());
+        newSong.setChordsChangesRate(song.getChordsChangesRate());
+        newSong.setDanceability(song.getDanceability());
+        newSong.setDissonance(song.getDissonance());
+        newSong.setDynamicComplexity(song.getDynamicComplexity());
+        newSong.setKeyStrength(song.getKeyStrength());
+        newSong.setSpectralEnergy(song.getSpectralEnergy());
+        newSong.setSilenceRate(song.getSilenceRate());
+        newSong.setIsrc(song.getIsrc());
         return songRepository.save(newSong);
     }
 
@@ -258,7 +283,7 @@ public class SongService {
     }
 
     @SuppressWarnings("unchecked")
-    public Song getSongByName(String name) {
+    public Song getSongByNameFromSpotify(String name) {
         String accessToken = getAccessToken();
         Song song = null;
 

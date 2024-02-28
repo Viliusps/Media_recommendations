@@ -62,9 +62,13 @@ public class MovieService {
 
     public boolean existsMovie(Movie movie) {
         if (movie == null) {
-        return false;
+            return false;
         }
-        return movieRepository.existsByImdbID(movie.getImdbID());
+        return movieRepository.existsByimdbID(movie.getImdbID());
+    }
+
+    public Movie getByIMDBId(String IMDB) {
+        return movieRepository.getByimdbID(IMDB);
     }
 
     public Movie updateMovie(Long id, Movie movie) {

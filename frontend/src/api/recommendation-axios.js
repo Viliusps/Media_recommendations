@@ -11,3 +11,27 @@ export const recommend = async (recommendingType, recommendingByType, recommendi
   );
   return response.data;
 };
+
+export const rateRecommendation = async (
+  recommendingType,
+  recommendingByType,
+  recommending,
+  recommendingBy,
+  ratingInt
+) => {
+  console.log(
+    'Calling endpoint: ',
+    recommendingType,
+    recommendingByType,
+    recommending,
+    recommendingBy,
+    Boolean(ratingInt)
+  );
+  const rating = Boolean(ratingInt);
+  const response = await axios.post(
+    `${URL}/recommend/rate`,
+    { recommendingType, recommendingByType, recommending, recommendingBy, rating },
+    authHeader()
+  );
+  return response.data;
+};

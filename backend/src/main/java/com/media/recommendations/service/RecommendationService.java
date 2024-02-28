@@ -1,5 +1,7 @@
 package com.media.recommendations.service;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,12 +10,14 @@ import org.springframework.web.client.RestTemplate;
 
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.Recommendation;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.requests.ChatRequest;
 import com.media.recommendations.model.requests.RecommendationRatingRequest;
 import com.media.recommendations.model.requests.RecommendationRequest;
 import com.media.recommendations.model.responses.ChatResponse;
 import com.media.recommendations.model.responses.RecommendationResponse;
+import com.media.recommendations.repository.RecommendationRepository;
 
 @Service
 public class RecommendationService {
@@ -33,8 +37,10 @@ public class RecommendationService {
 
     private GameService gameService;
 
+    private RecommendationRepository recommendationRepository;
+
     public RecommendationService(@Qualifier("openaiRestTemplate")@Autowired RestTemplate restTemplate, @Value("${OAI.model}") String model, @Value("${OAI.api.url}") String apiUrl,
-        SongService songService, MovieService movieService, GameService gameService)
+        SongService songService, MovieService movieService, GameService gameService, RecommendationRepository recommendationRepository)
     {
         this.restTemplate = restTemplate;
         this.model = model;
@@ -42,6 +48,7 @@ public class RecommendationService {
         this.songService = songService;
         this.movieService = movieService;
         this.gameService = gameService;
+        this.recommendationRepository = recommendationRepository;
     }
 
     public RecommendationResponse getRecommendation(RecommendationRequest originalRequest) {
@@ -112,7 +119,7 @@ public class RecommendationService {
 
         if(originalRequest.getRecommendingType().compareTo("Song") == 0)
         {
-            song = songService.getSongByName(chatGPTresponse);
+            song = songService.getSongByNameFromSpotify(chatGPTresponse);
         }
 
         else if(originalRequest.getRecommendingType().compareTo("Movie") == 0)
@@ -122,13 +129,32 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingType().compareTo("Game") == 0)
         {
-            game = gameService.getgame(chatGPTresponse);
+            game = gameService.getGameFromRAWG(chatGPTresponse);
         }
         
         if (response == null || response.getChoices() == null || response.getChoices().isEmpty()) {
             return null;
         }
-        return new RecommendationResponse(originalRequest.getRecommendingType(), song, game, movie);
+        Movie originalMovie = new Movie();
+        Song originalSong = new Song();
+        Game originalGame = new Game();
+
+        if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
+        {
+            originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
+        }
+
+        else if(originalRequest.getRecommendingByType().compareTo("Movie") == 0)
+        {
+            originalMovie = movieService.getMovieFromOmdb(originalRequest.getRecommendingBy());
+        }
+
+        else if(originalRequest.getRecommendingByType().compareTo("Game") == 0)
+        {
+            originalGame = gameService.getGameFromRAWG(originalRequest.getRecommendingBy());
+        }
+
+        return new RecommendationResponse(originalRequest.getRecommendingType(), song, game, movie, originalRequest.getRecommendingByType(), originalSong, originalGame, originalMovie);
     }
 
     public void rateRecommendation(RecommendationRatingRequest request) {
@@ -153,17 +179,26 @@ public class RecommendationService {
             if(!movieService.existsMovie(movie)) {
                 Movie newMovie = movieService.createMovie(movie);
                 recommendingID = newMovie.getId();
+            } else {
+                Movie newMovie = movieService.getByIMDBId(movie.getImdbID());
+                recommendingID = newMovie.getId();
             }
         } else if ("Song".equals(recommendingType)) {
             song = (Song) recommending;
             if(!songService.existsSong(song)) {
                 Song newSong = songService.createSong(song);
                 recommendingID = newSong.getId();
+            } else {
+                Song newSong = songService.getByISRC(song.getIsrc());
+                recommendingID = newSong.getId();
             }
         } else if ("Game".equals(recommendingType)) {
             game = (Game) recommending;
             if(!gameService.existsGame(game)) {
                 Game newGame = gameService.createGame(game);
+                recommendingID = newGame.getId();
+            } else {
+                Game newGame = gameService.getByName(game.getName());
                 recommendingID = newGame.getId();
             }
         }
@@ -173,19 +208,37 @@ public class RecommendationService {
             if(!movieService.existsMovie(movieBy)) {
                 Movie newMovie = movieService.createMovie(movieBy);
                 recommendingByID = newMovie.getId();
+            }  else {
+                Movie newMovie = movieService.getByIMDBId(movieBy.getImdbID());
+                recommendingByID = newMovie.getId();
             }
         } else if ("Song".equals(recommendingByType)) {
             songBy = (Song) recommendingBy;
             if(!songService.existsSong(songBy)) {
                 Song newSong = songService.createSong(songBy);
                 recommendingByID = newSong.getId();
+            }  else {
+                Song newSong = songService.getByISRC(songBy.getIsrc());
+                recommendingID = newSong.getId();
             }
         } else if ("Game".equals(recommendingByType)) {
             gameBy = (Game) recommendingBy;
             if(!gameService.existsGame(gameBy)) {
                 Game newGame = gameService.createGame(gameBy);
                 recommendingByID = newGame.getId();
+            } else {
+                Game newGame = gameService.getByName(gameBy.getName());
+                recommendingID = newGame.getId();
             }
+        }
+
+        if(recommendingByID != -1 && recommendingID != -1) {
+            Recommendation recommendation = new Recommendation();
+            recommendation.setDate(LocalDate.now());
+            recommendation.setFirst(recommendingByID);
+            recommendation.setSecond(recommendingID);
+            recommendation.setRating(rating);
+            recommendationRepository.save(recommendation);
         }
     }
     

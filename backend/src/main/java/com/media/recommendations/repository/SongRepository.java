@@ -21,4 +21,8 @@ public interface SongRepository extends JpaRepository<Song, Long> {
             nativeQuery = true
         )
     List<Song> findByTitleContaining(String title);
+
+    boolean existsByisrc(String isrc);
+
+    Song getByisrc(String isrc);
 }

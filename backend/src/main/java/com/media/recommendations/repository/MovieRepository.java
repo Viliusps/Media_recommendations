@@ -23,5 +23,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
         )
     List<Movie> findByTitleContaining(String title);
 
-    boolean existsByImdbID(String imdbID);
+    boolean existsByimdbID(String imdbID);
+
+    Movie getByimdbID(String imdbID);
 }
