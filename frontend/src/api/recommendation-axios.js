@@ -19,15 +19,8 @@ export const rateRecommendation = async (
   recommendingBy,
   ratingInt
 ) => {
-  console.log(
-    'Calling endpoint: ',
-    recommendingType,
-    recommendingByType,
-    recommending,
-    recommendingBy,
-    Boolean(ratingInt)
-  );
   const rating = Boolean(ratingInt);
+  console.log({ recommendingType, recommendingByType, recommending, recommendingBy, rating });
   const response = await axios.post(
     `${URL}/recommend/rate`,
     { recommendingType, recommendingByType, recommending, recommendingBy, rating },

@@ -26,7 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
@@ -109,6 +108,7 @@ public class SongService {
         newSong.setSpectralEnergy(song.getSpectralEnergy());
         newSong.setSilenceRate(song.getSilenceRate());
         newSong.setIsrc(song.getIsrc());
+        newSong.setImageUrl(song.getImageUrl());
         return songRepository.save(newSong);
     }
 

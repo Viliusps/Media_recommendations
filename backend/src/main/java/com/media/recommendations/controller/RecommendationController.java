@@ -13,7 +13,6 @@ import com.media.recommendations.model.requests.RecommendationRequest;
 import com.media.recommendations.model.responses.RecommendationResponse;
 import com.media.recommendations.service.RecommendationService;
 
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -25,13 +24,13 @@ public class RecommendationController {
     RecommendationService recommendationService;
 
     @PostMapping
-    public ResponseEntity<RecommendationResponse> getRecommendation(@Valid @RequestBody RecommendationRequest request) {
+    public ResponseEntity<RecommendationResponse> getRecommendation(@RequestBody RecommendationRequest request) {
         RecommendationResponse response = recommendationService.getRecommendation(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/rate")
-    public ResponseEntity<RecommendationResponse> rateRecommendation(@Valid @RequestBody RecommendationRatingRequest request) {
+    public ResponseEntity<RecommendationResponse> rateRecommendation(@RequestBody RecommendationRatingRequest request) {
         recommendationService.rateRecommendation(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }

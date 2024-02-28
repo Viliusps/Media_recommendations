@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.Recommendation;
@@ -158,6 +159,7 @@ public class RecommendationService {
     }
 
     public void rateRecommendation(RecommendationRatingRequest request) {
+        System.out.println("Beginning");
         String recommendingType = request.getRecommendingType();
         String recommendingByType = request.getRecommendingByType();
         Object recommending = request.getRecommending();
@@ -174,8 +176,12 @@ public class RecommendationService {
         long recommendingID = -1;
         long recommendingByID = -1;
 
+        ObjectMapper mapper = new ObjectMapper();
+
         if ("Movie".equals(recommendingType)) {
-            movie = (Movie) recommending;
+            System.out.println("IF check");
+            System.out.println(recommending);
+            movie = mapper.convertValue(recommending, Movie.class);
             if(!movieService.existsMovie(movie)) {
                 Movie newMovie = movieService.createMovie(movie);
                 recommendingID = newMovie.getId();
@@ -184,7 +190,7 @@ public class RecommendationService {
                 recommendingID = newMovie.getId();
             }
         } else if ("Song".equals(recommendingType)) {
-            song = (Song) recommending;
+            song = mapper.convertValue(recommending, Song.class);
             if(!songService.existsSong(song)) {
                 Song newSong = songService.createSong(song);
                 recommendingID = newSong.getId();
@@ -193,7 +199,7 @@ public class RecommendationService {
                 recommendingID = newSong.getId();
             }
         } else if ("Game".equals(recommendingType)) {
-            game = (Game) recommending;
+            game = mapper.convertValue(recommending, Game.class);
             if(!gameService.existsGame(game)) {
                 Game newGame = gameService.createGame(game);
                 recommendingID = newGame.getId();
@@ -204,7 +210,7 @@ public class RecommendationService {
         }
 
         if ("Movie".equals(recommendingByType)) {
-            movieBy = (Movie) recommendingBy;
+            movieBy = mapper.convertValue(recommendingBy, Movie.class);
             if(!movieService.existsMovie(movieBy)) {
                 Movie newMovie = movieService.createMovie(movieBy);
                 recommendingByID = newMovie.getId();
@@ -213,7 +219,7 @@ public class RecommendationService {
                 recommendingByID = newMovie.getId();
             }
         } else if ("Song".equals(recommendingByType)) {
-            songBy = (Song) recommendingBy;
+            songBy = mapper.convertValue(recommendingBy, Song.class);
             if(!songService.existsSong(songBy)) {
                 Song newSong = songService.createSong(songBy);
                 recommendingByID = newSong.getId();
@@ -222,7 +228,7 @@ public class RecommendationService {
                 recommendingID = newSong.getId();
             }
         } else if ("Game".equals(recommendingByType)) {
-            gameBy = (Game) recommendingBy;
+            gameBy = mapper.convertValue(recommendingBy, Game.class);
             if(!gameService.existsGame(gameBy)) {
                 Game newGame = gameService.createGame(gameBy);
                 recommendingByID = newGame.getId();
@@ -233,11 +239,14 @@ public class RecommendationService {
         }
 
         if(recommendingByID != -1 && recommendingID != -1) {
+            System.out.println("Saving");
             Recommendation recommendation = new Recommendation();
             recommendation.setDate(LocalDate.now());
             recommendation.setFirst(recommendingByID);
             recommendation.setSecond(recommendingID);
             recommendation.setRating(rating);
+            recommendation.setFirstType(recommendingByType);
+            recommendation.setSecondType(recommendingType);
             recommendationRepository.save(recommendation);
         }
     }

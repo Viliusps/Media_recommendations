@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,4 +41,12 @@ public class Recommendation {
     @NotNull(message = "Date is mandatory")
     @Column(name = "date", nullable = false)
     private LocalDate date;
+
+    @NotBlank(message = "First type is mandatory")
+    @Column(name = "first_type", nullable = false)
+    private String firstType;
+
+    @NotBlank(message = "Second type is mandatory")
+    @Column(name = "second_type", nullable = false)
+    private String secondType;
 }
