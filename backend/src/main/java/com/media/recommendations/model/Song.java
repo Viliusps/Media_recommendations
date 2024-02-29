@@ -31,9 +31,6 @@ public class Song {
     @Column(name = "singer", nullable = false)
     private String singer;
 
-    @Column(name = "genre")
-    private String genre;
-
     @NotBlank(message = "Spotify id is mandatory")
     @Column(name = "spotify_id", nullable = false)
     private String spotifyId;

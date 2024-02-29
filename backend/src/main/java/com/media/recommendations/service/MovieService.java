@@ -90,7 +90,6 @@ public class MovieService {
         movieFromDb.setPoster(movie.getPoster());
         movieFromDb.setProduction(movie.getProduction());
         movieFromDb.setRated(movie.getRated());
-        movieFromDb.setRatings(movie.getRatings());
         movieFromDb.setReleased(movie.getReleased());
         movieFromDb.setResponse(movie.getResponse());
         movieFromDb.setRuntime(movie.getRuntime());

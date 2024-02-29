@@ -128,11 +128,6 @@ public class Movie {
     @JsonProperty("Response")
     @Column(name = "response")
     private String response;
-    
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "movie")
-    @JsonProperty("Ratings")
-    private List<MovieRating> ratings = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie")

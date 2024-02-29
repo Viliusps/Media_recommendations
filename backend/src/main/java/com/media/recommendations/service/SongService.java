@@ -92,7 +92,6 @@ public class SongService {
 
     public Song createSong(Song song) {
         Song newSong = new Song();
-        newSong.setGenre(song.getGenre());
         newSong.setTitle(song.getTitle());
         newSong.setSinger(song.getSinger());
         newSong.setSpotifyId(song.getSpotifyId());
@@ -109,6 +108,7 @@ public class SongService {
         newSong.setSilenceRate(song.getSilenceRate());
         newSong.setIsrc(song.getIsrc());
         newSong.setImageUrl(song.getImageUrl());
+        newSong.setPitchSalience(song.getPitchSalience());
         return songRepository.save(newSong);
     }
 
@@ -118,7 +118,6 @@ public class SongService {
 
     public Song updateSong(Long id, Song song) {
         Song songFromDb = songRepository.findById(id).get();
-        songFromDb.setGenre(song.getGenre());
         songFromDb.setTitle(song.getTitle());
         songFromDb.setSinger(song.getSinger());
         songFromDb.setSpotifyId(song.getSpotifyId());
@@ -377,22 +376,41 @@ public class SongService {
         return null;
     }
 
-    public void getSongFeatures(String trackId, String title) {
+    public Song getSongFeatures(Song song) {
+        System.out.println("1. getSongFeatures- " + song.getTitle());
+        String trackId = song.getSpotifyId();
+        String title = song.getTitle();
         String isrc = getISRCByTrackId(trackId);
         if(isrc != null) {
-            //String mbid = getMBIDByISRC(isrc, title);
-            //System.out.println("MBID: " + mbid);
-            String mbid = getMBIDByISRC("USUM71118074", "Where Have You Been?");
+            String mbid = getMBIDByISRC(isrc, title);
+            System.out.println("3.5. MBID: " + mbid);
             if(mbid != null) {
                 Map<String, String> features = getSongFeaturesByMBID(mbid);
                 for (Map.Entry<String, String> entry : features.entrySet()) {
                     System.out.println(entry.getKey() + ": " + entry.getValue());
                 }
+                song.setChordsChangesRate(features.get("chordsChangesRate"));
+                song.setKeyStrength(features.get("keyStrength"));
+                song.setDanceability(features.get("danceability"));
+                song.setBpm(features.get("bpm"));
+                song.setBeatsLoudness(features.get("beatsLoudness"));
+                song.setBeatsCount(features.get("beatsCount"));
+                song.setSpectralEnergy(features.get("spectralEnergy"));
+                song.setSilenceRate(features.get("silenceRate"));
+                song.setDissonance(features.get("dissonance"));
+                song.setAverageLoudness(features.get("averageLoudness"));
+                song.setDynamicComplexity(features.get("dynamicComplexity"));
+                song.setPitchSalience(features.get("pitchSalience"));
             }
         }
+        System.out.println("--------------------------------------");
+        System.out.println(song.getPitchSalience());
+        System.out.println("--------------------------------------");
+        return song;
     }
 
     public Map<String, String> getSongFeaturesByMBID(String mbid) {
+        System.out.println("4. getSongFeaturesByMBID- " + mbid);
         String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/low-level?recording_ids=" + mbid;
         RestTemplate restTemplate = new RestTemplate();
 
@@ -407,7 +425,7 @@ public class SongService {
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode rootNode = objectMapper.readTree(responseEntity.getBody());
-                if (!mbid.contains(";")) {
+                if (!mbid.contains(";") && rootNode.get(mbid) != null) {
                     JsonNode mbidNode = rootNode.get(mbid);
                     if (mbidNode.size() == 1 && mbidNode.has("0")) {
                         mbidNode = mbidNode.get("0");
@@ -469,30 +487,32 @@ public class SongService {
     }
 
     private Map<String, String> extractFeaturesFromNode(JsonNode rootNode) {
-         Map<String, String> selectedFeatures = new HashMap<>();
+        System.out.println("5. extractFeaturesFromNode- " + rootNode);
+        Map<String, String> selectedFeatures = new HashMap<>();
 
         JsonNode tonalNode = rootNode.path("tonal");
-        selectedFeatures.put("chords_changes_rate", tonalNode.path("chords_changes_rate").asText());
-        selectedFeatures.put("key_strength", tonalNode.path("key_strength").asText());
+        selectedFeatures.put("chordsChangesRate", tonalNode.path("chords_changes_rate").asText());
+        selectedFeatures.put("keyStrength", tonalNode.path("key_strength").asText());
 
         JsonNode rhythmNode = rootNode.path("rhythm");
         selectedFeatures.put("danceability", rhythmNode.path("danceability").asText());
         selectedFeatures.put("bpm", rhythmNode.path("bpm").asText());
-        selectedFeatures.put("beats_loudness_mean", rhythmNode.path("beats_loudness").path("mean").asText());
-        selectedFeatures.put("beats_count", rhythmNode.path("beats_count").asText());
+        selectedFeatures.put("beatsLoudness", rhythmNode.path("beats_loudness").path("mean").asText());
+        selectedFeatures.put("beatsCount", rhythmNode.path("beats_count").asText());
 
         JsonNode lowlevelNode = rootNode.path("lowlevel");
-        selectedFeatures.put("spectral_energy_mean", lowlevelNode.path("spectral_energy").path("mean").asText());
-        selectedFeatures.put("silence_rate_60dB_mean", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
-        selectedFeatures.put("dissonance_mean", lowlevelNode.path("dissonance").path("mean").asText());
-        selectedFeatures.put("average_loudness", lowlevelNode.path("average_loudness").asText());
-        selectedFeatures.put("dynamic_complexity", lowlevelNode.path("dynamic_complexity").asText());
-        selectedFeatures.put("pitch_salience_mean", lowlevelNode.path("pitch_salience").path("mean").asText());
+        selectedFeatures.put("spectralEnergy", lowlevelNode.path("spectral_energy").path("mean").asText());
+        selectedFeatures.put("silenceRate", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
+        selectedFeatures.put("dissonance", lowlevelNode.path("dissonance").path("mean").asText());
+        selectedFeatures.put("averageLoudness", lowlevelNode.path("average_loudness").asText());
+        selectedFeatures.put("dynamicComplexity", lowlevelNode.path("dynamic_complexity").asText());
+        selectedFeatures.put("pitchSalience", lowlevelNode.path("pitch_salience").path("mean").asText());
 
         return selectedFeatures;
     }
 
     private String getISRCByTrackId(String trackId) {
+        System.out.println("2. getISRCByTrackId");
         String apiUrl = spotifyUrl + "/v1/tracks/" + trackId;
 
         HttpHeaders headers = new HttpHeaders();
@@ -511,6 +531,7 @@ public class SongService {
     }
 
     public String getMBIDByISRC(String isrc, String title) {
+        System.out.println("3. getMBIDByISRC");
         try {
             Thread.sleep(1000);
             String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";

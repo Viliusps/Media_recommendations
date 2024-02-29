@@ -1,4 +1,5 @@
 CREATE TABLE recommendations(
+    id          SERIAL PRIMARY KEY NOT NULL,
     first       BIGINT NOT NULL,
     second      BIGINT NOT NULL,
     first_type  VARCHAR(10) NOT NULL,
@@ -6,5 +7,3 @@ CREATE TABLE recommendations(
     rating      BOOLEAN NOT NULL,
     date        DATE NOT NULL
 );
-
-INSERT INTO recommendations(first, second, first_type, second_type, rating, date) VALUES (22, 2, 'movie', 'song', TRUE, '2024-02-18');

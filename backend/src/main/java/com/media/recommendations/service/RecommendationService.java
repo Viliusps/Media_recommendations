@@ -159,7 +159,6 @@ public class RecommendationService {
     }
 
     public void rateRecommendation(RecommendationRatingRequest request) {
-        System.out.println("Beginning");
         String recommendingType = request.getRecommendingType();
         String recommendingByType = request.getRecommendingByType();
         Object recommending = request.getRecommending();
@@ -179,8 +178,6 @@ public class RecommendationService {
         ObjectMapper mapper = new ObjectMapper();
 
         if ("Movie".equals(recommendingType)) {
-            System.out.println("IF check");
-            System.out.println(recommending);
             movie = mapper.convertValue(recommending, Movie.class);
             if(!movieService.existsMovie(movie)) {
                 Movie newMovie = movieService.createMovie(movie);
@@ -191,6 +188,7 @@ public class RecommendationService {
             }
         } else if ("Song".equals(recommendingType)) {
             song = mapper.convertValue(recommending, Song.class);
+            song = songService.getSongFeatures(song);
             if(!songService.existsSong(song)) {
                 Song newSong = songService.createSong(song);
                 recommendingID = newSong.getId();
@@ -220,6 +218,7 @@ public class RecommendationService {
             }
         } else if ("Song".equals(recommendingByType)) {
             songBy = mapper.convertValue(recommendingBy, Song.class);
+            songBy = songService.getSongFeatures(songBy);
             if(!songService.existsSong(songBy)) {
                 Song newSong = songService.createSong(songBy);
                 recommendingByID = newSong.getId();
@@ -239,7 +238,6 @@ public class RecommendationService {
         }
 
         if(recommendingByID != -1 && recommendingID != -1) {
-            System.out.println("Saving");
             Recommendation recommendation = new Recommendation();
             recommendation.setDate(LocalDate.now());
             recommendation.setFirst(recommendingByID);
@@ -247,8 +245,13 @@ public class RecommendationService {
             recommendation.setRating(rating);
             recommendation.setFirstType(recommendingByType);
             recommendation.setSecondType(recommendingType);
-            recommendationRepository.save(recommendation);
+            if(!recommendationExists(recommendation)) recommendationRepository.save(recommendation);
         }
+    }
+
+    private Boolean recommendationExists(Recommendation recommendation) {
+        return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondType(recommendation.getFirst(),
+            recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType());
     }
     
 }

@@ -8,4 +8,5 @@ import com.media.recommendations.model.Recommendation;
 
 @Repository
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
+    boolean existsByFirstAndSecondAndRatingAndFirstTypeAndSecondType(long first, long second, boolean rating, String firstType, String secondType);
 }
