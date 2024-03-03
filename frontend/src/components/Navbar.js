@@ -110,9 +110,6 @@ function Navbar() {
               <MenuItem onClick={() => Navigate('/songs')}>
                 <Typography textAlign="center">Songs</Typography>
               </MenuItem>
-              <MenuItem onClick={() => Navigate('/games')}>
-                <Typography textAlign="center">Games</Typography>
-              </MenuItem>
             </Menu>
           </Hidden>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -130,11 +127,6 @@ function Navbar() {
               onClick={() => Navigate('/songs')}
               sx={{ my: 2, color: 'white', display: 'block' }}>
               Songs
-            </Button>
-            <Button
-              onClick={() => Navigate('/games')}
-              sx={{ my: 2, color: 'white', display: 'block' }}>
-              Games
             </Button>
             {role === 'ADMIN' && (
               <>

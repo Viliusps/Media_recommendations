@@ -56,10 +56,6 @@ public class GameService {
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-
-            Game features = getGameFromRAWG("Red Dead Redemption 2");
-            System.out.println(features.toString());
-
             return response;
     }
 

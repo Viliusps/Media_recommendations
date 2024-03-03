@@ -218,7 +218,6 @@ public class SongService {
                     System.out.println(entry.getKey() + ": " + entry.getValue());
                 }
         }
-
     }
 
     public SongPageResponse search(String search) {
@@ -227,6 +226,7 @@ public class SongService {
         return response;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getCoverImage(String spotifyId) {
         String accessToken = getAccessToken();
         String apiUrl = spotifyUrl + "/v1/tracks/" + spotifyId;
@@ -251,6 +251,7 @@ public class SongService {
         return null;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Boolean checkIfSongExists(String name) {
         String accessToken = getAccessToken();
 
@@ -281,7 +282,7 @@ public class SongService {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Song getSongByNameFromSpotify(String name) {
         String accessToken = getAccessToken();
         Song song = null;
@@ -330,7 +331,7 @@ public class SongService {
     }
 
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getSongIdByName(String songName) {
         String accessToken = getAccessToken();
 
@@ -511,6 +512,7 @@ public class SongService {
         return selectedFeatures;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private String getISRCByTrackId(String trackId) {
         System.out.println("2. getISRCByTrackId");
         String apiUrl = spotifyUrl + "/v1/tracks/" + trackId;
@@ -530,6 +532,7 @@ public class SongService {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getMBIDByISRC(String isrc, String title) {
         System.out.println("3. getMBIDByISRC");
         try {

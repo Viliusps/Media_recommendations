@@ -54,7 +54,7 @@ public class RecommendationService {
 
     public RecommendationResponse getRecommendation(RecommendationRequest originalRequest) {
         String prompt = "";
-
+        System.out.println(originalRequest.getRecommendingBy());
         switch(originalRequest.getRecommendingType()) {
             case "Song":
                 prompt += "Recommend me a song, based on ";
@@ -70,6 +70,9 @@ public class RecommendationService {
                         break;
                     case "Game":
                         prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
+                        break;
+                    case "Steam":
+                        prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, add nothing else.";
                         break;
                 }
                 break;
@@ -88,6 +91,9 @@ public class RecommendationService {
                         case "Game":
                             prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your movie, add nothing else.";
                             break;
+                        case "Steam":
+                            prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your movie, add nothing else.";
+                            break;
                     }
                     break;
             case "Game":
@@ -104,6 +110,9 @@ public class RecommendationService {
                             break;
                         case "Game":
                             prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your game, add nothing else.";
+                            break;
+                        case "Steam":
+                            prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your game, add nothing else.";
                             break;
                     }
                     break;

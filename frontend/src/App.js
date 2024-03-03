@@ -11,11 +11,11 @@ import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
 import RecommendationFromPlaylist from './pages/RecommendationFromPlaylist';
 import RecommendationFromChoice from './pages/RecommendationFromChoice';
+import RecommendationFromSteam from './pages/RecommendationFromSteam';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
-import Games from './pages/Games';
 
 function App() {
   const [role, setRole] = useState('');
@@ -63,7 +63,7 @@ function App() {
                 path="/playlistRecommendation/:type"
                 element={<RecommendationFromPlaylist />}
               />
-              <Route path="/games/:type" element={<Games />} />
+              <Route path="/games/:type" element={<RecommendationFromSteam />} />
             </>
           )}
 
