@@ -5,6 +5,7 @@ import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
 import { Button } from '@mui/material';
+import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
 
 const StyledContainer = styled.div`
   max-width: 800px;
@@ -17,23 +18,18 @@ const Section = styled.div`
 `;
 
 const RecommendationBox = styled.div`
+  min-width: 80%;
   background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 20px;
+  margin: 0px 40px 0px 40px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 
   &:hover {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   }
-`;
-
-const RecommendationText = styled.p`
-  font-size: 18px;
-  font-weight: bold;
-  color: #27ae60;
-  cursor: pointer;
 `;
 
 const StyledH1 = styled.h1`
@@ -51,7 +47,13 @@ const RecommendingBy = styled.p`
   color: #777777;
 `;
 
-const RecommendationFromChoice = () => {
+const Recommendations = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+`;
+
+const RecommendationResults = () => {
   const params = useParams();
   const { recommendingType, recommendingBy, recommendingByType } = params;
   const [recommendation, setRecommendation] = useState(null);
@@ -64,7 +66,6 @@ const RecommendationFromChoice = () => {
     setLoading(true);
     recommend(recommendingType, recommendingByType, recommendingBy)
       .then((result) => {
-        console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
         else if (result.type == 'Song') setRecommendation(result.song);
         else if (result.type == 'Game') setRecommendation(result.game);
@@ -86,7 +87,6 @@ const RecommendationFromChoice = () => {
   const handleCloseRating = () => setOpenRating(false);
 
   const handleRatingClick = (rating) => {
-    console.log(rating);
     rateRecommendation(
       recommendingType,
       recommendingByType,
@@ -107,55 +107,27 @@ const RecommendationFromChoice = () => {
         </RecommendingBy>
       </Section>
       <Section>
-        <RecommendationBox>
-          <StyledH2>Your Recommendation</StyledH2>
-          <LoadingWrapper loading={loading} error={error}>
-            {recommendation && (
-              <>
-                {recommendingType === 'Song' && recommendation.spotifyId.length > 22 ? (
-                  <RecommendationText>{recommendation.spotifyId}</RecommendationText>
-                ) : (
-                  recommendingType === 'Song' && (
-                    <>
-                      <h3>{recommendation.title}</h3>
-                      <h4>By: {recommendation.singer}</h4>
-                      <RecommendationText
-                        onClick={() => {
-                          const spotifyUri = `spotify:track:${recommendation.spotifyId}`;
-                          window.location.href = spotifyUri;
-                        }}>
-                        Click here!
-                      </RecommendationText>
-                    </>
-                  )
-                )}
-                {recommendingType === 'Movie' && recommendation.imdbID.length > 9 ? (
-                  <RecommendationText>{recommendation.imdbID}</RecommendationText>
-                ) : (
-                  recommendingType === 'Movie' && (
-                    <>
-                      <h3>{recommendation.Title}</h3>
-                      <h4>By: {recommendation.Director}</h4>
-                      <RecommendationText
-                        onClick={() =>
-                          window.open(
-                            `https://www.imdb.com/title/${recommendation.imdbID}`,
-                            '_blank'
-                          )
-                        }>
-                        Click here!
-                      </RecommendationText>
-                    </>
-                  )
-                )}
-                {recommendingType === 'Game' && (
-                  <RecommendationText>{recommendation.name}</RecommendationText>
-                )}
-              </>
-            )}
-          </LoadingWrapper>
+        <Recommendations>
+          <RecommendationBox>
+            <StyledH2>ChatGPT recommendation</StyledH2>
+            <LoadingWrapper loading={loading} error={error}>
+              <RecommendationResultDisplay
+                recommendation={recommendation}
+                recommendingType={recommendingType}
+              />
+            </LoadingWrapper>
+          </RecommendationBox>
           <Button onClick={() => handleOpenRating()}>Rate the recommendation.</Button>
-        </RecommendationBox>
+          <RecommendationBox>
+            <StyledH2>Neural model recommendation</StyledH2>
+            <LoadingWrapper loading={loading} error={error}>
+              <RecommendationResultDisplay
+                recommendation={recommendation}
+                recommendingType={recommendingType}
+              />
+            </LoadingWrapper>
+          </RecommendationBox>
+        </Recommendations>
       </Section>
       <RatingModal
         handleClose={handleCloseRating}
@@ -166,4 +138,4 @@ const RecommendationFromChoice = () => {
   );
 };
 
-export default RecommendationFromChoice;
+export default RecommendationResults;

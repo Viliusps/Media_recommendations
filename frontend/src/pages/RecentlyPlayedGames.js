@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { GetRecentlyPlayedGames } from '../api/games-axios';
+import { getRecentlyPlayedGames } from '../api/games-axios';
 import { Button, TextField, Typography } from '@mui/material';
 import styled from 'styled-components';
-import LoadingWrapper from '../components/LoadingWrapper';
-import { recommend } from '../api/recommendation-axios';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const StyledText = styled(Typography)`
   color: red;
@@ -45,49 +43,19 @@ const GameName = styled('span')`
   text-align: center;
 `;
 
-const Section = styled.div`
-  margin: 20px 0;
-`;
-
-const RecommendationBox = styled.div`
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const RecommendationText = styled.p`
-  font-size: 18px;
-  font-weight: bold;
-  color: #27ae60;
-  cursor: pointer;
-`;
-
 const ContinueButton = styled(Button)`
   margin-top: 20px;
 `;
 
-const StyledH2 = styled.h2`
-  margin-bottom: 10px;
-  color: #333333;
-`;
-
-const RecommendationFromSteam = () => {
+const RecentlyPlayedGames = () => {
   const [recentGames, setRecentGames] = useState([]);
   const [userId, setUserId] = useState('');
   const [incorrect, setIncorrect] = useState(false);
   const [nonNumeric, setNonNumeric] = useState(false);
   const [error, setError] = useState(false);
-  const [recommendation, setRecommendation] = useState('');
-  const [loading, setLoading] = useState(false);
   const params = useParams();
   const { type } = params;
+  const navigate = useNavigate();
 
   const getGames = () => {
     const trimmedUserId = userId.trim();
@@ -104,7 +72,7 @@ const RecommendationFromSteam = () => {
       return;
     }
 
-    GetRecentlyPlayedGames(trimmedUserId)
+    getRecentlyPlayedGames(trimmedUserId)
       .then((result) => {
         if (result.response.games.length == 0) setError(true);
         else {
@@ -125,24 +93,9 @@ const RecommendationFromSteam = () => {
   };
 
   const getRecommendation = () => {
-    console.log(recentGames);
     const gameNames = recentGames.map((game) => game.name);
     const resultString = gameNames.join(', ');
-    console.log(resultString);
-    setLoading(true);
-    recommend(type, 'Steam', resultString)
-      .then((result) => {
-        if (result.type == 'Movie') setRecommendation(result.movie);
-        else if (result.type == 'Song') setRecommendation(result.song);
-        else if (result.type == 'Game') setRecommendation(result.game);
-      })
-      .catch((error) => {
-        console.error(error);
-        setError(true);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    navigate(`/recommendationResults/${type}/${resultString}/${'Steam'}`);
   };
 
   return (
@@ -184,44 +137,8 @@ const RecommendationFromSteam = () => {
         )}
       </Container>
       <ContinueButton onClick={() => getRecommendation()}>Continue</ContinueButton>
-      <Section>
-        <RecommendationBox>
-          <StyledH2>Your Recommendation:</StyledH2>
-          <LoadingWrapper loading={loading} error={error}>
-            {recommendation && (
-              <>
-                {type === 'Song' && recommendation.spotifyId.length > 22 ? (
-                  <RecommendationText>{recommendation.spotifyId}</RecommendationText>
-                ) : (
-                  type === 'Song' && (
-                    <RecommendationText
-                      onClick={() => {
-                        const spotifyUri = `spotify:track:${recommendation.spotifyId}`;
-                        window.location.href = spotifyUri;
-                      }}>
-                      Click here!
-                    </RecommendationText>
-                  )
-                )}
-                {type === 'Movie' && recommendation.imdbID.length > 9 ? (
-                  <RecommendationText>{recommendation.imdbID}</RecommendationText>
-                ) : (
-                  type === 'Movie' && (
-                    <RecommendationText
-                      onClick={() =>
-                        window.open(`https://www.imdb.com/title/${recommendation.imdbID}`, '_blank')
-                      }>
-                      Click here!
-                    </RecommendationText>
-                  )
-                )}
-              </>
-            )}
-          </LoadingWrapper>
-        </RecommendationBox>
-      </Section>
     </>
   );
 };
 
-export default RecommendationFromSteam;
+export default RecentlyPlayedGames;

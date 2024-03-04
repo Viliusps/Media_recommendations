@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
 import com.media.recommendations.model.responses.SongPageResponse;
@@ -75,7 +76,6 @@ public class SongController {
         }
     }
 
-
     @PostMapping("/spotify")
     public ResponseEntity<List<Song>> getUserSongs(@RequestBody SpotifyUserSongsRequest request) {
         List<Song> response = songService.getUserSongs(request.getToken());
@@ -89,14 +89,14 @@ public class SongController {
     }
 
     @PostMapping("/check")
-    public ResponseEntity<Boolean> checkIfSongExists(@RequestBody String name) {
-        Boolean result = songService.checkIfSongExists(name);
+    public ResponseEntity<Boolean> checkIfSongExists(@RequestBody NameRequest request) {
+        Boolean result = songService.checkIfSongExists(request.getName());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PostMapping("/isrc")
-    public ResponseEntity<String> getSongISRC(@RequestBody String name) {
-        String result = songService.getISRCBySongName(name);
+    public ResponseEntity<String> getSongISRC(@RequestBody NameRequest request) {
+        String result = songService.getISRCBySongName(request.getName());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

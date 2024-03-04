@@ -54,7 +54,6 @@ public class RecommendationService {
 
     public RecommendationResponse getRecommendation(RecommendationRequest originalRequest) {
         String prompt = "";
-        System.out.println(originalRequest.getRecommendingBy());
         switch(originalRequest.getRecommendingType()) {
             case "Song":
                 prompt += "Recommend me a song, based on ";

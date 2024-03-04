@@ -40,11 +40,7 @@ export const checkIfMovieExists = async (movieName) => {
       }
     });
 
-    if (response.data.Response === 'True') {
-      return true;
-    } else {
-      return false;
-    }
+    return response.data.Response === 'True';
   } catch (error) {
     console.error('Error checking movie existence:', error);
     return false;

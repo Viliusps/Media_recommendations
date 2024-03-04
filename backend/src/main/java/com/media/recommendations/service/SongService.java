@@ -378,18 +378,13 @@ public class SongService {
     }
 
     public Song getSongFeatures(Song song) {
-        System.out.println("1. getSongFeatures- " + song.getTitle());
         String trackId = song.getSpotifyId();
         String title = song.getTitle();
         String isrc = getISRCByTrackId(trackId);
         if(isrc != null) {
             String mbid = getMBIDByISRC(isrc, title);
-            System.out.println("3.5. MBID: " + mbid);
             if(mbid != null) {
                 Map<String, String> features = getSongFeaturesByMBID(mbid);
-                for (Map.Entry<String, String> entry : features.entrySet()) {
-                    System.out.println(entry.getKey() + ": " + entry.getValue());
-                }
                 song.setChordsChangesRate(features.get("chordsChangesRate"));
                 song.setKeyStrength(features.get("keyStrength"));
                 song.setDanceability(features.get("danceability"));
@@ -404,14 +399,10 @@ public class SongService {
                 song.setPitchSalience(features.get("pitchSalience"));
             }
         }
-        System.out.println("--------------------------------------");
-        System.out.println(song.getPitchSalience());
-        System.out.println("--------------------------------------");
         return song;
     }
 
     public Map<String, String> getSongFeaturesByMBID(String mbid) {
-        System.out.println("4. getSongFeaturesByMBID- " + mbid);
         String acousticBrainzUrl = "https://acousticbrainz.org/api/v1/low-level?recording_ids=" + mbid;
         RestTemplate restTemplate = new RestTemplate();
 
@@ -488,7 +479,6 @@ public class SongService {
     }
 
     private Map<String, String> extractFeaturesFromNode(JsonNode rootNode) {
-        System.out.println("5. extractFeaturesFromNode- " + rootNode);
         Map<String, String> selectedFeatures = new HashMap<>();
 
         JsonNode tonalNode = rootNode.path("tonal");
@@ -514,7 +504,6 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private String getISRCByTrackId(String trackId) {
-        System.out.println("2. getISRCByTrackId");
         String apiUrl = spotifyUrl + "/v1/tracks/" + trackId;
 
         HttpHeaders headers = new HttpHeaders();
@@ -534,7 +523,6 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getMBIDByISRC(String isrc, String title) {
-        System.out.println("3. getMBIDByISRC");
         try {
             Thread.sleep(1000);
             String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";

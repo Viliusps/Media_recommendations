@@ -1,6 +1,10 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -10,7 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
@@ -19,7 +26,7 @@ import com.media.recommendations.repository.GameRepository;
 @Service
 public class GameService {
     @Value("${steam.api.key}")
-    private String apiKey;
+    private String steamApiKey;
 
     @Value("${rawg.api.key}")
     private String rawgApiKey;
@@ -30,9 +37,12 @@ public class GameService {
 
     private final GameRepository gameRepository;
 
-    public GameService(GameRepository gameRepository) {
+    private final ObjectMapper objectMapper;
+
+    public GameService(GameRepository gameRepository, ObjectMapper objectMapper) {
         this.restTemplate = new RestTemplate();
         this.gameRepository = gameRepository;
+        this.objectMapper = objectMapper;
     }
 
     public boolean existsGame(Game game) {
@@ -52,7 +62,7 @@ public class GameService {
 
     public ResponseEntity<String> getRecentlyPlayedGames(String userId) {
             String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
-            String url = apiUrl + "?key=" + apiKey + "&steamid=" + userId;
+            String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId;
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
@@ -112,5 +122,31 @@ public class GameService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public boolean checkIfGameExists(String gameName) {
+        try {
+            String modifiedGameName = gameName.replace(" ", "-").toLowerCase();
+            String encodedGameName = URLEncoder.encode(modifiedGameName, StandardCharsets.UTF_8.toString());
+            final String url = "https://api.rawg.io/api/games?key=" + rawgApiKey + "&search=" + encodedGameName + "&search_precise=true";
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("results")) {
+                List<Map<String, Object>> results = (List<Map<String, Object>>) responseBody.get("results");
+
+                for (Map<String, Object> game : results) {
+                    String name = (String) game.get("name");
+                    if (gameName.equalsIgnoreCase(name)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

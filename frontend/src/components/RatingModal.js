@@ -25,7 +25,7 @@ const IconsContainer = styled.div`
 const StyledIconButton = styled(IconButton)`
   &:hover {
     svg {
-      fill: ${(props) => props.hoverColor};
+      fill: ${(props) => props.$hoverColor};
     }
   }
 `;
@@ -42,10 +42,10 @@ export default function RatingModal({ handleClose, open, handleClick }) {
           Please rate the ChatGPT recommendation.
         </Typography>
         <IconsContainer>
-          <StyledIconButton hoverColor="green" onClick={() => handleClick(1)}>
+          <StyledIconButton $hoverColor="green" onClick={() => handleClick(1)}>
             <IconThumbUp />
           </StyledIconButton>
-          <StyledIconButton hoverColor="red" onClick={() => handleClick(0)}>
+          <StyledIconButton $hoverColor="red" onClick={() => handleClick(0)}>
             <IconThumbDown />
           </StyledIconButton>
         </IconsContainer>
