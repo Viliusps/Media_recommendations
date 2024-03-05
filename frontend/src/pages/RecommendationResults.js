@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
 import { Button } from '@mui/material';
 import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
+import ObjectFeatures from '../components/ObjectFeatures';
 
 const StyledContainer = styled.div`
   max-width: 800px;
@@ -57,7 +58,7 @@ const RecommendationResults = () => {
   const params = useParams();
   const { recommendingType, recommendingBy, recommendingByType } = params;
   const [recommendation, setRecommendation] = useState(null);
-  const [originalRequest, setOriginalRequest] = useState();
+  const [originalRequest, setOriginalRequest] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [openRating, setOpenRating] = useState(false);
@@ -106,6 +107,11 @@ const RecommendationResults = () => {
           Recommending by: {recommendingBy} which is a {recommendingByType}
         </RecommendingBy>
       </Section>
+      <RecommendationBox>
+        <StyledH2>Details analyzed by the model:</StyledH2>
+        <ObjectFeatures object={originalRequest} type={recommendingByType} />
+      </RecommendationBox>
+
       <Section>
         <Recommendations>
           <RecommendationBox>

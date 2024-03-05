@@ -151,6 +151,7 @@ public class RecommendationService {
         if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
         {
             originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
+            originalSong = songService.getSongFeatures(originalSong);
         }
 
         else if(originalRequest.getRecommendingByType().compareTo("Movie") == 0)

@@ -413,6 +413,11 @@ public class SongService {
                 String.class
         );
 
+        //Muy importante, no deleto por favor!!!!
+        String rateLimitRemaining = responseEntity.getHeaders().getFirst("X-RateLimit-Remaining");
+        System.out.println("X-RateLimit-Remaining: " + rateLimitRemaining);
+        //----------------------------------------
+
         try {
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper objectMapper = new ObjectMapper();
