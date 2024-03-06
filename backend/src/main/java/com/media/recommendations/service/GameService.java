@@ -14,10 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
@@ -37,12 +34,9 @@ public class GameService {
 
     private final GameRepository gameRepository;
 
-    private final ObjectMapper objectMapper;
-
-    public GameService(GameRepository gameRepository, ObjectMapper objectMapper) {
+    public GameService(GameRepository gameRepository) {
         this.restTemplate = new RestTemplate();
         this.gameRepository = gameRepository;
-        this.objectMapper = objectMapper;
     }
 
     public boolean existsGame(Game game) {

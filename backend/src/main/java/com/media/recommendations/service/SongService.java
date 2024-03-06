@@ -1,6 +1,7 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -293,8 +295,10 @@ public class SongService {
             headers.set("Authorization", "Bearer " + accessToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
+            String encodedName = UriUtils.encode(name, StandardCharsets.UTF_8);
+
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                    .queryParam("q", name)
+                    .queryParam("q", encodedName)
                     .queryParam("type", "track")
                     .queryParam("limit", 1);
 
