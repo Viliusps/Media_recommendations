@@ -60,6 +60,17 @@ public class MovieService {
         return movieRepository.existsById(id);
     }
 
+    public boolean existsMovie(Movie movie) {
+        if (movie == null) {
+            return false;
+        }
+        return movieRepository.existsByimdbID(movie.getImdbID());
+    }
+
+    public Movie getByIMDBId(String IMDB) {
+        return movieRepository.getByimdbID(IMDB);
+    }
+
     public Movie updateMovie(Long id, Movie movie) {
         Movie movieFromDb = movieRepository.findById(id).get();
         movieFromDb.setActors(movie.getActors());
@@ -79,7 +90,6 @@ public class MovieService {
         movieFromDb.setPoster(movie.getPoster());
         movieFromDb.setProduction(movie.getProduction());
         movieFromDb.setRated(movie.getRated());
-        movieFromDb.setRatings(movie.getRatings());
         movieFromDb.setReleased(movie.getReleased());
         movieFromDb.setResponse(movie.getResponse());
         movieFromDb.setRuntime(movie.getRuntime());

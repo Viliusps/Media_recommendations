@@ -1,6 +1,7 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -78,13 +80,37 @@ public class SongService {
         return null;
     }
 
+    public boolean existsSong(Song song) {
+        if (song == null) {
+            return false;
+        }
+        return songRepository.existsByisrc(song.getIsrc());
+    }
+
+    public Song getByISRC(String ISRC) {
+        return songRepository.getByisrc(ISRC);
+    }
+
+
     public Song createSong(Song song) {
         Song newSong = new Song();
-        newSong.setGenre(song.getGenre());
         newSong.setTitle(song.getTitle());
         newSong.setSinger(song.getSinger());
         newSong.setSpotifyId(song.getSpotifyId());
-        newSong.setMovies(song.getMovies());
+        newSong.setAverageLoudness(song.getAverageLoudness());
+        newSong.setBeatsCount(song.getBeatsCount());
+        newSong.setBeatsLoudness(song.getBeatsLoudness());
+        newSong.setBpm(song.getBpm());
+        newSong.setChordsChangesRate(song.getChordsChangesRate());
+        newSong.setDanceability(song.getDanceability());
+        newSong.setDissonance(song.getDissonance());
+        newSong.setDynamicComplexity(song.getDynamicComplexity());
+        newSong.setKeyStrength(song.getKeyStrength());
+        newSong.setSpectralEnergy(song.getSpectralEnergy());
+        newSong.setSilenceRate(song.getSilenceRate());
+        newSong.setIsrc(song.getIsrc());
+        newSong.setImageUrl(song.getImageUrl());
+        newSong.setPitchSalience(song.getPitchSalience());
         return songRepository.save(newSong);
     }
 
@@ -94,11 +120,9 @@ public class SongService {
 
     public Song updateSong(Long id, Song song) {
         Song songFromDb = songRepository.findById(id).get();
-        songFromDb.setGenre(song.getGenre());
         songFromDb.setTitle(song.getTitle());
         songFromDb.setSinger(song.getSinger());
         songFromDb.setSpotifyId(song.getSpotifyId());
-        songFromDb.setMovies(song.getMovies());
         return songRepository.save(songFromDb);
     }
 
@@ -196,7 +220,6 @@ public class SongService {
                     System.out.println(entry.getKey() + ": " + entry.getValue());
                 }
         }
-
     }
 
     public SongPageResponse search(String search) {
@@ -205,6 +228,7 @@ public class SongService {
         return response;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getCoverImage(String spotifyId) {
         String accessToken = getAccessToken();
         String apiUrl = spotifyUrl + "/v1/tracks/" + spotifyId;
@@ -229,6 +253,7 @@ public class SongService {
         return null;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Boolean checkIfSongExists(String name) {
         String accessToken = getAccessToken();
 
@@ -259,6 +284,58 @@ public class SongService {
         return false;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Song getSongByNameFromSpotify(String name) {
+        String accessToken = getAccessToken();
+        Song song = null;
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String encodedName = UriUtils.encode(name, StandardCharsets.UTF_8);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", encodedName)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
+                if (!tracks.isEmpty()) {
+                    Map<String, Object> track = tracks.get(0);
+                    String songName = (String) track.get("name");
+                    List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
+                    String artist = artists.isEmpty() ? "" : (String) artists.get(0).get("name");
+                    Map<String, Object> album = (Map<String, Object>) track.get("album");
+                    String spotifyId = (String) track.get("id");
+                    List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
+                    String imageUrl = images.isEmpty() ? "" : (String) images.get(0).get("url");
+                    Map<String, Object> externalIds = (Map<String, Object>) track.get("external_ids");
+                    String isrc = externalIds == null ? "" : (String) externalIds.get("isrc");
+                    
+                    song = Song.builder()
+                                .title(songName)
+                                .singer(artist)
+                                .spotifyId(spotifyId)
+                                .imageUrl(imageUrl)
+                                .isrc(isrc)
+                                .build();
+                }
+            }
+        }
+        return song;
+    }
+
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getSongIdByName(String songName) {
         String accessToken = getAccessToken();
 
@@ -304,19 +381,29 @@ public class SongService {
         return null;
     }
 
-    public void getSongFeatures(String trackId, String title) {
+    public Song getSongFeatures(Song song) {
+        String trackId = song.getSpotifyId();
+        String title = song.getTitle();
         String isrc = getISRCByTrackId(trackId);
         if(isrc != null) {
-            //String mbid = getMBIDByISRC(isrc, title);
-            //System.out.println("MBID: " + mbid);
-            String mbid = getMBIDByISRC("USUM71118074", "Where Have You Been?");
+            String mbid = getMBIDByISRC(isrc, title);
             if(mbid != null) {
                 Map<String, String> features = getSongFeaturesByMBID(mbid);
-                for (Map.Entry<String, String> entry : features.entrySet()) {
-                    System.out.println(entry.getKey() + ": " + entry.getValue());
-                }
+                song.setChordsChangesRate(features.get("chordsChangesRate"));
+                song.setKeyStrength(features.get("keyStrength"));
+                song.setDanceability(features.get("danceability"));
+                song.setBpm(features.get("bpm"));
+                song.setBeatsLoudness(features.get("beatsLoudness"));
+                song.setBeatsCount(features.get("beatsCount"));
+                song.setSpectralEnergy(features.get("spectralEnergy"));
+                song.setSilenceRate(features.get("silenceRate"));
+                song.setDissonance(features.get("dissonance"));
+                song.setAverageLoudness(features.get("averageLoudness"));
+                song.setDynamicComplexity(features.get("dynamicComplexity"));
+                song.setPitchSalience(features.get("pitchSalience"));
             }
         }
+        return song;
     }
 
     public Map<String, String> getSongFeaturesByMBID(String mbid) {
@@ -330,11 +417,16 @@ public class SongService {
                 String.class
         );
 
+        //Muy importante, no deleto por favor!!!!
+        String rateLimitRemaining = responseEntity.getHeaders().getFirst("X-RateLimit-Remaining");
+        System.out.println("X-RateLimit-Remaining: " + rateLimitRemaining);
+        //----------------------------------------
+
         try {
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode rootNode = objectMapper.readTree(responseEntity.getBody());
-                if (!mbid.contains(";")) {
+                if (!mbid.contains(";") && rootNode.get(mbid) != null) {
                     JsonNode mbidNode = rootNode.get(mbid);
                     if (mbidNode.size() == 1 && mbidNode.has("0")) {
                         mbidNode = mbidNode.get("0");
@@ -396,31 +488,30 @@ public class SongService {
     }
 
     private Map<String, String> extractFeaturesFromNode(JsonNode rootNode) {
-         Map<String, String> selectedFeatures = new HashMap<>();
+        Map<String, String> selectedFeatures = new HashMap<>();
 
         JsonNode tonalNode = rootNode.path("tonal");
-        selectedFeatures.put("chords_changes_rate", tonalNode.path("chords_changes_rate").asText());
-        selectedFeatures.put("key_strength", tonalNode.path("key_strength").asText());
+        selectedFeatures.put("chordsChangesRate", tonalNode.path("chords_changes_rate").asText());
+        selectedFeatures.put("keyStrength", tonalNode.path("key_strength").asText());
 
         JsonNode rhythmNode = rootNode.path("rhythm");
         selectedFeatures.put("danceability", rhythmNode.path("danceability").asText());
         selectedFeatures.put("bpm", rhythmNode.path("bpm").asText());
-        selectedFeatures.put("beats_loudness_mean", rhythmNode.path("beats_loudness").path("mean").asText());
-        selectedFeatures.put("beats_count", rhythmNode.path("beats_count").asText());
+        selectedFeatures.put("beatsLoudness", rhythmNode.path("beats_loudness").path("mean").asText());
+        selectedFeatures.put("beatsCount", rhythmNode.path("beats_count").asText());
 
         JsonNode lowlevelNode = rootNode.path("lowlevel");
-        selectedFeatures.put("spectral_energy_mean", lowlevelNode.path("spectral_energy").path("mean").asText());
-        selectedFeatures.put("silence_rate_60dB_mean", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
-        selectedFeatures.put("silence_rate_20dB_mean", lowlevelNode.path("silence_rate_20dB").path("mean").asText());
-        selectedFeatures.put("dissonance_mean", lowlevelNode.path("dissonance").path("mean").asText());
-        selectedFeatures.put("average_loudness", lowlevelNode.path("average_loudness").asText());
-        selectedFeatures.put("silence_rate_30dB_mean", lowlevelNode.path("silence_rate_30dB").path("mean").asText());
-        selectedFeatures.put("dynamic_complexity", lowlevelNode.path("dynamic_complexity").asText());
-        selectedFeatures.put("pitch_salience_mean", lowlevelNode.path("pitch_salience").path("mean").asText());
+        selectedFeatures.put("spectralEnergy", lowlevelNode.path("spectral_energy").path("mean").asText());
+        selectedFeatures.put("silenceRate", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
+        selectedFeatures.put("dissonance", lowlevelNode.path("dissonance").path("mean").asText());
+        selectedFeatures.put("averageLoudness", lowlevelNode.path("average_loudness").asText());
+        selectedFeatures.put("dynamicComplexity", lowlevelNode.path("dynamic_complexity").asText());
+        selectedFeatures.put("pitchSalience", lowlevelNode.path("pitch_salience").path("mean").asText());
 
         return selectedFeatures;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private String getISRCByTrackId(String trackId) {
         String apiUrl = spotifyUrl + "/v1/tracks/" + trackId;
 
@@ -439,6 +530,7 @@ public class SongService {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getMBIDByISRC(String isrc, String title) {
         try {
             Thread.sleep(1000);

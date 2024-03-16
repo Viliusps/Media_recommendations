@@ -9,13 +9,13 @@ import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
-import RecommendationFromPlaylist from './pages/RecommendationFromPlaylist';
-import RecommendationFromChoice from './pages/RecommendationFromChoice';
+import RecentlyPlayedSongs from './pages/RecentlyPlayedSongs';
+import RecommendationResults from './pages/RecommendationResults';
+import RecentlyPlayedGames from './pages/RecentlyPlayedGames';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
-import Games from './pages/Games';
 
 function App() {
   const [role, setRole] = useState('');
@@ -40,8 +40,8 @@ function App() {
           <Route path="/songs" element={<Songs />} />
 
           <Route
-            path="/choiceRecommendation/:recommendingType/:recommendingBy/:recommendingByType"
-            element={<RecommendationFromChoice />}
+            path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
+            element={<RecommendationResults />}
           />
 
           {role === 'GUEST' && (
@@ -59,11 +59,8 @@ function App() {
 
           {role !== 'GUEST' && (
             <>
-              <Route
-                path="/playlistRecommendation/:type"
-                element={<RecommendationFromPlaylist />}
-              />
-              <Route path="/games/:type" element={<Games />} />
+              <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
+              <Route path="/games/:type" element={<RecentlyPlayedGames />} />
             </>
           )}
 

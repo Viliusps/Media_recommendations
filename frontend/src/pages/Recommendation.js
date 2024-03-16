@@ -10,6 +10,7 @@ import SelectionModal from '../components/SelectionModal';
 import { useNavigate } from 'react-router-dom';
 import { checkIfMovieExists } from '../api/movies-axios';
 import { checkIfSongExists } from '../api/songs-axios';
+import { checkIfGameExists } from '../api/games-axios';
 import { getRole } from '../api/auth-axios';
 
 const StyledPaper = styled(Paper)`
@@ -53,7 +54,7 @@ export default function Recommendation() {
     if (recommendBy === 'Movie') {
       checkIfMovieExists(selection).then((result) => {
         if (result) {
-          navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
         } else {
           setErrorLabel('Movie not found.');
         }
@@ -61,20 +62,19 @@ export default function Recommendation() {
     } else if (recommendBy === 'Song') {
       checkIfSongExists(selection).then((result) => {
         if (result) {
-          navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
         } else {
           setErrorLabel('Song not found.');
         }
       });
     } else if (recommendBy === 'Game') {
-      // checkIfGameExists(selection).then((result) => {
-      //   if (result) {
-      //     navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
-      //   } else {
-      //     setErrorLabel('Game not found.');
-      //   }
-      // });
-      navigate(`/choiceRecommendation/${type}/${selection}/${recommendBy}`);
+      checkIfGameExists(selection).then((result) => {
+        if (result) {
+          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
+        } else {
+          setErrorLabel('Game not found.');
+        }
+      });
     }
   };
 

@@ -1,8 +1,10 @@
 package com.media.recommendations.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,12 +17,13 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.media.recommendations.model.GameFeatures;
+import com.media.recommendations.model.Game;
+import com.media.recommendations.repository.GameRepository;
 
 @Service
 public class GameService {
     @Value("${steam.api.key}")
-    private String apiKey;
+    private String steamApiKey;
 
     @Value("${rawg.api.key}")
     private String rawgApiKey;
@@ -29,24 +32,38 @@ public class GameService {
 
     private final RestTemplate restTemplate;
 
-    public GameService() {
+    private final GameRepository gameRepository;
+
+    public GameService(GameRepository gameRepository) {
         this.restTemplate = new RestTemplate();
+        this.gameRepository = gameRepository;
+    }
+
+    public boolean existsGame(Game game) {
+        if (game == null) {
+            return false;
+        }
+        return gameRepository.existsByName(game.getName());
+    }
+
+    public Game getByName(String name) {
+        return gameRepository.getByName(name);
+    }
+
+    public Game createGame(Game game) {
+        return gameRepository.save(game);
     }
 
     public ResponseEntity<String> getRecentlyPlayedGames(String userId) {
-        String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
-            String url = apiUrl + "?key=" + apiKey + "&steamid=" + userId;
+            String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
+            String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId;
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-
-            GameFeatures features = getGameFeatures("Red Dead Redemption 2");
-            System.out.println(features.toString());
-
             return response;
     }
 
-    public GameFeatures getGameFeatures(String gameName) {
+    public Game getGameFromRAWG(String gameName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("User-Agent", "MyUniProject/v1.0");
@@ -64,7 +81,7 @@ public class GameService {
 
             String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
 
-            return parseGameFeaturesFromDetailsResponse(gameDetailsResponse);
+            return parsegameFromDetailsResponse(gameDetailsResponse);
         } else {
             return null;
         }
@@ -84,32 +101,46 @@ public class GameService {
         return null;
     }
 
-    private GameFeatures parseGameFeaturesFromDetailsResponse(String detailsResponse) {
+    private Game parsegameFromDetailsResponse(String detailsResponse) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(detailsResponse);
-            GameFeatures gameFeatures = new GameFeatures();
-            gameFeatures.setName(root.get("name").asText());
-            gameFeatures.setReleaseDate(root.get("released").asText());
-            gameFeatures.setGenres(parseGenres(root.get("genres")));
-            gameFeatures.setRating(root.get("rating").asDouble());
-            gameFeatures.setPlaytime(root.get("playtime").asInt());
-            return gameFeatures;
+            Game game = new Game();
+            game.setName(root.get("name").asText());
+            game.setReleaseDate(root.get("released").asText());
+            game.setGenre(root.get("genres").get(0).get("name").asText());
+            game.setRating(root.get("rating").asDouble());
+            game.setPlaytime(root.get("playtime").asInt());
+            return game;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private List<String> parseGenres(JsonNode genresNode) {
-        List<String> genres = new ArrayList<>();
-        if (genresNode.isArray()) {
-            for (JsonNode genreNode : genresNode) {
-                genres.add(genreNode.get("name").asText());
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public boolean checkIfGameExists(String gameName) {
+        try {
+            String modifiedGameName = gameName.replace(" ", "-").toLowerCase();
+            String encodedGameName = URLEncoder.encode(modifiedGameName, StandardCharsets.UTF_8.toString());
+            final String url = "https://api.rawg.io/api/games?key=" + rawgApiKey + "&search=" + encodedGameName + "&search_precise=true";
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null && responseBody.containsKey("results")) {
+                List<Map<String, Object>> results = (List<Map<String, Object>>) responseBody.get("results");
+
+                for (Map<String, Object> game : results) {
+                    String name = (String) game.get("name");
+                    if (gameName.equalsIgnoreCase(name)) {
+                        return true;
+                    }
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return genres;
+        return false;
     }
-
-
 }
