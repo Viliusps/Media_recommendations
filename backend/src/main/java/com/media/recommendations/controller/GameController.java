@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.media.recommendations.model.Game;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SteamRequest;
 import com.media.recommendations.service.GameService;
@@ -31,6 +32,12 @@ public class GameController {
     public ResponseEntity<Boolean> checkIfGameExists(@RequestBody NameRequest request) {
         Boolean result = gameService.checkIfGameExists(request.getName());
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/getGameFromFeatures")
+    public ResponseEntity<Game> getGameFromFeatures(@RequestBody Game game) {
+        Game response = gameService.findGameFromFeatures(game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPlaytime());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
 }
