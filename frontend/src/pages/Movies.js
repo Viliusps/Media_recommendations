@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
-import DisplayCard from '../components/MovieCard';
 import { Paper, Pagination, Button, TextField, InputAdornment } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
+import { Card, CardHeader } from '@/components/ui/card';
 
 const StyledPaper = styled(Paper)`
   display: flex;
@@ -103,7 +103,9 @@ export default function Movies() {
           <>
             <StyledPaper>
               {movies.map((movie) => (
-                <DisplayCard key={movie.id} movie={movie} />
+                <Card key={movie.id} className="w-[350px]">
+                  <CardHeader>{movie.name}</CardHeader>
+                </Card>
               ))}
             </StyledPaper>
             <StyledPagination
