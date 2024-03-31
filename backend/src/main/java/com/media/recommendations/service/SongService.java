@@ -1,5 +1,7 @@
 package com.media.recommendations.service;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -573,6 +575,41 @@ public class SongService {
 
     private static boolean isSubstring(String str1, String str2) {
         return str1 != null && str2 != null && (str1.contains(str2) || str2.contains(str1));
+    }
+
+    public String getClosestSongFromFeatures(Double bpm, Double averageLoudness, Double dynamicComplexity) {
+        String closestRow = "";
+        double minDistance = Double.MAX_VALUE;
+        String filePath = "merged_file.csv";
+        double threshold = 0.1;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                double rowBpm = Double.parseDouble(values[6]);
+                double rowAverageLoudness = Double.parseDouble(values[2]);
+                double rowDynamicComplexity = Double.parseDouble(values[3]);
+
+                double distance = Math.sqrt(Math.pow(bpm - rowBpm, 2) +
+                                            Math.pow(averageLoudness - rowAverageLoudness, 2) +
+                                            Math.pow(dynamicComplexity - rowDynamicComplexity, 2));
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestRow = line;
+                    if (minDistance <= threshold) {
+                        break;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error reading the CSV file.";
+        }
+
+        return closestRow;
     }
 
 }

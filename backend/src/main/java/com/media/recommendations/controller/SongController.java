@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.requests.GetClosestSongRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
@@ -97,6 +98,12 @@ public class SongController {
     @PostMapping("/isrc")
     public ResponseEntity<String> getSongISRC(@RequestBody NameRequest request) {
         String result = songService.getISRCBySongName(request.getName());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @PostMapping("/search-closest")
+    public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
+        String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

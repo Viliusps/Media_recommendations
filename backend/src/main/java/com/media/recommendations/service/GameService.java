@@ -3,6 +3,8 @@ package com.media.recommendations.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +83,7 @@ public class GameService {
 
             String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
 
-            return parsegameFromDetailsResponse(gameDetailsResponse);
+            return parseGameFromDetailsResponse(gameDetailsResponse);
         } else {
             return null;
         }
@@ -101,7 +103,7 @@ public class GameService {
         return null;
     }
 
-    private Game parsegameFromDetailsResponse(String detailsResponse) {
+    private Game parseGameFromDetailsResponse(String detailsResponse) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(detailsResponse);
@@ -117,6 +119,25 @@ public class GameService {
         }
         return null;
     }
+
+    private List<Game> parseGamesFromResponse(String jsonResponse) {
+    List<Game> games = new ArrayList<>();
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+        JsonNode root = mapper.readTree(jsonResponse);
+        JsonNode results = root.path("results");
+        for (JsonNode node : results) {
+            Game game = parseGameFromDetailsResponse(node.toString());
+            if (game != null) {
+                games.add(game);
+            }
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return games;
+}
+
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public boolean checkIfGameExists(String gameName) {
@@ -142,5 +163,24 @@ public class GameService {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public Game findGameFromFeatures(String genres, String releaseDate, double minimumRating, int playtime) {
+        String year = releaseDate.substring(0, 4);
+        String dateRange = year + "-01-01," + year + "-12-31";
+
+        String url = "https://api.rawg.io/api/games?key=" + rawgApiKey + "&genres=" + genres.toLowerCase() + "&dates=" + dateRange;
+
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        List<Game> games = parseGamesFromResponse(response.getBody());
+
+         Game closestMatch = games.stream()
+                .min(Comparator.comparingDouble(
+                        game -> Math.abs(game.getRating() - minimumRating) + Math.abs(game.getPlaytime() - playtime))
+                ).orElse(null);
+                
+        return closestMatch != null ? closestMatch : new Game();
+
     }
 }

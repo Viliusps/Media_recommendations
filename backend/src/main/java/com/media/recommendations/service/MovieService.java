@@ -1,4 +1,7 @@
 package com.media.recommendations.service;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +118,44 @@ public class MovieService {
         List<Movie> found = movieRepository.findByTitleContaining(search);
         MoviePageResponse response = new MoviePageResponse(found, found.size());
         return response;
+    }
+
+    public String getClosestMovieFromFeatures(String genres, int year, int runtime) {
+        String closestRow = "";
+        double minDistance = Double.MAX_VALUE;
+        String filePath = "movie_features.tsv";
+        double threshold = 0.1;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split("\t");
+                String rowGenres = values[8];
+                int rowYear = values[5].equals("\\N") ? 0 : Integer.parseInt(values[5]);
+                int rowRuntime = values[7].equals("\\N") ? 0 : Integer.parseInt(values[7]);
+
+                boolean genresMatch = rowGenres.equals(genres);
+
+                if (genresMatch) {
+                    double distance = Math.sqrt(Math.pow(year - rowYear, 2) +
+                                                Math.pow(runtime - rowRuntime, 2));
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestRow = line;
+                        if (minDistance <= threshold) {
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error reading the TSV file.";
+        }
+
+        return closestRow;
     }
     
 }

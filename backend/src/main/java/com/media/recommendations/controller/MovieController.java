@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.requests.GetClosestMovieRequest;
 import com.media.recommendations.model.requests.MovieSearchRequest;
 import com.media.recommendations.model.requests.OmdbRequest;
 import com.media.recommendations.model.responses.MoviePageResponse;
@@ -86,9 +87,15 @@ public class MovieController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<MoviePageResponse> searchSongs(@RequestBody @Valid MovieSearchRequest request) {
+    public ResponseEntity<MoviePageResponse> searchMovies(@RequestBody @Valid MovieSearchRequest request) {
         MoviePageResponse movies = movieService.search(request.getSearch());
         return new ResponseEntity<>(movies, HttpStatus.OK);
+    }
+
+    @PostMapping("/search-closest")
+    public ResponseEntity<String> searchClosestMovieFeatures(@RequestBody GetClosestMovieRequest request) {
+        String response = movieService.getClosestMovieFromFeatures(request.getGenres(), request.getYear(), request.getRuntime());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
 }
