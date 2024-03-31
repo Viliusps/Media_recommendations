@@ -17,17 +17,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
 
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, StyledEngineProvider } from '@mui/material';
-import { useSelector } from 'react-redux';
-
-import themes from './themes';
-import NavigationScroll from './layout/NavigationScroll';
-
 function App() {
   const [role, setRole] = useState('');
   const location = useLocation();
-  const customization = useSelector((state) => state.customization);
 
   useEffect(() => {
     getRole().then((data) => {
@@ -38,48 +30,43 @@ function App() {
   if (!role) return null;
   else
     return (
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={themes(customization)}>
-          <CssBaseline />
-          <NavigationScroll>
-            <Navbar />
-            <ToastContainer />
-            <Routes>
-              <Route path="/recommendation" element={<Recommendation />} />
-              <Route path="/movies" element={<Movies />} />
-              <Route path="/movies/:id" element={<Movie />} />
-              <Route path="/songs" element={<Songs />} />
+      <div className="App">
+        <Navbar />
+        <ToastContainer />
+        <Routes>
+          <Route path="/recommendation" element={<Recommendation />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/movies/:id" element={<Movie />} />
+          <Route path="/songs" element={<Songs />} />
 
-              <Route
-                path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
-                element={<RecommendationResults />}
-              />
+          <Route
+            path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
+            element={<RecommendationResults />}
+          />
 
-              {role === 'GUEST' && (
-                <>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                </>
-              )}
+          {role === 'GUEST' && (
+            <>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+            </>
+          )}
 
-              {role === 'ADMIN' && (
-                <>
-                  <Route path="/admin" element={<AdminPanel />} />
-                </>
-              )}
+          {role === 'ADMIN' && (
+            <>
+              <Route path="/admin" element={<AdminPanel />} />
+            </>
+          )}
 
-              {role !== 'GUEST' && (
-                <>
-                  <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
-                  <Route path="/games/:type" element={<RecentlyPlayedGames />} />
-                </>
-              )}
+          {role !== 'GUEST' && (
+            <>
+              <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
+              <Route path="/games/:type" element={<RecentlyPlayedGames />} />
+            </>
+          )}
 
-              <Route path="*" element={<Navigate to="/movies" replace />} />
-            </Routes>
-          </NavigationScroll>
-        </ThemeProvider>
-      </StyledEngineProvider>
+          <Route path="*" element={<Navigate to="/movies" replace />} />
+        </Routes>
+      </div>
     );
 }
 
