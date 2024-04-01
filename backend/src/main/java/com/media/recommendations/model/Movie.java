@@ -132,4 +132,8 @@ public class Movie {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie")
     private List<Comment> comments = new ArrayList<>();
+
+    @NotNull(message = "Popularity is mandatory")
+    @Column(name = "popularity", nullable = false)
+    private int popularity;
 }

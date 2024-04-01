@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -65,7 +66,7 @@ public class SongService {
     }
 
     public SongPageResponse getPageSongs(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("popularity").descending());
         Page<Song> songsPage = songRepository.findAll(pageable);
 
         List<Song> songs = songsPage.getContent();
@@ -610,6 +611,12 @@ public class SongService {
         }
 
         return closestRow;
+    }
+
+    public void increasePopularity(Song song) {
+        Song songFromDb = getByISRC(song.getIsrc());
+        songFromDb.setPopularity(songFromDb.getPopularity() + 1);
+        songRepository.save(songFromDb);
     }
 
 }

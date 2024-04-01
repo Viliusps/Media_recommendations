@@ -152,16 +152,28 @@ public class RecommendationService {
         {
             originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
             originalSong = songService.getSongFeatures(originalSong);
+            if(!songService.existsSong(originalSong)) {
+                songService.createSong(originalSong);
+            }
+            songService.increasePopularity(originalSong);
         }
 
         else if(originalRequest.getRecommendingByType().compareTo("Movie") == 0)
         {
             originalMovie = movieService.getMovieFromOmdb(originalRequest.getRecommendingBy());
+            if(!movieService.existsMovie(originalMovie)) {
+                movieService.createMovie(originalMovie);
+            }
+            movieService.increasePopularity(originalMovie);
         }
 
         else if(originalRequest.getRecommendingByType().compareTo("Game") == 0)
         {
             originalGame = gameService.getGameFromRAWG(originalRequest.getRecommendingBy());
+            if(!gameService.existsGame(originalGame)) {
+                gameService.createGame(originalGame);
+            }
+            gameService.increasePopularity(originalGame);
         }
 
         return new RecommendationResponse(originalRequest.getRecommendingType(), song, game, movie, originalRequest.getRecommendingByType(), originalSong, originalGame, originalMovie);

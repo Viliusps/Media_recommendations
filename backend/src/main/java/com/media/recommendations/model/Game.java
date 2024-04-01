@@ -44,4 +44,12 @@ public class Game {
     @NotNull(message = "Playtime is mandatory")
     @Column(name = "playtime", nullable = false)
     private int playtime;
+
+    @NotNull(message = "Popularity is mandatory")
+    @Column(name = "popularity", nullable = false)
+    private int popularity;
+
+    @NotBlank(message = "Background image is mandatory")
+    @Column(name = "background_image", nullable = false)
+    private String backgroundImage;
 }

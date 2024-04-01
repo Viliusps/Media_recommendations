@@ -16,3 +16,13 @@ export const checkIfGameExists = async (name) => {
   const response = await axios.post(`${URL}/games/check`, { name: name }, authHeader());
   return response.data;
 };
+
+export const getPageGames = async (page, size) => {
+  const response = await axios.get(`${URL}/games/page?page=${page}&size=${size}`, authHeader());
+  return response.data;
+};
+
+export const searchGames = async (search) => {
+  const response = await axios.post(`${URL}/games/search`, { search: search }, authHeader());
+  return response.data;
+};
