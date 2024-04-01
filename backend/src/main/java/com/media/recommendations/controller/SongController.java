@@ -20,10 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.requests.GetClosestSongRequest;
+import com.media.recommendations.model.requests.GetSpotifyHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
 import com.media.recommendations.model.responses.SongPageResponse;
+import com.media.recommendations.model.responses.SpotifyHistoryResponse;
 import com.media.recommendations.service.SongService;
 
 
@@ -105,5 +107,11 @@ public class SongController {
     public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
         String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity());
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/recently-played")
+    public ResponseEntity<SpotifyHistoryResponse> getRecentlyPlayedSongs(@RequestBody GetSpotifyHistoryRequest request) {
+        SpotifyHistoryResponse response = songService.getRecentlyPlayedSongs(Long.parseLong(request.getUserId()));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -32,9 +33,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.SpotifyHistory;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
+import com.media.recommendations.model.responses.SpotifyHistoryResponse;
 import com.media.recommendations.repository.SongRepository;
+import com.media.recommendations.repository.SpotifyRepository;
 
 @Service
 public class SongService {
@@ -52,13 +56,16 @@ public class SongService {
     
     private final SongRepository songRepository;
 
+    private final SpotifyRepository spotifyRepository;
+
     public SongService(@Value("${spotify.api.tokenUrl}") String spotifyTokenUrl, @Value("${spotify.api.url}") String spotifyUrl,
-        @Value("${spotify.api.clientId}") String spotifyClientId, @Value("${spotify.api.clientSecret}") String spotifyClientSecret, SongRepository songRepository) {
+        @Value("${spotify.api.clientId}") String spotifyClientId, @Value("${spotify.api.clientSecret}") String spotifyClientSecret, SongRepository songRepository, SpotifyRepository spotifyRepository) {
         this.spotifyTokenUrl = spotifyTokenUrl;
         this.spotifyUrl = spotifyUrl;
         this.spotifyClientId = spotifyClientId;
         this.spotifyClientSecret = spotifyClientSecret;
         this.songRepository = songRepository;
+        this.spotifyRepository = spotifyRepository;
     }
 
     public List<Song> getAllSongs() {
@@ -133,6 +140,14 @@ public class SongService {
         songRepository.deleteById(id);
     }
 
+    public SpotifyHistoryResponse getRecentlyPlayedSongs(long userId) {
+        List<SpotifyHistory> history = spotifyRepository.findAllByUserId(userId);
+        List<Song> songs = history.stream()
+                .map(SpotifyHistory::getSong)
+                .collect(Collectors.toList());
+        SpotifyHistoryResponse response = new SpotifyHistoryResponse(songs, history.get(0).getDate());
+        return response;
+    }
 
     public String getAccessToken() {
         String authHeader = "Basic " + getBase64ClientIdAndSecret();

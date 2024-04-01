@@ -7,6 +7,7 @@ import Songs from './pages/Songs';
 import Games from './pages/Games';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import { getRole } from './api/auth-axios';
 import Recommendation from './pages/Recommendation';
@@ -63,6 +64,7 @@ function App() {
             <>
               <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
               <Route path="/games/:type" element={<RecentlyPlayedGames />} />
+              <Route path="/profile" element={<Profile />} />
             </>
           )}
 
