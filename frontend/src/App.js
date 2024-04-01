@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Movies from './pages/Movies';
 import Movie from './pages/Movie';
 import Songs from './pages/Songs';
+import Games from './pages/Games';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
@@ -38,6 +39,7 @@ function App() {
           <Route path="/movies" element={<Movies />} />
           <Route path="/movies/:id" element={<Movie />} />
           <Route path="/songs" element={<Songs />} />
+          <Route path="/games" element={<Games />} />
 
           <Route
             path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"

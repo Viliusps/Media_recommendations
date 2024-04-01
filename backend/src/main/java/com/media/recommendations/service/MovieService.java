@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,7 +39,7 @@ public class MovieService {
     }
 
     public MoviePageResponse getPageMovies(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("popularity").descending());
         Page<Movie> moviesPage = movieRepository.findAll(pageable);
 
         List<Movie> movies = moviesPage.getContent();
@@ -157,5 +158,10 @@ public class MovieService {
 
         return closestRow;
     }
-    
+
+    public void increasePopularity(Movie movie) {
+        Movie movieFromDb = getByIMDBId(movie.getImdbID());
+        movieFromDb.setPopularity(movieFromDb.getPopularity() + 1);
+        movieRepository.save(movieFromDb);
+    }
 }

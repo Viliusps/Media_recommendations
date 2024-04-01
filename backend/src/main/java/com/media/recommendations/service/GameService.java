@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
+import com.media.recommendations.model.responses.GamePageResponse;
 import com.media.recommendations.repository.GameRepository;
 
 @Service
@@ -39,6 +44,22 @@ public class GameService {
     public GameService(GameRepository gameRepository) {
         this.restTemplate = new RestTemplate();
         this.gameRepository = gameRepository;
+    }
+
+    public GamePageResponse getPageGames(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("popularity").descending());
+        Page<Game> gamesPage = gameRepository.findAll(pageable);
+
+        List<Game> games = gamesPage.getContent();
+        long totalGames = gameRepository.count();
+
+        return new GamePageResponse(games, totalGames);
+    }
+
+    public GamePageResponse search(String search) {
+        List<Game> found = gameRepository.findByNameContaining(search);
+        GamePageResponse response = new GamePageResponse(found, found.size());
+        return response;
     }
 
     public boolean existsGame(Game game) {
@@ -113,6 +134,7 @@ public class GameService {
             game.setGenre(root.get("genres").get(0).get("name").asText());
             game.setRating(root.get("rating").asDouble());
             game.setPlaytime(root.get("playtime").asInt());
+            game.setBackgroundImage(root.get("background_image").asText());
             return game;
         } catch (IOException e) {
             e.printStackTrace();
@@ -182,5 +204,11 @@ public class GameService {
                 
         return closestMatch != null ? closestMatch : new Game();
 
+    }
+
+    public void increasePopularity(Game game) {
+        Game gameFromDb = getByName(game.getName());
+        gameFromDb.setPopularity(gameFromDb.getPopularity() + 1);
+        gameRepository.save(gameFromDb);
     }
 }
