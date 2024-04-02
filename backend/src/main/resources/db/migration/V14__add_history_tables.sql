@@ -3,8 +3,8 @@ CREATE TABLE spotify_history (
     user_id BIGINT NOT NULL,
     song_id BIGINT NOT NULL,
     date TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (song_id) REFERENCES songs(song_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (song_id) REFERENCES songs(id)
 );
 
 CREATE TABLE steam_history (
@@ -12,6 +12,6 @@ CREATE TABLE steam_history (
     user_id BIGINT NOT NULL,
     game_id BIGINT NOT NULL,
     date TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (game_id) REFERENCES games(game_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (game_id) REFERENCES games(id)
 );

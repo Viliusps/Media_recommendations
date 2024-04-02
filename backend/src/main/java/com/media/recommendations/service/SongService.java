@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.SpotifyHistory;
+import com.media.recommendations.model.User;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
 import com.media.recommendations.model.responses.SpotifyHistoryResponse;
@@ -58,14 +60,17 @@ public class SongService {
 
     private final SpotifyRepository spotifyRepository;
 
+    private final UserService userService;
+
     public SongService(@Value("${spotify.api.tokenUrl}") String spotifyTokenUrl, @Value("${spotify.api.url}") String spotifyUrl,
-        @Value("${spotify.api.clientId}") String spotifyClientId, @Value("${spotify.api.clientSecret}") String spotifyClientSecret, SongRepository songRepository, SpotifyRepository spotifyRepository) {
+        @Value("${spotify.api.clientId}") String spotifyClientId, @Value("${spotify.api.clientSecret}") String spotifyClientSecret, SongRepository songRepository, SpotifyRepository spotifyRepository, UserService userService) {
         this.spotifyTokenUrl = spotifyTokenUrl;
         this.spotifyUrl = spotifyUrl;
         this.spotifyClientId = spotifyClientId;
         this.spotifyClientSecret = spotifyClientSecret;
         this.songRepository = songRepository;
         this.spotifyRepository = spotifyRepository;
+        this.userService = userService;
     }
 
     public List<Song> getAllSongs() {
@@ -178,7 +183,7 @@ public class SongService {
     }
 
 
-    public List<Song> getUserSongs(String accessToken) {
+    public List<Song> getUserSongs(String accessToken, Long userId) {
         RestTemplate restTemplate = new RestTemplate();
         String url = spotifyUrl + "/v1/me/player/recently-played";
         HttpHeaders headers = new HttpHeaders();
@@ -187,8 +192,30 @@ public class SongService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        List<Song> songs = extractSongData(response.getBody());
 
-        return extractSongData(response.getBody());
+        addSongsToHistory(songs, userId);
+
+        return songs;
+    }
+
+    private void addSongsToHistory(List<Song> songs, Long userId) {
+        //Clean previous history
+        User user = userService.getUserById(userId);
+        spotifyRepository.deleteByUser(user);
+
+        //Add new entries
+        LocalDate currDate = LocalDate.now();
+        for(Song song : songs) {
+            if(!existsSong(song)) {
+                song = createSong(song);
+            }
+            SpotifyHistory entry = new SpotifyHistory();
+            entry.setDate(currDate);
+            entry.setSong(song);
+            entry.setUser(user);
+            spotifyRepository.save(entry);
+        }
     }
 
     private List<Song> extractSongData(String jsonResponse) {
