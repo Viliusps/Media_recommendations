@@ -31,7 +31,7 @@ public class GameController {
 
     @PostMapping("/getRecentlyPlayedGames")
     public ResponseEntity<String> getRecentlyPlayedGames(@RequestBody SteamRequest request) {
-        return gameService.getRecentlyPlayedGames(request.getUserId());
+        return gameService.getRecentlyPlayedGames(request.getUserId(), request.getUsername());
     }
 
     @PostMapping("/check")

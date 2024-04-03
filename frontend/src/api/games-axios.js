@@ -4,11 +4,13 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const getRecentlyPlayedGames = async (userId) => {
+  const username = localStorage.getItem('userName');
   const response = await axios.post(
     `${URL}/games/getRecentlyPlayedGames`,
-    { userId: userId },
+    { userId: userId, username: username },
     authHeader()
   );
+  console.log(response);
   return response.data;
 };
 

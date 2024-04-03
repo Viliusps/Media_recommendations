@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SteamRequest {
-    public String userId;
+    private String userId;
+    private String username;
 }

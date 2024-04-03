@@ -81,7 +81,7 @@ public class SongController {
 
     @PostMapping("/spotify")
     public ResponseEntity<List<Song>> getUserSongs(@RequestBody SpotifyUserSongsRequest request) {
-        List<Song> response = songService.getUserSongs(request.getToken(), request.getUserId());
+        List<Song> response = songService.getUserSongs(request.getToken(), request.getUsername());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

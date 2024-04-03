@@ -3,6 +3,7 @@ package com.media.recommendations.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,8 +25,11 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
+import com.media.recommendations.model.SteamHistory;
+import com.media.recommendations.model.User;
 import com.media.recommendations.model.responses.GamePageResponse;
 import com.media.recommendations.repository.GameRepository;
+import com.media.recommendations.repository.SteamRepository;
 
 @Service
 public class GameService {
@@ -41,9 +45,15 @@ public class GameService {
 
     private final GameRepository gameRepository;
 
-    public GameService(GameRepository gameRepository) {
+    private final SteamRepository steamRepository;
+
+    private final UserService userService;
+
+    public GameService(GameRepository gameRepository, UserService userService, SteamRepository steamRepository) {
         this.restTemplate = new RestTemplate();
         this.gameRepository = gameRepository;
+        this.userService = userService;
+        this.steamRepository = steamRepository;
     }
 
     public GamePageResponse getPageGames(int page, int size) {
@@ -77,13 +87,58 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public ResponseEntity<String> getRecentlyPlayedGames(String userId) {
-            String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
-            String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId;
+    public ResponseEntity<String> getRecentlyPlayedGames(String userId, String username) {
+        String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
+        String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId;
 
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            return response;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        List<Game> games = extractGamesFromSteamResponse(response);
+        addGamesToHistory(games, username);
+        return response;
+    }
+
+    private void addGamesToHistory(List<Game> games, String username) { 
+        //Clean previous history
+        User user = userService.userByUsername(username);
+        steamRepository.deleteByUser(user);
+
+        //Add new entries
+        LocalDate currDate = LocalDate.now();
+        for(Game game : games) {
+            if(!existsGame(game)) {
+                game = createGame(game);
+            } else {
+                game = getByName(game.getName());
+            }
+            SteamHistory entry = new SteamHistory();
+            entry.setDate(currDate);
+            entry.setGame(game);
+            entry.setUser(user);
+            steamRepository.save(entry);
+        }
+    }
+
+    public List<Game> extractGamesFromSteamResponse(ResponseEntity<String> response) {
+        List<Game> fullGames = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode games = root.path("response").path("games");
+
+            if (games.isArray()) {
+                for (JsonNode game : games) {
+                    String name = game.path("name").asText();
+                    Game fullGame = getGameFromRAWG(name);
+                    fullGames.add(fullGame);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return fullGames;
     }
 
     public Game getGameFromRAWG(String gameName) {

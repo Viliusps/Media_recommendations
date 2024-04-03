@@ -183,7 +183,7 @@ public class SongService {
     }
 
 
-    public List<Song> getUserSongs(String accessToken, Long userId) {
+    public List<Song> getUserSongs(String accessToken, String username) {
         RestTemplate restTemplate = new RestTemplate();
         String url = spotifyUrl + "/v1/me/player/recently-played";
         HttpHeaders headers = new HttpHeaders();
@@ -194,14 +194,14 @@ public class SongService {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         List<Song> songs = extractSongData(response.getBody());
 
-        addSongsToHistory(songs, userId);
+        addSongsToHistory(songs, username);
 
         return songs;
     }
 
-    private void addSongsToHistory(List<Song> songs, Long userId) {
+    private void addSongsToHistory(List<Song> songs, String username) {
         //Clean previous history
-        User user = userService.getUserById(userId);
+        User user = userService.userByUsername(username);
         spotifyRepository.deleteByUser(user);
 
         //Add new entries
@@ -209,6 +209,8 @@ public class SongService {
         for(Song song : songs) {
             if(!existsSong(song)) {
                 song = createSong(song);
+            } else {
+                song = getByISRC(song.getIsrc());
             }
             SpotifyHistory entry = new SpotifyHistory();
             entry.setDate(currDate);

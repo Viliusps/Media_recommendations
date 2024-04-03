@@ -15,7 +15,12 @@ export const getPageSongs = async (page, size) => {
 
 export const getUserSpotifySongs = async () => {
   const token = localStorage.getItem('spotifyAuthToken');
-  const response = await axios.post(`${URL}/songs/spotify`, { token: token }, authHeader());
+  const username = localStorage.getItem('userName');
+  const response = await axios.post(
+    `${URL}/songs/spotify`,
+    { token: token, username: username },
+    authHeader()
+  );
   return response.data;
 };
 

@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "spotify_history")
-public class SpotifyHistory {
+@Table(name = "steam_history")
+public class SteamHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -34,6 +34,6 @@ public class SpotifyHistory {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "song_id", referencedColumnName = "id")
-    private Song song;
+    @JoinColumn(name = "game_id", referencedColumnName = "id")
+    private Game game;
 }
