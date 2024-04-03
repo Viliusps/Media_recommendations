@@ -16,7 +16,6 @@ export default function Profile() {
       setSteamHistory(results);
     });
     getRecentRecommendations().then((results) => {
-      console.log(results);
       setRecentRecommendations(results);
     });
   }, []);

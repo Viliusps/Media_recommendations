@@ -60,7 +60,6 @@ export default function Games() {
       getPageGames(currentPage, gamesPerPage)
         .then((data) => {
           setGames(data.games);
-          console.log(data.games);
           setTotalGames(data.totalGames);
         })
         .catch((error) => {
