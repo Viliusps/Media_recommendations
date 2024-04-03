@@ -145,7 +145,9 @@ public class SongService {
         songRepository.deleteById(id);
     }
 
-    public SpotifyHistoryResponse getRecentlyPlayedSongs(long userId) {
+    public SpotifyHistoryResponse getSpotifyHistory(String username) {
+        User user = userService.userByUsername(username);
+        Long userId = user.getId();
         List<SpotifyHistory> history = spotifyRepository.findAllByUserId(userId);
         List<Song> songs = history.stream()
                 .map(SpotifyHistory::getSong)

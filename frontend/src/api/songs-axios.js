@@ -33,3 +33,13 @@ export const checkIfSongExists = async (name) => {
   const response = await axios.post(`${URL}/songs/check`, { name: name }, authHeader());
   return response.data;
 };
+
+export const getSpotifyHistory = async () => {
+  const username = localStorage.getItem('userName');
+  const response = await axios.post(
+    `${URL}/songs/spotify-history`,
+    { username: username },
+    authHeader()
+  );
+  return response.data.songs;
+};

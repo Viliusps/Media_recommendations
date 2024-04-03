@@ -48,7 +48,7 @@ public class MovieService {
         return new MoviePageResponse(movies, totalMovies);
     }
 
-     public Movie getMovieById(long id) {
+    public Movie getMovieById(long id) {
         Optional<Movie> optionalMovie = movieRepository.findById(id);
         if (optionalMovie.isPresent()) {
             return optionalMovie.get();

@@ -109,9 +109,9 @@ public class SongController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/recently-played")
-    public ResponseEntity<SpotifyHistoryResponse> getRecentlyPlayedSongs(@RequestBody GetSpotifyHistoryRequest request) {
-        SpotifyHistoryResponse response = songService.getRecentlyPlayedSongs(Long.parseLong(request.getUserId()));
+    @PostMapping("/spotify-history")
+    public ResponseEntity<SpotifyHistoryResponse> getSpotifyHistory(@RequestBody GetSpotifyHistoryRequest request) {
+        SpotifyHistoryResponse response = songService.getSpotifyHistory(request.getUsername());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -28,3 +28,13 @@ export const searchGames = async (search) => {
   const response = await axios.post(`${URL}/games/search`, { search: search }, authHeader());
   return response.data;
 };
+
+export const getSteamHistory = async () => {
+  const username = localStorage.getItem('userName');
+  const response = await axios.post(
+    `${URL}/games/steam-history`,
+    { username: username },
+    authHeader()
+  );
+  return response.data.games;
+};

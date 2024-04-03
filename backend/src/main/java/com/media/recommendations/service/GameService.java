@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,7 @@ import com.media.recommendations.model.Game;
 import com.media.recommendations.model.SteamHistory;
 import com.media.recommendations.model.User;
 import com.media.recommendations.model.responses.GamePageResponse;
+import com.media.recommendations.model.responses.SteamHistoryResponse;
 import com.media.recommendations.repository.GameRepository;
 import com.media.recommendations.repository.SteamRepository;
 
@@ -85,6 +88,25 @@ public class GameService {
 
     public Game createGame(Game game) {
         return gameRepository.save(game);
+    }
+
+    public Game getGameById(long id) {
+        Optional<Game> optionalGame = gameRepository.findById(id);
+        if (optionalGame.isPresent()) {
+            return optionalGame.get();
+        }
+        return null;
+    }
+
+    public SteamHistoryResponse getSteamHistory(String username) {
+        User user = userService.userByUsername(username);
+        Long userId = user.getId();
+        List<SteamHistory> history = steamRepository.findAllByUserId(userId);
+        List<Game> games = history.stream()
+                .map(SteamHistory::getGame)
+                .collect(Collectors.toList());
+        SteamHistoryResponse response = new SteamHistoryResponse(games, history.get(0).getDate());
+        return response;
     }
 
     public ResponseEntity<String> getRecentlyPlayedGames(String userId, String username) {

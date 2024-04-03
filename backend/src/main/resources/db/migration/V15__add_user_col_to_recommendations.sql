@@ -1,0 +1,3 @@
+ALTER TABLE recommendations
+ADD COLUMN user_id BIGINT NOT NULL DEFAULT 2,
+ADD FOREIGN KEY (user_id) REFERENCES users(id);

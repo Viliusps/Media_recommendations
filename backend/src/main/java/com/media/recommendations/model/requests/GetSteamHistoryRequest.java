@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetSpotifyHistoryRequest {
+public class GetSteamHistoryRequest {
     private String username;
 }
