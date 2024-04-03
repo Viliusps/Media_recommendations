@@ -27,3 +27,13 @@ export const rateRecommendation = async (
   );
   return response.data;
 };
+
+export const getRecentRecommendations = async () => {
+  const username = localStorage.getItem('userName');
+  const response = await axios.post(
+    `${URL}/recommend/recent`,
+    { username: username },
+    authHeader()
+  );
+  return response.data;
+};

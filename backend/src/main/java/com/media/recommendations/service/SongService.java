@@ -4,12 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -32,9 +34,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.SpotifyHistory;
+import com.media.recommendations.model.User;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
+import com.media.recommendations.model.responses.SpotifyHistoryResponse;
 import com.media.recommendations.repository.SongRepository;
+import com.media.recommendations.repository.SpotifyRepository;
 
 @Service
 public class SongService {
@@ -52,13 +58,19 @@ public class SongService {
     
     private final SongRepository songRepository;
 
+    private final SpotifyRepository spotifyRepository;
+
+    private final UserService userService;
+
     public SongService(@Value("${spotify.api.tokenUrl}") String spotifyTokenUrl, @Value("${spotify.api.url}") String spotifyUrl,
-        @Value("${spotify.api.clientId}") String spotifyClientId, @Value("${spotify.api.clientSecret}") String spotifyClientSecret, SongRepository songRepository) {
+        @Value("${spotify.api.clientId}") String spotifyClientId, @Value("${spotify.api.clientSecret}") String spotifyClientSecret, SongRepository songRepository, SpotifyRepository spotifyRepository, UserService userService) {
         this.spotifyTokenUrl = spotifyTokenUrl;
         this.spotifyUrl = spotifyUrl;
         this.spotifyClientId = spotifyClientId;
         this.spotifyClientSecret = spotifyClientSecret;
         this.songRepository = songRepository;
+        this.spotifyRepository = spotifyRepository;
+        this.userService = userService;
     }
 
     public List<Song> getAllSongs() {
@@ -133,6 +145,16 @@ public class SongService {
         songRepository.deleteById(id);
     }
 
+    public SpotifyHistoryResponse getSpotifyHistory(String username) {
+        User user = userService.userByUsername(username);
+        Long userId = user.getId();
+        List<SpotifyHistory> history = spotifyRepository.findAllByUserId(userId);
+        List<Song> songs = history.stream()
+                .map(SpotifyHistory::getSong)
+                .collect(Collectors.toList());
+        SpotifyHistoryResponse response = new SpotifyHistoryResponse(songs, history.get(0).getDate());
+        return response;
+    }
 
     public String getAccessToken() {
         String authHeader = "Basic " + getBase64ClientIdAndSecret();
@@ -163,7 +185,7 @@ public class SongService {
     }
 
 
-    public List<Song> getUserSongs(String accessToken) {
+    public List<Song> getUserSongs(String accessToken, String username) {
         RestTemplate restTemplate = new RestTemplate();
         String url = spotifyUrl + "/v1/me/player/recently-played";
         HttpHeaders headers = new HttpHeaders();
@@ -172,8 +194,32 @@ public class SongService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        List<Song> songs = extractSongData(response.getBody());
 
-        return extractSongData(response.getBody());
+        addSongsToHistory(songs, username);
+
+        return songs;
+    }
+
+    private void addSongsToHistory(List<Song> songs, String username) {
+        //Clean previous history
+        User user = userService.userByUsername(username);
+        spotifyRepository.deleteByUser(user);
+
+        //Add new entries
+        LocalDate currDate = LocalDate.now();
+        for(Song song : songs) {
+            if(!existsSong(song)) {
+                song = createSong(song);
+            } else {
+                song = getByISRC(song.getIsrc());
+            }
+            SpotifyHistory entry = new SpotifyHistory();
+            entry.setDate(currDate);
+            entry.setSong(song);
+            entry.setUser(user);
+            spotifyRepository.save(entry);
+        }
     }
 
     private List<Song> extractSongData(String jsonResponse) {

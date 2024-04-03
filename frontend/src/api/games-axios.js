@@ -4,11 +4,13 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const getRecentlyPlayedGames = async (userId) => {
+  const username = localStorage.getItem('userName');
   const response = await axios.post(
     `${URL}/games/getRecentlyPlayedGames`,
-    { userId: userId },
+    { userId: userId, username: username },
     authHeader()
   );
+  console.log(response);
   return response.data;
 };
 
@@ -25,4 +27,14 @@ export const getPageGames = async (page, size) => {
 export const searchGames = async (search) => {
   const response = await axios.post(`${URL}/games/search`, { search: search }, authHeader());
   return response.data;
+};
+
+export const getSteamHistory = async () => {
+  const username = localStorage.getItem('userName');
+  const response = await axios.post(
+    `${URL}/games/steam-history`,
+    { username: username },
+    authHeader()
+  );
+  return response.data.games;
 };

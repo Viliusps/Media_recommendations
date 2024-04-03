@@ -183,6 +183,13 @@ function Navbar() {
                 }}
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}>
+                <MenuItem
+                  onClick={() => {
+                    Navigate('/profile');
+                    handleCloseUserMenu();
+                  }}>
+                  <Typography textAlign="center">Profile</Typography>
+                </MenuItem>
                 <MenuItem onClick={() => logout()}>
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>

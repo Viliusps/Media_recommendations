@@ -1,6 +1,9 @@
 package com.media.recommendations.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +16,7 @@ import com.media.recommendations.model.Game;
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.Recommendation;
 import com.media.recommendations.model.Song;
+import com.media.recommendations.model.User;
 import com.media.recommendations.model.requests.ChatRequest;
 import com.media.recommendations.model.requests.RecommendationRatingRequest;
 import com.media.recommendations.model.requests.RecommendationRequest;
@@ -38,10 +42,12 @@ public class RecommendationService {
 
     private GameService gameService;
 
+    private UserService userService;
+
     private RecommendationRepository recommendationRepository;
 
     public RecommendationService(@Qualifier("openaiRestTemplate")@Autowired RestTemplate restTemplate, @Value("${OAI.model}") String model, @Value("${OAI.api.url}") String apiUrl,
-        SongService songService, MovieService movieService, GameService gameService, RecommendationRepository recommendationRepository)
+        SongService songService, MovieService movieService, GameService gameService, RecommendationRepository recommendationRepository, UserService userService)
     {
         this.restTemplate = restTemplate;
         this.model = model;
@@ -50,6 +56,7 @@ public class RecommendationService {
         this.movieService = movieService;
         this.gameService = gameService;
         this.recommendationRepository = recommendationRepository;
+        this.userService = userService;
     }
 
     public RecommendationResponse getRecommendation(RecommendationRequest originalRequest) {
@@ -273,6 +280,53 @@ public class RecommendationService {
     private Boolean recommendationExists(Recommendation recommendation) {
         return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondType(recommendation.getFirst(),
             recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType());
+    }
+
+    public List<RecommendationResponse> getRecentRecommendations(String username) {
+        List<RecommendationResponse> results = new ArrayList<>();
+        User user = userService.userByUsername(username);
+        List<Recommendation> recommendations = recommendationRepository.getByUser(user);
+        Collections.reverse(recommendations);
+        for(int i = 0; i < 5; i++) {
+            Recommendation recommendation = recommendations.get(i);
+            RecommendationResponse newRecommendation = new RecommendationResponse();
+
+            newRecommendation.setOriginalType(recommendation.getFirstType());
+            newRecommendation.setType(recommendation.getSecondType());
+            
+            long firstId = recommendation.getFirst();
+            long secondId = recommendation.getSecond();
+            switch (recommendation.getFirstType()) {
+                case "Movie":
+                    newRecommendation.setOriginalMovie(movieService.getMovieById(firstId));
+                    break;
+                case "Song":
+                    newRecommendation.setOriginalSong(songService.getSongById(firstId));
+                    break;
+                case "Game":
+                    newRecommendation.setOriginalGame(gameService.getGameById(firstId));
+                    break;
+                default:
+                    break;
+            }
+
+            switch (recommendation.getSecondType()) {
+                case "Movie":
+                    newRecommendation.setMovie(movieService.getMovieById(secondId));
+                    break;
+                case "Song":
+                    newRecommendation.setSong(songService.getSongById(secondId));
+                    break;
+                case "Game":
+                    newRecommendation.setGame(gameService.getGameById(secondId));
+                    break;
+                default:
+                    break;
+            }
+
+            results.add(newRecommendation);
+        }
+        return results;
     }
     
 }

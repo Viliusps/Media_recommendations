@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SteamRequest {
-    private String userId;
+public class RecentRecommendationsRequest {
     private String username;
 }

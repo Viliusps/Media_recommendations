@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.requests.GameSearchRequest;
+import com.media.recommendations.model.requests.GetSteamHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SteamRequest;
 import com.media.recommendations.model.responses.GamePageResponse;
+import com.media.recommendations.model.responses.SteamHistoryResponse;
 import com.media.recommendations.service.GameService;
 
 import jakarta.validation.Valid;
@@ -31,7 +33,7 @@ public class GameController {
 
     @PostMapping("/getRecentlyPlayedGames")
     public ResponseEntity<String> getRecentlyPlayedGames(@RequestBody SteamRequest request) {
-        return gameService.getRecentlyPlayedGames(request.getUserId());
+        return gameService.getRecentlyPlayedGames(request.getUserId(), request.getUsername());
     }
 
     @PostMapping("/check")
@@ -55,5 +57,11 @@ public class GameController {
     @GetMapping("/page")
     public ResponseEntity<GamePageResponse> getPageGames(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return new ResponseEntity<>(gameService.getPageGames(page, size), HttpStatus.OK);
+    }
+
+    @PostMapping("/steam-history")
+    public ResponseEntity<SteamHistoryResponse> getSteamHistory(@RequestBody GetSteamHistoryRequest request) {
+        SteamHistoryResponse response = gameService.getSteamHistory(request.getUsername());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
