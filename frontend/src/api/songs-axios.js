@@ -8,6 +8,11 @@ export const getSongs = async () => {
   return response.data;
 };
 
+export const getSong = async (id) => {
+  const response = await axios.get(`${URL}/songs/${id}`, authHeader());
+  return response.data;
+};
+
 export const getPageSongs = async (page, size) => {
   const response = await axios.get(`${URL}/songs/page?page=${page}&size=${size}`, authHeader());
   return response.data;

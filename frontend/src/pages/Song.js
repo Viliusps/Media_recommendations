@@ -4,7 +4,7 @@ import { Typography, Paper, Grid } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 import CommentSection from '../components/CommentSection';
-import { getGame } from '../api/games-axios';
+import { getSong } from '../api/songs-axios';
 import MovieDetails from '../components/MovieDetails';
 
 const ContentContainer = styled(Paper)`
@@ -17,18 +17,18 @@ const StyledImage = styled.img`
   border-radius: 8px;
 `;
 
-export default function Game() {
+export default function Song() {
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
-  const [game, setGame] = useState(null);
+  const [song, setSong] = useState(null);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    getGame(id)
+    getSong(id)
       .then((data) => {
         console.log(data);
         setError(false);
-        setGame(data);
+        setSong(data);
       })
       .catch(() => {
         setError(true);
@@ -44,24 +44,24 @@ export default function Game() {
         <ContentContainer elevation={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={3}>
-              <StyledImage src={game?.backgroundImage} alt={game?.name} />
+              <StyledImage src={song?.imageUrl} alt={song?.name} />
             </Grid>
             <Grid item xs={12} md={9}>
               <Typography variant="h4" gutterBottom>
-                {game?.name}
+                {song?.title}
               </Typography>
               <Typography variant="h5" gutterBottom>
                 Overview
               </Typography>
-              <MovieDetails label="Genre" value={game?.genre} />
-              <MovieDetails label="Release Date" value={game?.releaseDate} />
-              <MovieDetails label="Playtime" value={`${game?.playtime} hours.`} />
-              <MovieDetails label="Rating" value={game?.rating} />
-              <MovieDetails label="Popularity" value={game?.popularity} />
+              <MovieDetails label="Genre" value={song?.genre} />
+              <MovieDetails label="Release Date" value={song?.releaseDate} />
+              <MovieDetails label="Playtime" value={`${song?.playtime} hours.`} />
+              <MovieDetails label="Rating" value={song?.rating} />
+              <MovieDetails label="Popularity" value={song?.popularity} />
             </Grid>
           </Grid>
         </ContentContainer>
-        <CommentSection object={game} id={id} setObject={setGame} type={'Game'} />
+        <CommentSection object={song} id={id} setObject={setSong} type={'Song'} />
       </>
     </LoadingWrapper>
   );

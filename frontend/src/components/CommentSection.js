@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { postComment } from '../api/comments-axios';
 import { getMovie } from '../api/movies-axios';
+import { getGame } from '../api/games-axios';
+import { getSong } from '../api/songs-axios';
 import { toast } from 'react-toastify';
 
 const CommentContainer = styled(Paper)`
@@ -38,7 +40,7 @@ const StyledDivider = styled(Divider)`
   max-width: 800px;
 `;
 
-export default function CommentSection({ movie, id, setMovie }) {
+export default function CommentSection({ object, id, setObject, type }) {
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(0);
   const [errorMesssage, setErrorMessage] = useState('');
@@ -47,7 +49,7 @@ export default function CommentSection({ movie, id, setMovie }) {
 
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-  const currentComments = (movie?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
+  const currentComments = (object?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
@@ -58,12 +60,32 @@ export default function CommentSection({ movie, id, setMovie }) {
     else if (comment.length > 300) setErrorMessage('Your comment must be less than 300 characters');
     else if (rating === 0) setErrorMessage('Please select a rating.');
     else {
+      let gameComment = null;
+      let movieComment = null;
+      let songComment = null;
       setErrorMessage('');
-      postComment(id, comment, rating).then(() => {
-        getMovie(id).then((data) => {
-          showToastMessage();
-          setMovie(data);
-        });
+      if (type == 'Movie') movieComment = id;
+      if (type == 'Game') gameComment = id;
+      if (type == 'Song') songComment = id;
+      postComment(movieComment, songComment, gameComment, comment, rating).then(() => {
+        if (type == 'Movie') {
+          getMovie(id).then((data) => {
+            showToastMessage();
+            setObject(data);
+          });
+        }
+        if (type == 'Game') {
+          getGame(id).then((data) => {
+            showToastMessage();
+            setObject(data);
+          });
+        }
+        if (type == 'Song') {
+          getSong(id).then((data) => {
+            showToastMessage();
+            setObject(data);
+          });
+        }
       });
     }
   };
@@ -113,7 +135,7 @@ export default function CommentSection({ movie, id, setMovie }) {
       <Typography variant="h5" gutterBottom>
         Comments
       </Typography>
-      {movie.comments.length === 0 ? (
+      {object.comments.length === 0 ? (
         <Typography variant="body2" color="textSecondary">
           No comments yet.
         </Typography>
@@ -129,7 +151,7 @@ export default function CommentSection({ movie, id, setMovie }) {
         ))
       )}
       <StyledPagination
-        count={Math.ceil(movie?.comments.length / commentsPerPage)}
+        count={Math.ceil(object?.comments.length / commentsPerPage)}
         page={currentPage}
         onChange={handlePageChange}
         color="primary"

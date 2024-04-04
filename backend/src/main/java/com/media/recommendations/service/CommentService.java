@@ -31,6 +31,8 @@ public class CommentService {
         Comment newComment = new Comment();
         newComment.setCommentText(comment.getCommentText());
         newComment.setMovie(comment.getMovie());
+        newComment.setGame(comment.getGame());
+        newComment.setSong(comment.getSong());
         newComment.setRating(comment.getRating());
         return commentRepository.save(newComment);
     }
@@ -43,6 +45,8 @@ public class CommentService {
         Comment commentFromDb = commentRepository.findById(id).get();
         commentFromDb.setCommentText(comment.getCommentText());
         commentFromDb.setMovie(comment.getMovie());
+        commentFromDb.setSong(comment.getSong());
+        commentFromDb.setGame(comment.getGame());
         commentFromDb.setRating(comment.getRating());
         return commentRepository.save(commentFromDb);
     }

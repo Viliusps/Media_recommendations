@@ -25,9 +25,8 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     
-    @NotNull(message = "Movie is mandatory")
     @Column(name = "movie", nullable = false)
-    private long movie;
+    private Long movie;
 
     @NotBlank(message = "Comment text is mandatory")
     @Column(name = "comment_text", nullable = false)
@@ -36,4 +35,10 @@ public class Comment {
     @NotNull(message = "Rating is mandatory")
     @Column(name = "rating", nullable = false)
     private int rating;
+
+    @Column(name = "song", nullable = false)
+    private Long song;
+
+    @Column(name = "game", nullable = false)
+    private Long game;
 }

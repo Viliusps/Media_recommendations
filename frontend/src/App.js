@@ -19,6 +19,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
 import Game from './pages/Game';
+import Song from './pages/Song';
 
 function App() {
   const [role, setRole] = useState('');
@@ -42,6 +43,7 @@ function App() {
           <Route path="/movies/:id" element={<Movie />} />
           <Route path="/games/:id" element={<Game />} />
           <Route path="/songs" element={<Songs />} />
+          <Route path="/songs/:id" element={<Song />} />
           <Route path="/games" element={<Games />} />
 
           <Route
