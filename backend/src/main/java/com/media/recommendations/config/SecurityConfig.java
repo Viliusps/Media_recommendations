@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                     .disable())
                 .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(HttpMethod.GET, comments, songs, movies, games).permitAll()
+                    .requestMatchers(HttpMethod.GET, comments, songs, movies, games, "/api/v1/recommend/**").permitAll()
                     .requestMatchers(auth).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/movies/omdb").permitAll()
                     .requestMatchers(HttpMethod.POST, movies, songs, games).permitAll()

@@ -1,10 +1,16 @@
 package com.media.recommendations.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -52,4 +58,8 @@ public class Game {
     @NotBlank(message = "Background image is mandatory")
     @Column(name = "background_image", nullable = false)
     private String backgroundImage;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "game")
+    private List<Comment> comments = new ArrayList<>();
 }

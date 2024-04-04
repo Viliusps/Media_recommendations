@@ -10,7 +10,6 @@ export const getRecentlyPlayedGames = async (userId) => {
     { userId: userId, username: username },
     authHeader()
   );
-  console.log(response);
   return response.data;
 };
 
@@ -37,4 +36,9 @@ export const getSteamHistory = async () => {
     authHeader()
   );
   return response.data.games;
+};
+
+export const getGame = async (id) => {
+  const response = await axios.get(`${URL}/games/${id}`, authHeader());
+  return response.data;
 };

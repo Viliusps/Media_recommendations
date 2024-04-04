@@ -82,6 +82,10 @@ public class GameService {
         return gameRepository.existsByName(game.getName());
     }
 
+    public boolean existsGame(long id) {
+        return gameRepository.existsById(id);
+    }
+
     public Game getByName(String name) {
         return gameRepository.getByName(name);
     }

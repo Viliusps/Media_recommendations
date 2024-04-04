@@ -76,7 +76,7 @@ export default function Movie() {
             </Grid>
           </Grid>
         </ContentContainer>
-        <CommentSection movie={movie} id={id} setMovie={setMovie} />
+        <CommentSection object={movie} id={id} setObject={setMovie} type={'Movie'} />
       </>
     </LoadingWrapper>
   );

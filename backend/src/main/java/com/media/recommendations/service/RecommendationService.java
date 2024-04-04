@@ -1,5 +1,8 @@
 package com.media.recommendations.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -329,4 +332,28 @@ public class RecommendationService {
         return results;
     }
     
+    public String executePythonScript() {
+         try {
+            ProcessBuilder processBuilder = new ProcessBuilder("python", "testScript.py");
+            Process process = processBuilder.start();
+
+            StringBuilder output = new StringBuilder();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line + "\n");
+            }
+
+            int exitVal = process.waitFor();
+            if (exitVal == 0) {
+                return output.toString();
+            } else {
+                return "Script execution failed!";
+            }
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return "Exception occurred: " + e.getMessage();
+        }
+    }
 }

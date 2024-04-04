@@ -96,12 +96,7 @@ export default function Songs() {
           <Grid container spacing={1}>
             {songs.map((song) => (
               <Grid item key={song.id} xs={12} sm={6} md={4} lg={2}>
-                <SongCard
-                  title={song.title}
-                  artist={song.singer}
-                  imageUrl={song.imageUrl}
-                  spotifyUrl={song.spotifyId}
-                />
+                <SongCard song={song} />
               </Grid>
             ))}
           </Grid>
