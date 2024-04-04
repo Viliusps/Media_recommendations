@@ -17,6 +17,8 @@ import com.media.recommendations.model.responses.RecommendationResponse;
 import com.media.recommendations.service.RecommendationService;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @AllArgsConstructor
 @CrossOrigin
@@ -43,4 +45,10 @@ public class RecommendationController {
         List<RecommendationResponse> results = recommendationService.getRecentRecommendations(request.getUsername());
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
+
+    @GetMapping("/testScript")
+    public String test() {
+        return recommendationService.executePythonScript();
+    }
+    
 }
