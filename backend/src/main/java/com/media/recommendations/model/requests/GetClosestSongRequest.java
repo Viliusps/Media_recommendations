@@ -17,8 +17,6 @@ public class GetClosestSongRequest {
     private Double bpmHistogramSecondPeakMedian;
     private Double danceability;
     private Double onsetRate;
-    private String keyKey;
-    private String keyScale;
     private Double tuningFrequency;
     private Double tuningEqualTemperedDeviation;
 }

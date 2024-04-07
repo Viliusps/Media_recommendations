@@ -126,11 +126,11 @@ public class GameService {
         for(Game game : games) {
             System.out.println(game.getName());
         }
-        addGamesToHistory(games, username);
+        addGamesToHistory(games, username, userId);
         return response;
     }
 
-    private void addGamesToHistory(List<Game> games, String username) { 
+    private void addGamesToHistory(List<Game> games, String username, String steamUserId) { 
         //Clean previous history
         User user = userService.userByUsername(username);
         steamRepository.deleteByUser(user);
@@ -147,6 +147,7 @@ public class GameService {
             entry.setDate(currDate);
             entry.setGame(game);
             entry.setUser(user);
+            entry.setSteamId(steamUserId);
             steamRepository.save(entry);
         }
     }

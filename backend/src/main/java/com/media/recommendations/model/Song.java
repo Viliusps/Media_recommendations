@@ -85,13 +85,6 @@ public class Song {
     @Column(name = "tuning_equal_tempered_deviation")
     private String tuningEqualTemperedDeviation;
 
-    @Column(name = "key_scale")
-    private String keyScale;
-
-    @Column(name = "key_key")
-    private String keyKey;
-
-
     @NotNull(message = "Popularity is mandatory")
     @Column(name = "popularity", nullable = false)
     private int popularity;

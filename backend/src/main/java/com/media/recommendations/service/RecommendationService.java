@@ -148,7 +148,6 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingType().compareTo("Game") == 0)
         {
-            System.out.println("Chat gpt game response: " + chatGPTresponse);
             game = gameService.getGameFromRAWG(chatGPTresponse);
         }
         
@@ -254,11 +253,9 @@ public class RecommendationService {
             if(!songService.existsSong(songBy)) {
                 Song newSong = songService.createSong(songBy);
                 recommendingByID = newSong.getId();
-                System.out.println("DID NOT EXIST BEFORE. ID: " + recommendingByID);
             }  else {
                 Song newSong = songService.getByISRC(songBy.getIsrc());
                 recommendingByID = newSong.getId();
-                System.out.println("EXISTED BEFORE. ID: " + recommendingByID);
             }
         } else if ("Game".equals(recommendingByType)) {
             gameBy = mapper.convertValue(recommendingBy, Game.class);

@@ -127,8 +127,6 @@ public class SongService {
         newSong.setDanceability(song.getDanceability());
         newSong.setTuningFrequency(song.getTuningFrequency());
         newSong.setTuningEqualTemperedDeviation(song.getTuningEqualTemperedDeviation());
-        newSong.setKeyScale(song.getKeyScale());
-        newSong.setKeyKey(song.getKeyKey());
         return songRepository.save(newSong);
     }
 
@@ -269,7 +267,7 @@ public class SongService {
             String mbid = getMBIDByISRC(song.getIsrc(), song.getTitle());
             if(mbid != null) joinedMBIDS += mbid + ";";
         }
-        if(joinedMBIDS != null) {
+        if(joinedMBIDS != "") {
             Map<String, String> features = getSongFeaturesByMBID(joinedMBIDS);
             for (Map.Entry<String, String> entry : features.entrySet()) {
                     System.out.println(entry.getKey() + ": " + entry.getValue());
@@ -456,8 +454,6 @@ public class SongService {
                 song.setDanceability(features.get("danceability"));
                 song.setTuningFrequency(features.get("tuningFrequency"));
                 song.setTuningEqualTemperedDeviation(features.get("tuningEqualTemperedDeviation"));
-                song.setKeyScale(features.get("keyScale"));
-                song.setKeyKey(features.get("keyKey"));
             }
         }
         return song;
@@ -548,8 +544,6 @@ public class SongService {
         Map<String, String> selectedFeatures = new HashMap<>();
 
         JsonNode tonalNode = rootNode.path("tonal");
-        selectedFeatures.put("keyKey", tonalNode.path("key_key").asText());
-        selectedFeatures.put("keyScale", tonalNode.path("key_scale").asText());
         selectedFeatures.put("tuningEqualTemperedDeviation", tonalNode.path("tuning_equal_tempered_deviation").asText());
         selectedFeatures.put("tuningFrequency", tonalNode.path("tuning_frequency").asText());
 
@@ -635,8 +629,7 @@ public class SongService {
     }
 
     public String getClosestSongFromFeatures(Double bpm, Double averageLoudness, Double dynamicComplexity, Double mfccZeroMean, Double bpmHistogramFirstPeakMean,
-            Double bpmHistogramFirstPeakMedian, Double bpmHistogramSecondPeakMean, Double bpmHistogramSecondPeakMedian, Double danceability, Double onsetRate,
-            String keyKey, String keyScale, Double tuningFrequency, Double tuningEqualTemperedDeviation) {
+            Double bpmHistogramFirstPeakMedian, Double bpmHistogramSecondPeakMean, Double bpmHistogramSecondPeakMedian, Double danceability, Double onsetRate, Double tuningFrequency, Double tuningEqualTemperedDeviation) {
         String closestRow = "";
         Double minDistance = Double.MAX_VALUE;
         String filePath = "merged_file.csv";
