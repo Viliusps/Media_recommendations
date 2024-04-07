@@ -11,7 +11,7 @@ import com.media.recommendations.model.User;
 
 @Repository
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
-    boolean existsByFirstAndSecondAndRatingAndFirstTypeAndSecondType(long first, long second, boolean rating, String firstType, String secondType);
+    boolean existsByFirstAndSecondAndRatingAndFirstTypeAndSecondTypeAndUser(long first, long second, boolean rating, String firstType, String secondType, User user);
 
     List<Recommendation> getByUser(User user);
 }

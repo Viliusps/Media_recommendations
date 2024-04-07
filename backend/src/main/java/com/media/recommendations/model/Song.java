@@ -49,41 +49,48 @@ public class Song {
     @Column(name = "isrc")
     private String isrc;
 
-    @Column(name = "chords_changes_rate")
-    private String chordsChangesRate;
-
-    @Column(name = "key_strength")
-    private String keyStrength;
-
-    @Column(name = "danceability")
-    private String danceability;
-
-    @Column(name = "bpm")
-    private String bpm;
-
-    @Column(name = "beats_loudness")
-    private String beatsLoudness;
-
-    @Column(name = "beats_count")
-    private String beatsCount;
-
-    @Column(name = "spectral_energy")
-    private String spectralEnergy;
-
-    @Column(name = "silence_rate")
-    private String silenceRate;
-
-    @Column(name = "dissonance")
-    private String dissonance;
-
-    @Column(name = "average_loudness")
-    private String averageLoudness;
+    @Column(name = "mfcc_zero_mean")
+    private String mfccZeroMean;
 
     @Column(name = "dynamic_complexity")
     private String dynamicComplexity;
 
-    @Column(name = "pitch_salience")
-    private String pitchSalience;
+    @Column(name = "average_loudness")
+    private String averageLoudness;
+
+    @Column(name = "onset_rate")
+    private String onsetRate;
+
+    @Column(name = "bpm_histogram_second_peak_bpm_median")
+    private String bpmHistogramSecondPeakBpmMedian;
+
+    @Column(name = "bpm_histogram_second_peak_bpm_mean")
+    private String bpmHistogramSecondPeakBpmMean;
+
+    @Column(name = "bpm_histogram_first_peak_bpm_median")
+    private String bpmHistogramFirstPeakBpmMedian;
+
+    @Column(name = "bpm_histogram_first_peak_bpm_mean")
+    private String bpmHistogramFirstPeakBpmMean;
+
+    @Column(name = "bpm")
+    private String bpm;
+
+    @Column(name = "danceability")
+    private String danceability;
+
+    @Column(name = "tuning_frequency")
+    private String tuningFrequency;
+
+    @Column(name = "tuning_equal_tempered_deviation")
+    private String tuningEqualTemperedDeviation;
+
+    @Column(name = "key_scale")
+    private String keyScale;
+
+    @Column(name = "key_key")
+    private String keyKey;
+
 
     @NotNull(message = "Popularity is mandatory")
     @Column(name = "popularity", nullable = false)

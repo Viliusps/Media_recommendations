@@ -148,6 +148,7 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingType().compareTo("Game") == 0)
         {
+            System.out.println("Chat gpt game response: " + chatGPTresponse);
             game = gameService.getGameFromRAWG(chatGPTresponse);
         }
         
@@ -253,9 +254,11 @@ public class RecommendationService {
             if(!songService.existsSong(songBy)) {
                 Song newSong = songService.createSong(songBy);
                 recommendingByID = newSong.getId();
+                System.out.println("DID NOT EXIST BEFORE. ID: " + recommendingByID);
             }  else {
                 Song newSong = songService.getByISRC(songBy.getIsrc());
-                recommendingID = newSong.getId();
+                recommendingByID = newSong.getId();
+                System.out.println("EXISTED BEFORE. ID: " + recommendingByID);
             }
         } else if ("Game".equals(recommendingByType)) {
             gameBy = mapper.convertValue(recommendingBy, Game.class);
@@ -276,13 +279,15 @@ public class RecommendationService {
             recommendation.setRating(rating);
             recommendation.setFirstType(recommendingByType);
             recommendation.setSecondType(recommendingType);
+            recommendation.setUser(userService.userByUsername(request.getUsername()));
+            System.out.println("BEFORE EXISTS");
             if(!recommendationExists(recommendation)) recommendationRepository.save(recommendation);
         }
     }
 
     private Boolean recommendationExists(Recommendation recommendation) {
-        return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondType(recommendation.getFirst(),
-            recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType());
+        return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondTypeAndUser(recommendation.getFirst(),
+            recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType(), recommendation.getUser());
     }
 
     public List<RecommendationResponse> getRecentRecommendations(String username) {
@@ -290,7 +295,7 @@ public class RecommendationService {
         User user = userService.userByUsername(username);
         List<Recommendation> recommendations = recommendationRepository.getByUser(user);
         Collections.reverse(recommendations);
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < recommendations.size() && i < 5; i++) {
             Recommendation recommendation = recommendations.get(i);
             RecommendationResponse newRecommendation = new RecommendationResponse();
 
