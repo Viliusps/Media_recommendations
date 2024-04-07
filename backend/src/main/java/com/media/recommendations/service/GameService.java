@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,7 +130,44 @@ public class GameService {
             System.out.println(game.getName());
         }
         addGamesToHistory(games, username, userId);
+        Game averageGame = calculateAverage(games);
         return response;
+    }
+
+    private Game calculateAverage(List<Game> games) {
+        Game averageGame = new Game();
+
+        // Genre: Calculate the most frequent genre
+        Map<String, Integer> genreFrequency = new HashMap<>();
+        for (Game game : games) {
+            genreFrequency.put(game.getGenre(), genreFrequency.getOrDefault(game.getGenre(), 0) + 1);
+        }
+        String mostFrequentGenre = Collections.max(genreFrequency.entrySet(), Map.Entry.comparingByValue()).getKey();
+        averageGame.setGenre(mostFrequentGenre);
+
+        // Release Date: Calculate the median date
+        List<LocalDate> dates = games.stream()
+            .map(game -> LocalDate.parse(game.getReleaseDate(), DateTimeFormatter.ISO_LOCAL_DATE))
+            .sorted()
+            .collect(Collectors.toList());
+        LocalDate medianDate = dates.get(dates.size() / 2);
+        averageGame.setReleaseDate(medianDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+        // Rating: Calculate the average rating
+        double averageRating = games.stream()
+            .mapToDouble(Game::getRating)
+            .average()
+            .orElse(0.0);
+        averageGame.setRating(averageRating);
+
+        // Playtime: Calculate the average playtime
+        int averagePlaytime = (int) games.stream()
+            .mapToInt(Game::getPlaytime)
+            .average()
+            .orElse(0);
+        averageGame.setPlaytime(averagePlaytime);
+
+        return averageGame;
     }
 
     private void addGamesToHistory(List<Game> games, String username, String steamUserId) { 
@@ -226,7 +266,6 @@ public class GameService {
             game.setRating(root.get("rating").asDouble());
             game.setPlaytime(root.get("playtime").asInt());
             game.setBackgroundImage(root.get("background_image").asText());
-            System.out.println("FOUND GAME NAME: " + game.getName());
             return game;
         } catch (IOException e) {
             e.printStackTrace();
