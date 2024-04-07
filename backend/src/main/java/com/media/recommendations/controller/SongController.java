@@ -105,7 +105,7 @@ public class SongController {
 
     @PostMapping("/search-closest")
     public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
-        String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity());
+        String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity(), request.getMfccZeroMean(), request.getBpmHistogramFirstPeakMean(), request.getBpmHistogramFirstPeakMedian(), request.getBpmHistogramSecondPeakMean(), request.getBpmHistogramSecondPeakMedian(), request.getDanceability(), request.getOnsetRate(), request.getKeyKey(), request.getKeyScale(), request.getTuningFrequency(), request.getTuningEqualTemperedDeviation());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
