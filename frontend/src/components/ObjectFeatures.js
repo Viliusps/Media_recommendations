@@ -1,18 +1,21 @@
 export default function ObjectFeatures({ object, type }) {
   const songFeatures = [
-    'chordsChangesRate',
-    'keyStrength',
-    'danceability',
-    'bpm',
-    'beatsLoudness',
-    'beatsCount',
-    'spectralEnergy',
-    'silenceRate',
-    'dissonance',
-    'averageLoudness',
+    'mfccZeroMean',
     'dynamicComplexity',
-    'pitchSalience'
+    'averageLoudness',
+    'onsetRate',
+    'bpmHistogramSecondPeakBpmMedian',
+    'bpmHistogramSecondPeakBpmMean',
+    'bpmHistogramFirstPeakBpmMedian',
+    'bpmHistogramFirstPeakBpmMean',
+    'bpm',
+    'danceability',
+    'tuningFrequency',
+    'tuningEqualTemperedDeviation',
+    'keyScale',
+    'keyKey'
   ];
+
   const movieFeatures = ['Released', 'Genre', 'imdbRating', 'Runtime', 'BoxOffice'];
   const gameFeatures = ['releaseDate', 'rating', 'genre', 'playtime'];
   return (

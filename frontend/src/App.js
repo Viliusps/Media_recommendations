@@ -67,7 +67,7 @@ function App() {
           {role !== 'GUEST' && (
             <>
               <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
-              <Route path="/games/:type" element={<RecentlyPlayedGames />} />
+              <Route path="/gamesPlaylist/:type" element={<RecentlyPlayedGames />} />
               <Route path="/profile" element={<Profile />} />
             </>
           )}

@@ -20,9 +20,10 @@ export const rateRecommendation = async (
   ratingInt
 ) => {
   const rating = Boolean(ratingInt);
+  const username = localStorage.getItem('userName');
   const response = await axios.post(
     `${URL}/recommend/rate`,
-    { recommendingType, recommendingByType, recommending, recommendingBy, rating },
+    { recommendingType, recommendingByType, recommending, recommendingBy, rating, username },
     authHeader()
   );
   return response.data;

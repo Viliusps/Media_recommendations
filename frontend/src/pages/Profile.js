@@ -17,24 +17,49 @@ export default function Profile() {
     });
     getRecentRecommendations().then((results) => {
       setRecentRecommendations(results);
+      console.log(results);
     });
   }, []);
   return (
     <>
       <h1>Profile</h1>
       <h2>Your recently played games: </h2>
-      {steamHistory.map((entry, index) => (
-        <p key={index}>{entry.name}</p>
-      ))}
+      {steamHistory != null && steamHistory.map((entry, index) => <p key={index}>{entry.name}</p>)}
       <h2>Your recently listened songs: </h2>
-      {spotifyHistory.map((entry, index) => (
-        <p key={index}>{entry.title}</p>
-      ))}
+      {spotifyHistory != null &&
+        spotifyHistory.map((entry, index) => <p key={index}>{entry.title}</p>)}
       <h2>Your recent recommendations: </h2>
       <h4>(only recommendations you rated show up)</h4>
-      {recentRecommendations.map((entry, index) => (
-        <p key={index}>{entry.originalType}</p>
-      ))}
+      {recentRecommendations != null &&
+        recentRecommendations.map((entry, index) => (
+          <div key={index}>
+            {entry.type && (
+              <p>
+                Recommended {entry.type}:{' '}
+                {entry.type === 'Song'
+                  ? entry.song.title
+                  : entry.type === 'Game'
+                  ? entry.game.name
+                  : entry.type === 'Movie'
+                  ? entry.movie.Title
+                  : 'N/A'}
+              </p>
+            )}
+            {entry.originalType && (
+              <p>
+                Requested {entry.originalType}:{' '}
+                {entry.originalType === 'Song'
+                  ? entry.originalSong.title
+                  : entry.originalType === 'Game'
+                  ? entry.originalGame.name
+                  : entry.originalType === 'Movie'
+                  ? entry.originalMovie.Title
+                  : 'N/A'}
+              </p>
+            )}
+            <p>------------------------------------------------------------</p>
+          </div>
+        ))}
     </>
   );
 }

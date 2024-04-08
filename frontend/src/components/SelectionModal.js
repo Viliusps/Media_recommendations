@@ -82,7 +82,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                 <CustomCard
                   title="My Steam history"
                   image={steamImage}
-                  handleOpen={() => Navigate(`/games/${type}`)}
+                  handleOpen={() => Navigate(`/gamesPlaylist/${type}`)}
                   cardHeight={350}
                   cardWidth={300}
                 />

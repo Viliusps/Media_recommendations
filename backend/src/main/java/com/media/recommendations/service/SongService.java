@@ -112,20 +112,21 @@ public class SongService {
         newSong.setTitle(song.getTitle());
         newSong.setSinger(song.getSinger());
         newSong.setSpotifyId(song.getSpotifyId());
-        newSong.setAverageLoudness(song.getAverageLoudness());
-        newSong.setBeatsCount(song.getBeatsCount());
-        newSong.setBeatsLoudness(song.getBeatsLoudness());
-        newSong.setBpm(song.getBpm());
-        newSong.setChordsChangesRate(song.getChordsChangesRate());
-        newSong.setDanceability(song.getDanceability());
-        newSong.setDissonance(song.getDissonance());
-        newSong.setDynamicComplexity(song.getDynamicComplexity());
-        newSong.setKeyStrength(song.getKeyStrength());
-        newSong.setSpectralEnergy(song.getSpectralEnergy());
-        newSong.setSilenceRate(song.getSilenceRate());
         newSong.setIsrc(song.getIsrc());
         newSong.setImageUrl(song.getImageUrl());
-        newSong.setPitchSalience(song.getPitchSalience());
+
+        newSong.setMfccZeroMean(song.getMfccZeroMean());
+        newSong.setDynamicComplexity(song.getDynamicComplexity());
+        newSong.setAverageLoudness(song.getAverageLoudness());
+        newSong.setOnsetRate(song.getOnsetRate());
+        newSong.setBpmHistogramSecondPeakBpmMedian(song.getBpmHistogramSecondPeakBpmMedian());
+        newSong.setBpmHistogramSecondPeakBpmMean(song.getBpmHistogramSecondPeakBpmMean());
+        newSong.setBpmHistogramFirstPeakBpmMedian(song.getBpmHistogramFirstPeakBpmMedian());
+        newSong.setBpmHistogramFirstPeakBpmMean(song.getBpmHistogramFirstPeakBpmMean());
+        newSong.setBpm(song.getBpm());
+        newSong.setDanceability(song.getDanceability());
+        newSong.setTuningFrequency(song.getTuningFrequency());
+        newSong.setTuningEqualTemperedDeviation(song.getTuningEqualTemperedDeviation());
         return songRepository.save(newSong);
     }
 
@@ -149,11 +150,14 @@ public class SongService {
         User user = userService.userByUsername(username);
         Long userId = user.getId();
         List<SpotifyHistory> history = spotifyRepository.findAllByUserId(userId);
-        List<Song> songs = history.stream()
+        if(history.size() > 0) {
+            List<Song> songs = history.stream()
                 .map(SpotifyHistory::getSong)
                 .collect(Collectors.toList());
-        SpotifyHistoryResponse response = new SpotifyHistoryResponse(songs, history.get(0).getDate());
-        return response;
+            SpotifyHistoryResponse response = new SpotifyHistoryResponse(songs, history.get(0).getDate());
+            return response;
+        }
+        return new SpotifyHistoryResponse();
     }
 
     public String getAccessToken() {
@@ -263,7 +267,7 @@ public class SongService {
             String mbid = getMBIDByISRC(song.getIsrc(), song.getTitle());
             if(mbid != null) joinedMBIDS += mbid + ";";
         }
-        if(joinedMBIDS != null) {
+        if(joinedMBIDS != "") {
             Map<String, String> features = getSongFeaturesByMBID(joinedMBIDS);
             for (Map.Entry<String, String> entry : features.entrySet()) {
                     System.out.println(entry.getKey() + ": " + entry.getValue());
@@ -438,18 +442,18 @@ public class SongService {
             String mbid = getMBIDByISRC(isrc, title);
             if(mbid != null) {
                 Map<String, String> features = getSongFeaturesByMBID(mbid);
-                song.setChordsChangesRate(features.get("chordsChangesRate"));
-                song.setKeyStrength(features.get("keyStrength"));
-                song.setDanceability(features.get("danceability"));
-                song.setBpm(features.get("bpm"));
-                song.setBeatsLoudness(features.get("beatsLoudness"));
-                song.setBeatsCount(features.get("beatsCount"));
-                song.setSpectralEnergy(features.get("spectralEnergy"));
-                song.setSilenceRate(features.get("silenceRate"));
-                song.setDissonance(features.get("dissonance"));
-                song.setAverageLoudness(features.get("averageLoudness"));
+                song.setMfccZeroMean(features.get("mfccZeroMean"));
                 song.setDynamicComplexity(features.get("dynamicComplexity"));
-                song.setPitchSalience(features.get("pitchSalience"));
+                song.setAverageLoudness(features.get("averageLoudness"));
+                song.setOnsetRate(features.get("onsetRate"));
+                song.setBpmHistogramSecondPeakBpmMedian(features.get("bpmHistogramSecondPeakBpmMedian"));
+                song.setBpmHistogramSecondPeakBpmMean(features.get("bpmHistogramSecondPeakBpmMean"));
+                song.setBpmHistogramFirstPeakBpmMedian(features.get("bpmHistogramFirstPeakBpmMedian"));
+                song.setBpmHistogramFirstPeakBpmMean(features.get("bpmHistogramFirstPeakBpmMean"));
+                song.setBpm(features.get("bpm"));
+                song.setDanceability(features.get("danceability"));
+                song.setTuningFrequency(features.get("tuningFrequency"));
+                song.setTuningEqualTemperedDeviation(features.get("tuningEqualTemperedDeviation"));
             }
         }
         return song;
@@ -540,22 +544,22 @@ public class SongService {
         Map<String, String> selectedFeatures = new HashMap<>();
 
         JsonNode tonalNode = rootNode.path("tonal");
-        selectedFeatures.put("chordsChangesRate", tonalNode.path("chords_changes_rate").asText());
-        selectedFeatures.put("keyStrength", tonalNode.path("key_strength").asText());
+        selectedFeatures.put("tuningEqualTemperedDeviation", tonalNode.path("tuning_equal_tempered_deviation").asText());
+        selectedFeatures.put("tuningFrequency", tonalNode.path("tuning_frequency").asText());
 
         JsonNode rhythmNode = rootNode.path("rhythm");
         selectedFeatures.put("danceability", rhythmNode.path("danceability").asText());
         selectedFeatures.put("bpm", rhythmNode.path("bpm").asText());
-        selectedFeatures.put("beatsLoudness", rhythmNode.path("beats_loudness").path("mean").asText());
-        selectedFeatures.put("beatsCount", rhythmNode.path("beats_count").asText());
+        selectedFeatures.put("bpmHistogramFirstPeakBpmMean", rhythmNode.path("bpm_histogram_first_peak_bpm").path("mean").asText());
+        selectedFeatures.put("bpmHistogramFirstPeakBpmMedian", rhythmNode.path("bpm_histogram_first_peak_bpm").path("median").asText());
+        selectedFeatures.put("bpmHistogramSecondPeakBpmMean", rhythmNode.path("bpm_histogram_second_peak_bpm").path("mean").asText());
+        selectedFeatures.put("bpmHistogramSecondPeakBpmMedian", rhythmNode.path("bpm_histogram_second_peak_bpm").path("median").asText());
+        selectedFeatures.put("onsetRate", rhythmNode.path("onset_rate").asText());
 
         JsonNode lowlevelNode = rootNode.path("lowlevel");
-        selectedFeatures.put("spectralEnergy", lowlevelNode.path("spectral_energy").path("mean").asText());
-        selectedFeatures.put("silenceRate", lowlevelNode.path("silence_rate_60dB").path("mean").asText());
-        selectedFeatures.put("dissonance", lowlevelNode.path("dissonance").path("mean").asText());
         selectedFeatures.put("averageLoudness", lowlevelNode.path("average_loudness").asText());
         selectedFeatures.put("dynamicComplexity", lowlevelNode.path("dynamic_complexity").asText());
-        selectedFeatures.put("pitchSalience", lowlevelNode.path("pitch_salience").path("mean").asText());
+        selectedFeatures.put("mfccZeroMean", lowlevelNode.path("mfcc").path("mean").get(0).asText());
 
         return selectedFeatures;
     }
@@ -624,24 +628,46 @@ public class SongService {
         return str1 != null && str2 != null && (str1.contains(str2) || str2.contains(str1));
     }
 
-    public String getClosestSongFromFeatures(Double bpm, Double averageLoudness, Double dynamicComplexity) {
+    public String getClosestSongFromFeatures(Double bpm, Double averageLoudness, Double dynamicComplexity, Double mfccZeroMean, Double bpmHistogramFirstPeakMean,
+            Double bpmHistogramFirstPeakMedian, Double bpmHistogramSecondPeakMean, Double bpmHistogramSecondPeakMedian, Double danceability, Double onsetRate, Double tuningFrequency, Double tuningEqualTemperedDeviation) {
         String closestRow = "";
-        double minDistance = Double.MAX_VALUE;
+        Double minDistance = Double.MAX_VALUE;
         String filePath = "merged_file.csv";
-        double threshold = 0.1;
+        Double threshold = 0.1;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
-                double rowBpm = Double.parseDouble(values[6]);
-                double rowAverageLoudness = Double.parseDouble(values[2]);
-                double rowDynamicComplexity = Double.parseDouble(values[3]);
+                
+                Double rowAverageLoudness = Double.parseDouble(values[2]);
+                Double rowDynamicComplexity = Double.parseDouble(values[3]);
+                Double rowMfccZeroMean = Double.parseDouble(values[4]);
+                Double rowBpm = Double.parseDouble(values[6]);
+                Double rowBpmHistogramFirstPeakMean = Double.parseDouble(values[7]);
+                Double rowBpmHistogramFirstPeakMedian = Double.parseDouble(values[8]);
+                Double rowBpmHistogramSecondPeakMean = Double.parseDouble(values[9]);
+                Double rowBpmHistogramSecondPeakMedian = Double.parseDouble(values[10]);
+                Double rowDanceability = Double.parseDouble(values[11]);
+                Double rowOnsetRate = Double.parseDouble(values[12]);
+                Double rowTuningFrequency = Double.parseDouble(values[16]);
+                Double rowTuningTemperedDeviation = Double.parseDouble(values[17]);
 
-                double distance = Math.sqrt(Math.pow(bpm - rowBpm, 2) +
+
+
+                Double distance = Math.sqrt(Math.pow(bpm - rowBpm, 2) +
                                             Math.pow(averageLoudness - rowAverageLoudness, 2) +
-                                            Math.pow(dynamicComplexity - rowDynamicComplexity, 2));
+                                            Math.pow(dynamicComplexity - rowDynamicComplexity, 2) +
+                                            Math.pow(mfccZeroMean - rowMfccZeroMean, 2) +
+                                            Math.pow(bpmHistogramFirstPeakMean - rowBpmHistogramFirstPeakMean, 2) +
+                                            Math.pow(bpmHistogramFirstPeakMedian - rowBpmHistogramFirstPeakMedian, 2) +
+                                            Math.pow(bpmHistogramSecondPeakMean - rowBpmHistogramSecondPeakMean, 2) +
+                                            Math.pow(bpmHistogramSecondPeakMedian - rowBpmHistogramSecondPeakMedian, 2) +
+                                            Math.pow(danceability - rowDanceability, 2) +
+                                            Math.pow(onsetRate - rowOnsetRate, 2) +
+                                            Math.pow(tuningFrequency - rowTuningFrequency, 2) +
+                                            Math.pow(tuningEqualTemperedDeviation - rowTuningTemperedDeviation, 2));
 
                 if (distance < minDistance) {
                     minDistance = distance;

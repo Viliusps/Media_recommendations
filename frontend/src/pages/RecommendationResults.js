@@ -65,8 +65,12 @@ const RecommendationResults = () => {
 
   useEffect(() => {
     setLoading(true);
+    console.log('Recommending type: ' + recommendingType);
+    console.log('recommending by type: ' + recommendingByType);
+    console.log('recommending by: ' + recommendingBy);
     recommend(recommendingType, recommendingByType, recommendingBy)
       .then((result) => {
+        console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
         else if (result.type == 'Song') setRecommendation(result.song);
         else if (result.type == 'Game') setRecommendation(result.game);

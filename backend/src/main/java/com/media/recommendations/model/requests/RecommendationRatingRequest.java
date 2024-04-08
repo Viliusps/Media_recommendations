@@ -13,4 +13,5 @@ public class RecommendationRatingRequest {
     private Object recommending;
     private Object recommendingBy;
     private Boolean rating;
+    private String username;
 }
