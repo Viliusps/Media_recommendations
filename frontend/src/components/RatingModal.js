@@ -42,10 +42,20 @@ export default function RatingModal({ handleClose, open, handleClick }) {
           Please rate the ChatGPT recommendation.
         </Typography>
         <IconsContainer>
-          <StyledIconButton $hoverColor="green" onClick={() => handleClick(1)}>
+          <StyledIconButton
+            $hoverColor="green"
+            onClick={() => {
+              handleClick(1);
+              handleClose();
+            }}>
             <IconThumbUp />
           </StyledIconButton>
-          <StyledIconButton $hoverColor="red" onClick={() => handleClick(0)}>
+          <StyledIconButton
+            $hoverColor="red"
+            onClick={() => {
+              handleClick(0);
+              handleClose();
+            }}>
             <IconThumbDown />
           </StyledIconButton>
         </IconsContainer>
