@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getMovie } from '../api/movies-axios';
-import { Typography, Paper, Grid, Button } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 import MovieDetails from '../components/MovieDetails';
 import CommentSection from '../components/CommentSection';
+import { Button, Text, Grid } from '@chakra-ui/react';
 
-const ContentContainer = styled(Paper)`
+const ContentContainer = styled.div`
   padding: 20px;
   margin-top: 20px;
   border-radius: 8px;
@@ -51,13 +51,13 @@ export default function Movie() {
               <StyledImage src={movie?.Poster} alt={movie?.Title} />
             </Grid>
             <Grid item xs={12} md={9}>
-              <Typography variant="h4" gutterBottom>
+              <Text variant="h4" gutterBottom>
                 {movie?.Title}
-              </Typography>
-              <Typography variant="h5" gutterBottom>
+              </Text>
+              <Text variant="h5" gutterBottom>
                 Overview
-              </Typography>
-              <Typography variant="body1">{movie?.Plot}</Typography>
+              </Text>
+              <Text variant="body1">{movie?.Plot}</Text>
               <MovieDetails label="Genre" value={movie?.Genre} />
               <MovieDetails label="Release Date" value={movie?.Released} />
               <MovieDetails label="Runtime" value={`${movie?.Runtime}.`} />

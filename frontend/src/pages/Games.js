@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Paper, Pagination, TextField, InputAdornment, Button } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 import { getPageGames, searchGames } from '../api/games-axios';
 import GameCard from '../components/GameCard';
+import { Button, Input, useColorModeValue } from '@chakra-ui/react';
+import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
   display: flex;
@@ -14,19 +15,7 @@ const StyledPagination = styled(Pagination)`
 
 const SearchWrapper = styled.div`
   margin: auto auto 20px auto;
-
   width: 500px;
-`;
-
-const SearchButton = styled(Button)`
-  margin-left: 10px;
-`;
-
-const StyledPaper = styled(Paper)`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
 `;
 
 export default function Games() {
@@ -80,7 +69,7 @@ export default function Games() {
     <div>
       <h1>Games page</h1>
       <SearchWrapper>
-        <TextField
+        <Input
           label="Search Games"
           variant="outlined"
           size="small"
@@ -89,11 +78,18 @@ export default function Games() {
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end">
-                <SearchButton variant="contained" onClick={handleSearch}>
-                  Search
-                </SearchButton>
-              </InputAdornment>
+              <Button
+                px={8}
+                bg={useColorModeValue('#151f21', 'gray.900')}
+                color={'white'}
+                rounded={'md'}
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'lg'
+                }}
+                onClick={() => handleSearch}>
+                Search
+              </Button>
             )
           }}
         />
@@ -101,11 +97,9 @@ export default function Games() {
       <LoadingWrapper loading={loading} error={error}>
         {totalGames > 0 ? (
           <>
-            <StyledPaper>
-              {games.map((game) => (
-                <GameCard key={game.id} game={game} />
-              ))}
-            </StyledPaper>
+            {games.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
             <StyledPagination
               count={Math.ceil(totalGames / gamesPerPage)}
               page={currentPage + 1}

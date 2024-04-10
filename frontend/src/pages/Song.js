@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Paper, Grid } from '@mui/material';
 import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 import CommentSection from '../components/CommentSection';
 import { getSong } from '../api/songs-axios';
 import MovieDetails from '../components/MovieDetails';
+import { Text, Grid } from '@chakra-ui/react';
 
-const ContentContainer = styled(Paper)`
+const ContentContainer = styled.div`
   padding: 20px;
   margin-top: 20px;
   border-radius: 8px;
@@ -41,18 +41,18 @@ export default function Song() {
   return (
     <LoadingWrapper loading={loading} error={error}>
       <>
-        <ContentContainer elevation={3}>
+        <ContentContainer>
           <Grid container spacing={3}>
             <Grid item xs={12} md={3}>
               <StyledImage src={song?.imageUrl} alt={song?.name} />
             </Grid>
             <Grid item xs={12} md={9}>
-              <Typography variant="h4" gutterBottom>
+              <Text variant="h4" gutterBottom>
                 {song?.title}
-              </Typography>
-              <Typography variant="h5" gutterBottom>
+              </Text>
+              <Text variant="h5" gutterBottom>
                 Overview
-              </Typography>
+              </Text>
               <MovieDetails label="Genre" value={song?.genre} />
               <MovieDetails label="Release Date" value={song?.releaseDate} />
               <MovieDetails label="Playtime" value={`${song?.playtime} hours.`} />

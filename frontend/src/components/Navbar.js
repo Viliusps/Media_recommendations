@@ -20,7 +20,7 @@ import {
   MenuItem,
   MenuList,
   ChakraProvider
-} from '@chakra-ui/react'
+} from '@chakra-ui/react';
 import {
   FiHome,
   FiTrendingUp,
@@ -29,8 +29,8 @@ import {
   FiSettings,
   FiMenu,
   FiBell,
-  FiChevronDown,
-} from 'react-icons/fi'
+  FiChevronDown
+} from 'react-icons/fi';
 //import { IconType } from 'react-icons'
 
 // interface LinkItemProps {
@@ -56,8 +56,8 @@ const LinkItems = [
   { name: 'Trending', icon: FiTrendingUp },
   { name: 'Explore', icon: FiCompass },
   { name: 'Favourites', icon: FiStar },
-  { name: 'Settings', icon: FiSettings },
-]
+  { name: 'Settings', icon: FiSettings }
+];
 
 const SidebarContent = ({ onClose, ...rest }) => {
   return (
@@ -82,16 +82,12 @@ const SidebarContent = ({ onClose, ...rest }) => {
         </NavItem>
       ))}
     </Box>
-  )
-}
+  );
+};
 
 const NavItem = ({ icon, children, ...rest }) => {
   return (
-    <Box
-      as="a"
-      href="#"
-      style={{ textDecoration: 'none' }}
-      _focus={{ boxShadow: 'none' }}>
+    <Box as="a" href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
       <Flex
         align="center"
         p="4"
@@ -101,7 +97,7 @@ const NavItem = ({ icon, children, ...rest }) => {
         cursor="pointer"
         _hover={{
           bg: 'cyan.400',
-          color: 'white',
+          color: 'white'
         }}
         {...rest}>
         {icon && (
@@ -109,7 +105,7 @@ const NavItem = ({ icon, children, ...rest }) => {
             mr="4"
             fontSize="16"
             _groupHover={{
-              color: 'white',
+              color: 'white'
             }}
             as={icon}
           />
@@ -117,8 +113,8 @@ const NavItem = ({ icon, children, ...rest }) => {
         {children}
       </Flex>
     </Box>
-  )
-}
+  );
+};
 
 const MobileNav = ({ onOpen, ...rest }) => {
   return (
@@ -188,11 +184,11 @@ const MobileNav = ({ onOpen, ...rest }) => {
         </Flex>
       </HStack>
     </Flex>
-  )
-}
+  );
+};
 
-const Navbar = ( {children} ) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+const Navbar = ({ children }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <ChakraProvider>
@@ -212,11 +208,11 @@ const Navbar = ( {children} ) => {
         {/* mobilenav */}
         <MobileNav onOpen={onOpen} />
         <Box ml={{ base: 0, md: 60 }} p="4">
-          { children }
+          {children}
         </Box>
       </Box>
     </ChakraProvider>
-  )
-}
+  );
+};
 
 export default Navbar;

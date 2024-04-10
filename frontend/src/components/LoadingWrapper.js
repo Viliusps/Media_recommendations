@@ -1,29 +1,15 @@
 import React from 'react';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { CircularProgress, Alert } from '@mui/material';
-import styled from 'styled-components';
-
-const StyledLoading = styled(CircularProgress)`
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
-`;
-
-const StyledAlert = styled(Alert)`
-  min-width: 200px;
-  max-width: 500px;
-  margin: auto;
-`;
+import { CircularProgress, Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react';
 
 export default function LoadingWrapper(children) {
-  if (children.loading) return <StyledLoading visible />;
+  if (children.loading) return <CircularProgress isIndeterminate />;
   else if (children.error)
     return (
-      <StyledAlert icon={<IconAlertCircle size="1rem" />} severity="error">
-        Server error. Try again later.
-      </StyledAlert>
+      <Alert status="error">
+        <AlertIcon />
+        <AlertTitle>Server error!</AlertTitle>
+        <AlertDescription>Please try again later.</AlertDescription>
+      </Alert>
     );
   return <>{children.children}</>;
 }

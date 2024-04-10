@@ -20,11 +20,25 @@ import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
 import Game from './pages/Game';
 import Song from './pages/Song';
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { ThemeProvider, createTheme, THEME_ID } from '@mui/material';
+import { green, purple } from '@mui/material/colors';
 
 function App() {
   const [role, setRole] = useState('');
   const location = useLocation();
+
+  const chakraTheme = extendTheme();
+  const materialTheme = createTheme({
+    palette: {
+      primary: {
+        main: purple[500]
+      },
+      secondary: {
+        main: green[500]
+      }
+    }
+  });
 
   useEffect(() => {
     getRole().then((data) => {
@@ -35,48 +49,52 @@ function App() {
   if (!role) return null;
   else
     return (
-      <div className="App">
-        <ToastContainer />
-        <Navbar>
-          <Routes>
-            <Route path="/recommendation" element={<Recommendation />} />
-            <Route path="/movies" element={<Movies />} />
-            <Route path="/movies/:id" element={<Movie />} />
-            <Route path="/games/:id" element={<Game />} />
-            <Route path="/songs" element={<Songs />} />
-            <Route path="/songs/:id" element={<Song />} />
-            <Route path="/games" element={<Games />} />
+      <ChakraProvider theme={chakraTheme}>
+        <ThemeProvider theme={{ [THEME_ID]: materialTheme }}>
+          <div className="App">
+            <ToastContainer />
+            <Navbar>
+              <Routes>
+                <Route path="/recommendation" element={<Recommendation />} />
+                <Route path="/movies" element={<Movies />} />
+                <Route path="/movies/:id" element={<Movie />} />
+                <Route path="/games/:id" element={<Game />} />
+                <Route path="/songs" element={<Songs />} />
+                <Route path="/songs/:id" element={<Song />} />
+                <Route path="/games" element={<Games />} />
 
-            <Route
-              path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
-              element={<RecommendationResults />}
-            />
+                <Route
+                  path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
+                  element={<RecommendationResults />}
+                />
 
-            {role === 'GUEST' && (
-              <>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </>
-            )}
+                {role === 'GUEST' && (
+                  <>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                  </>
+                )}
 
-            {role === 'ADMIN' && (
-              <>
-                <Route path="/admin" element={<AdminPanel />} />
-              </>
-            )}
+                {role === 'ADMIN' && (
+                  <>
+                    <Route path="/admin" element={<AdminPanel />} />
+                  </>
+                )}
 
-            {role !== 'GUEST' && (
-              <>
-                <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
-                <Route path="/gamesPlaylist/:type" element={<RecentlyPlayedGames />} />
-                <Route path="/profile" element={<Profile />} />
-              </>
-            )}
+                {role !== 'GUEST' && (
+                  <>
+                    <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
+                    <Route path="/gamesPlaylist/:type" element={<RecentlyPlayedGames />} />
+                    <Route path="/profile" element={<Profile />} />
+                  </>
+                )}
 
-            <Route path="*" element={<Navigate to="/movies" replace />} />
-          </Routes>
-        </Navbar>
-      </div>
+                <Route path="*" element={<Navigate to="/movies" replace />} />
+              </Routes>
+            </Navbar>
+          </div>
+        </ThemeProvider>
+      </ChakraProvider>
     );
 }
 

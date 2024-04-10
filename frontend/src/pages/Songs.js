@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPageSongs, searchSongs } from '../api/songs-axios';
-import { Grid, Pagination, TextField, InputAdornment, Button } from '@mui/material';
 import styled from 'styled-components';
 import SongCard from '../components/SongCard';
 import LoadingWrapper from '../components/LoadingWrapper';
+import { Button, Text, Grid } from '@chakra-ui/react';
+import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
   display: flex;
@@ -73,23 +74,17 @@ export default function Songs() {
     <div>
       <h1>Songs page</h1>
       <SearchWrapper>
-        <TextField
+        <Text
           label="Search Songs"
           variant="outlined"
           size="small"
           fullWidth
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchButton variant="contained" onClick={handleSearch}>
-                  Search
-                </SearchButton>
-              </InputAdornment>
-            )
-          }}
         />
+        <SearchButton variant="contained" onClick={handleSearch}>
+          Search
+        </SearchButton>
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalSongs > 0 ? (

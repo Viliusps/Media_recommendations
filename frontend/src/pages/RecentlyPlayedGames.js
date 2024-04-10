@@ -1,20 +1,8 @@
 import React, { useState } from 'react';
 import { getRecentlyPlayedGames } from '../api/games-axios';
-import { Button, TextField, Typography } from '@mui/material';
-import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
-
-const StyledText = styled(Typography)`
-  color: red;
-  margin-bottom: 10px;
-`;
-
-const Container = styled('div')`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-`;
+import { Button, Text, Input, Container, Image } from '@chakra-ui/react';
+import styled from 'styled-components';
 
 const GamesGrid = styled('div')`
   display: grid;
@@ -32,19 +20,9 @@ const GameCard = styled('div')`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-const GameImage = styled('img')`
-  width: 100%;
-  height: auto;
-  border-radius: 8px 8px 0 0;
-`;
-
 const GameName = styled('span')`
   margin: 10px 0;
   text-align: center;
-`;
-
-const ContinueButton = styled(Button)`
-  margin-top: 20px;
 `;
 
 const RecentlyPlayedGames = () => {
@@ -101,10 +79,8 @@ const RecentlyPlayedGames = () => {
   return (
     <>
       <Container>
-        {error && (
-          <StyledText>Error. Make sure the id is correct and profile is set to public.</StyledText>
-        )}
-        <TextField
+        {error && <Text>Error. Make sure the id is correct and profile is set to public.</Text>}
+        <Input
           label="Enter Steam User ID"
           variant="outlined"
           value={userId}
@@ -125,7 +101,7 @@ const RecentlyPlayedGames = () => {
             <GamesGrid>
               {recentGames.map((game) => (
                 <GameCard key={game.appid}>
-                  <GameImage
+                  <Image
                     src={`https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`}
                     alt={game.name}
                   />
@@ -136,7 +112,7 @@ const RecentlyPlayedGames = () => {
           </div>
         )}
       </Container>
-      <ContinueButton onClick={() => getRecommendation()}>Continue</ContinueButton>
+      <Button onClick={() => getRecommendation()}>Continue</Button>
     </>
   );
 };

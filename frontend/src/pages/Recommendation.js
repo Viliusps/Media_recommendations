@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Paper } from '@mui/material';
 import styled from 'styled-components';
 import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
@@ -13,7 +12,7 @@ import { checkIfSongExists } from '../api/songs-axios';
 import { checkIfGameExists } from '../api/games-axios';
 import { getRole } from '../api/auth-axios';
 
-const StyledPaper = styled(Paper)`
+const StyledPaper = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;

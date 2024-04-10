@@ -2,22 +2,10 @@ import { useEffect, useState } from 'react';
 import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
-import { Paper, Pagination, Button, TextField, InputAdornment } from '@mui/material';
-import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
-
-const StyledPaper = styled(Paper)`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-`;
-
-const StyledPagination = styled(Pagination)`
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-`;
+import { Input, Button } from '@chakra-ui/react';
+import styled from 'styled-components';
+import { Pagination } from '@mui/material';
 
 const SearchWrapper = styled.div`
   margin: auto auto 20px auto;
@@ -25,8 +13,10 @@ const SearchWrapper = styled.div`
   width: 500px;
 `;
 
-const SearchButton = styled(Button)`
-  margin-left: 10px;
+const StyledPagination = styled(Pagination)`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 `;
 
 export default function Movies() {
@@ -80,7 +70,7 @@ export default function Movies() {
     <div>
       <h1>Movies page</h1>
       <SearchWrapper>
-        <TextField
+        <Input
           label="Search Songs"
           variant="outlined"
           size="small"
@@ -89,22 +79,19 @@ export default function Movies() {
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end">
-                <SearchButton variant="contained" onClick={handleSearch}>
-                  Search
-                </SearchButton>
-              </InputAdornment>
+              <Button variant="contained" onClick={handleSearch}>
+                Search
+              </Button>
             )
           }}
         />
       </SearchWrapper>
+      <LoadingWrapper loading={loading} error={error}>
         {totalMovies > 0 ? (
           <>
-            <StyledPaper>
-              {movies.map((movie) => (
-                <DisplayCard key={movie.id} movie={movie} />
-              ))}
-            </StyledPaper>
+            {movies.map((movie) => (
+              <DisplayCard key={movie.id} movie={movie} />
+            ))}
             <StyledPagination
               count={Math.ceil(totalMovies / moviesPerPage)}
               page={currentPage + 1}
@@ -116,6 +103,7 @@ export default function Movies() {
         ) : (
           <h1>No movies found</h1>
         )}
+      </LoadingWrapper>
     </div>
   );
 }

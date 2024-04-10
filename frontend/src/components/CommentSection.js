@@ -1,4 +1,3 @@
-import { Pagination, Divider, Typography, Paper, TextField, Button } from '@mui/material';
 import StarRating from './StarRating';
 import styled from 'styled-components';
 import { useState } from 'react';
@@ -7,18 +6,20 @@ import { getMovie } from '../api/movies-axios';
 import { getGame } from '../api/games-axios';
 import { getSong } from '../api/songs-axios';
 import { toast } from 'react-toastify';
+import { Text, Input, Button, Divider } from '@chakra-ui/react';
+import { Pagination } from '@mui/material';
 
-const CommentContainer = styled(Paper)`
+const CommentContainer = styled.div`
   padding: 20px;
   margin-top: 20px;
   border-radius: 8px;
 `;
 
-const CommentField = styled(TextField)`
+const CommentField = styled(Input)`
   max-width: 400px;
 `;
 
-const StyledText = styled(Typography)`
+const StyledText = styled(Text)`
   color: red;
 `;
 
@@ -132,20 +133,20 @@ export default function CommentSection({ object, id, setObject, type }) {
         </>
       )}
 
-      <Typography variant="h5" gutterBottom>
+      <Text variant="h5" gutterBottom>
         Comments
-      </Typography>
+      </Text>
       {object.comments.length === 0 ? (
-        <Typography variant="body2" color="textSecondary">
+        <Text variant="body2" color="textSecondary">
           No comments yet.
-        </Typography>
+        </Text>
       ) : (
         currentComments.map((comment, index) => (
           <StyledDiv key={index}>
             <StyledDivider />
-            <Typography key={index} variant="body2">
+            <Text key={index} variant="body2">
               {comment.commentText}
-            </Typography>
+            </Text>
             <StarRating rating={comment.rating} onRatingChange={() => {}} />
           </StyledDiv>
         ))

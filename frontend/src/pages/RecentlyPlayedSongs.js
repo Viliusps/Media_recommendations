@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getUserSpotifySongs } from '../api/songs-axios';
-import { Button, Typography, Tooltip, IconButton } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Text, Tooltip, Icon } from '@chakra-ui/react';
 
 // eslint-disable-next-line no-undef
 const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -109,17 +109,16 @@ export default function RecentlyPlayedSongs() {
               <SongCard key={index}>
                 <SongImg src={song.imageUrl || 'placeholder-image-url'} alt="Album Cover" />
                 <SongCardContent>
-                  <Typography variant="h6">{song.title}</Typography>
-                  <Typography variant="body2">{song.artist}</Typography>
+                  <Text variant="h6">{song.title}</Text>
+                  <Text variant="body2">{song.artist}</Text>
                   <Tooltip title="Listen on Spotify">
-                    <IconButton
-                      color="primary"
+                    <Icon
                       onClick={() => {
                         const spotifyUri = `spotify:track:${song.spotifyId}`;
                         window.location.href = spotifyUri;
-                      }}>
-                      <PlayCircleOutlineIcon />
-                    </IconButton>
+                      }}
+                      as={PlayCircleOutlineIcon}
+                    />
                   </Tooltip>
                 </SongCardContent>
               </SongCard>

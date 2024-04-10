@@ -1,4 +1,3 @@
-import { Modal, Box, Paper } from '@mui/material';
 import styled from 'styled-components';
 import CustomCard from './CustomCard';
 import movieImage from '../images/movie.png';
@@ -7,8 +6,9 @@ import gameImage from '../images/game.png';
 import spotifyImage from '../images/spotify.png';
 import steamImage from '../images/steam.png';
 import { useNavigate } from 'react-router-dom';
+import { Modal } from '@chakra-ui/react';
 
-const StyledBox = styled(Box)`
+const StyledBox = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -18,7 +18,7 @@ const StyledBox = styled(Box)`
   border-radius: 5px;
 `;
 
-const StyledPaper = styled(Paper)`
+const StyledPaper = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
