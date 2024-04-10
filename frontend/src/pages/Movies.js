@@ -98,7 +98,6 @@ export default function Movies() {
           }}
         />
       </SearchWrapper>
-      <LoadingWrapper loading={loading} error={error}>
         {totalMovies > 0 ? (
           <>
             <StyledPaper>
@@ -117,7 +116,6 @@ export default function Movies() {
         ) : (
           <h1>No movies found</h1>
         )}
-      </LoadingWrapper>
     </div>
   );
 }

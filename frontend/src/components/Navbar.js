@@ -1,204 +1,222 @@
 import {
-  AppBar,
-  Box,
-  Toolbar,
   IconButton,
-  Typography,
-  Menu,
-  Container,
   Avatar,
-  Button,
-  Tooltip,
+  Box,
+  CloseButton,
+  Flex,
+  HStack,
+  VStack,
+  Icon,
+  useColorModeValue,
+  Text,
+  Drawer,
+  DrawerContent,
+  useDisclosure,
+  //BoxProps,
+  //FlexProps,
+  Menu,
+  MenuButton,
+  MenuDivider,
   MenuItem,
-  Hidden
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getRole } from '../api/auth-axios';
+  MenuList,
+  ChakraProvider
+} from '@chakra-ui/react'
+import {
+  FiHome,
+  FiTrendingUp,
+  FiCompass,
+  FiStar,
+  FiSettings,
+  FiMenu,
+  FiBell,
+  FiChevronDown,
+} from 'react-icons/fi'
+//import { IconType } from 'react-icons'
 
-function Navbar() {
-  const Navigate = useNavigate();
-  const [anchorElNav, setAnchorElNav] = useState(null);
-  const [anchorElUser, setAnchorElUser] = useState(null);
-  const [role, setRole] = useState(null);
+// interface LinkItemProps {
+//   name: string
+//   icon: IconType
+// }
 
-  useEffect(() => {
-    getRole().then((data) => {
-      setRole(data);
-    });
-  }, []);
+// interface NavItemProps extends FlexProps {
+//   icon: IconType
+//   children: React.ReactNode
+// }
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
+// interface MobileProps extends FlexProps {
+//   onOpen: () => void
+// }
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+// interface SidebarProps extends BoxProps {
+//   onClose: () => void
+// }
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+const LinkItems = [
+  { name: 'Home', icon: FiHome },
+  { name: 'Trending', icon: FiTrendingUp },
+  { name: 'Explore', icon: FiCompass },
+  { name: 'Favourites', icon: FiStar },
+  { name: 'Settings', icon: FiSettings },
+]
 
-  const logout = () => {
-    localStorage.clear();
-    window.location.href = '/movies';
-  };
+const SidebarContent = ({ onClose, ...rest }) => {
+  return (
+    <Box
+      transition="3s ease"
+      bg={useColorModeValue('white', 'gray.900')}
+      borderRight="1px"
+      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+      w={{ base: 'full', md: 60 }}
+      pos="fixed"
+      h="full"
+      {...rest}>
+      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
+        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
+          Logo
+        </Text>
+        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
+      </Flex>
+      {LinkItems.map((link) => (
+        <NavItem key={link.name} icon={link.icon}>
+          {link.name}
+        </NavItem>
+      ))}
+    </Box>
+  )
+}
+
+const NavItem = ({ icon, children, ...rest }) => {
+  return (
+    <Box
+      as="a"
+      href="#"
+      style={{ textDecoration: 'none' }}
+      _focus={{ boxShadow: 'none' }}>
+      <Flex
+        align="center"
+        p="4"
+        mx="4"
+        borderRadius="lg"
+        role="group"
+        cursor="pointer"
+        _hover={{
+          bg: 'cyan.400',
+          color: 'white',
+        }}
+        {...rest}>
+        {icon && (
+          <Icon
+            mr="4"
+            fontSize="16"
+            _groupHover={{
+              color: 'white',
+            }}
+            as={icon}
+          />
+        )}
+        {children}
+      </Flex>
+    </Box>
+  )
+}
+
+const MobileNav = ({ onOpen, ...rest }) => {
+  return (
+    <Flex
+      ml={{ base: 0, md: 60 }}
+      px={{ base: 4, md: 4 }}
+      height="20"
+      alignItems="center"
+      bg={useColorModeValue('white', 'gray.900')}
+      borderBottomWidth="1px"
+      borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
+      justifyContent={{ base: 'space-between', md: 'flex-end' }}
+      {...rest}>
+      <IconButton
+        display={{ base: 'flex', md: 'none' }}
+        onClick={onOpen}
+        variant="outline"
+        aria-label="open menu"
+        icon={<FiMenu />}
+      />
+
+      <Text
+        display={{ base: 'flex', md: 'none' }}
+        fontSize="2xl"
+        fontFamily="monospace"
+        fontWeight="bold">
+        Logo
+      </Text>
+
+      <HStack spacing={{ base: '0', md: '6' }}>
+        <IconButton size="lg" variant="ghost" aria-label="open menu" icon={<FiBell />} />
+        <Flex alignItems={'center'}>
+          <Menu>
+            <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
+              <HStack>
+                <Avatar
+                  size={'sm'}
+                  src={
+                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
+                  }
+                />
+                <VStack
+                  display={{ base: 'none', md: 'flex' }}
+                  alignItems="flex-start"
+                  spacing="1px"
+                  ml="2">
+                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="xs" color="gray.600">
+                    Admin
+                  </Text>
+                </VStack>
+                <Box display={{ base: 'none', md: 'flex' }}>
+                  <FiChevronDown />
+                </Box>
+              </HStack>
+            </MenuButton>
+            <MenuList
+              bg={useColorModeValue('white', 'gray.900')}
+              borderColor={useColorModeValue('gray.200', 'gray.700')}>
+              <MenuItem>Profile</MenuItem>
+              <MenuItem>Settings</MenuItem>
+              <MenuItem>Billing</MenuItem>
+              <MenuDivider />
+              <MenuItem>Sign out</MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
+      </HStack>
+    </Flex>
+  )
+}
+
+const Navbar = ( {children} ) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <Hidden mdUp>
-            <IconButton size="large" aria-label="menu" color="inherit" onClick={handleOpenNavMenu}>
-              <MenuIcon />
-            </IconButton>
-          </Hidden>
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            {role === 'GUEST' && (
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left'
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left'
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: 'block', md: 'none' }
-                }}>
-                <MenuItem onClick={() => Navigate('/login')}>
-                  <Typography textAlign="center">Login</Typography>
-                </MenuItem>
-                <MenuItem onClick={() => Navigate('/register')}>
-                  <Typography textAlign="center">Register</Typography>
-                </MenuItem>
-              </Menu>
-            )}
-          </Box>
-          <Hidden mdUp>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'left'
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left'
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}>
-              <MenuItem onClick={() => Navigate('/recommendation')}>
-                <Typography textAlign="center">Recommendation</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => Navigate('/movies')}>
-                <Typography textAlign="center">Movies</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => Navigate('/songs')}>
-                <Typography textAlign="center">Songs</Typography>
-              </MenuItem>
-              <MenuItem onClick={() => Navigate('/games')}>
-                <Typography textAlign="center">Games</Typography>
-              </MenuItem>
-            </Menu>
-          </Hidden>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              onClick={() => Navigate('/recommendation')}
-              sx={{ my: 2, color: 'white', display: 'block' }}>
-              Recommendation
-            </Button>
-            <Button
-              onClick={() => Navigate('/movies')}
-              sx={{ my: 2, color: 'white', display: 'block' }}>
-              Movies
-            </Button>
-            <Button
-              onClick={() => Navigate('/songs')}
-              sx={{ my: 2, color: 'white', display: 'block' }}>
-              Songs
-            </Button>
-            <Button
-              onClick={() => Navigate('/games')}
-              sx={{ my: 2, color: 'white', display: 'block' }}>
-              Games
-            </Button>
-            {role === 'ADMIN' && (
-              <>
-                <Button
-                  onClick={() => Navigate('/admin')}
-                  sx={{ my: 2, color: 'white', display: 'block' }}>
-                  Admin
-                </Button>
-              </>
-            )}
-            {role === 'GUEST' && (
-              <>
-                <Button
-                  onClick={() => Navigate('/login')}
-                  sx={{ my: 2, color: 'white', display: 'block' }}>
-                  Login
-                </Button>
-                <Button
-                  onClick={() => Navigate('/register')}
-                  sx={{ my: 2, color: 'white', display: 'block' }}>
-                  Register
-                </Button>
-              </>
-            )}
-          </Box>
-
-          {role !== 'GUEST' && (
-            <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: '45px' }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right'
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right'
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}>
-                <MenuItem
-                  onClick={() => {
-                    Navigate('/profile');
-                    handleCloseUserMenu();
-                  }}>
-                  <Typography textAlign="center">Profile</Typography>
-                </MenuItem>
-                <MenuItem onClick={() => logout()}>
-                  <Typography textAlign="center">Logout</Typography>
-                </MenuItem>
-              </Menu>
-            </Box>
-          )}
-        </Toolbar>
-      </Container>
-    </AppBar>
-  );
+    <ChakraProvider>
+      <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
+        <SidebarContent onClose={() => onClose} display={{ base: 'none', md: 'block' }} />
+        <Drawer
+          isOpen={isOpen}
+          placement="left"
+          onClose={onClose}
+          returnFocusOnClose={false}
+          onOverlayClick={onClose}
+          size="full">
+          <DrawerContent>
+            <SidebarContent onClose={onClose} />
+          </DrawerContent>
+        </Drawer>
+        {/* mobilenav */}
+        <MobileNav onOpen={onOpen} />
+        <Box ml={{ base: 0, md: 60 }} p="4">
+          { children }
+        </Box>
+      </Box>
+    </ChakraProvider>
+  )
 }
+
 export default Navbar;

@@ -20,6 +20,7 @@ import AdminPanel from './pages/AdminPanel';
 import { useLocation } from 'react-router-dom';
 import Game from './pages/Game';
 import Song from './pages/Song';
+import { ChakraProvider } from '@chakra-ui/react'
 
 function App() {
   const [role, setRole] = useState('');
@@ -35,45 +36,46 @@ function App() {
   else
     return (
       <div className="App">
-        <Navbar />
         <ToastContainer />
-        <Routes>
-          <Route path="/recommendation" element={<Recommendation />} />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/movies/:id" element={<Movie />} />
-          <Route path="/games/:id" element={<Game />} />
-          <Route path="/songs" element={<Songs />} />
-          <Route path="/songs/:id" element={<Song />} />
-          <Route path="/games" element={<Games />} />
+        <Navbar>
+          <Routes>
+            <Route path="/recommendation" element={<Recommendation />} />
+            <Route path="/movies" element={<Movies />} />
+            <Route path="/movies/:id" element={<Movie />} />
+            <Route path="/games/:id" element={<Game />} />
+            <Route path="/songs" element={<Songs />} />
+            <Route path="/songs/:id" element={<Song />} />
+            <Route path="/games" element={<Games />} />
 
-          <Route
-            path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
-            element={<RecommendationResults />}
-          />
+            <Route
+              path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
+              element={<RecommendationResults />}
+            />
 
-          {role === 'GUEST' && (
-            <>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-            </>
-          )}
+            {role === 'GUEST' && (
+              <>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </>
+            )}
 
-          {role === 'ADMIN' && (
-            <>
-              <Route path="/admin" element={<AdminPanel />} />
-            </>
-          )}
+            {role === 'ADMIN' && (
+              <>
+                <Route path="/admin" element={<AdminPanel />} />
+              </>
+            )}
 
-          {role !== 'GUEST' && (
-            <>
-              <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
-              <Route path="/gamesPlaylist/:type" element={<RecentlyPlayedGames />} />
-              <Route path="/profile" element={<Profile />} />
-            </>
-          )}
+            {role !== 'GUEST' && (
+              <>
+                <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
+                <Route path="/gamesPlaylist/:type" element={<RecentlyPlayedGames />} />
+                <Route path="/profile" element={<Profile />} />
+              </>
+            )}
 
-          <Route path="*" element={<Navigate to="/movies" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/movies" replace />} />
+          </Routes>
+        </Navbar>
       </div>
     );
 }
