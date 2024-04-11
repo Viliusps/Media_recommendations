@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 import { getPageGames, searchGames } from '../api/games-axios';
 import GameCard from '../components/GameCard';
-import { Button, Input, useColorModeValue } from '@chakra-ui/react';
+import { Button, Input, useColorModeValue, Grid, GridItem } from '@chakra-ui/react';
 import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
@@ -26,7 +26,7 @@ export default function Games() {
   const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
-  const gamesPerPage = 12;
+  const gamesPerPage = 15;
 
   const handleSearch = async () => {
     setLoading(true);
@@ -76,30 +76,30 @@ export default function Games() {
           fullWidth
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <Button
-                px={8}
-                bg={useColorModeValue('#151f21', 'gray.900')}
-                color={'white'}
-                rounded={'md'}
-                _hover={{
-                  transform: 'translateY(-2px)',
-                  boxShadow: 'lg'
-                }}
-                onClick={() => handleSearch}>
-                Search
-              </Button>
-            )
-          }}
         />
+        <Button
+          px={8}
+          bg={useColorModeValue('#151f21', 'gray.900')}
+          color={'white'}
+          rounded={'md'}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg'
+          }}
+          onClick={() => handleSearch}>
+          Search
+        </Button>
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalGames > 0 ? (
           <>
-            {games.map((game) => (
-              <GameCard key={game.id} game={game} />
-            ))}
+            <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+              {games.map((game) => (
+                <GridItem key={game.id}>
+                  <GameCard game={game} />
+                </GridItem>
+              ))}
+            </Grid>
             <StyledPagination
               count={Math.ceil(totalGames / gamesPerPage)}
               page={currentPage + 1}

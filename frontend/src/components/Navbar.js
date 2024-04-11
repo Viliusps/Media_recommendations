@@ -12,54 +12,32 @@ import {
   Drawer,
   DrawerContent,
   useDisclosure,
-  //BoxProps,
-  //FlexProps,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItem,
   MenuList,
-  ChakraProvider
+  ChakraProvider,
+  Stack,
+  Button
 } from '@chakra-ui/react';
-import {
-  FiHome,
-  FiTrendingUp,
-  FiCompass,
-  FiStar,
-  FiSettings,
-  FiMenu,
-  FiBell,
-  FiChevronDown
-} from 'react-icons/fi';
-//import { IconType } from 'react-icons'
-
-// interface LinkItemProps {
-//   name: string
-//   icon: IconType
-// }
-
-// interface NavItemProps extends FlexProps {
-//   icon: IconType
-//   children: React.ReactNode
-// }
-
-// interface MobileProps extends FlexProps {
-//   onOpen: () => void
-// }
-
-// interface SidebarProps extends BoxProps {
-//   onClose: () => void
-// }
+import { FiSettings, FiMenu, FiChevronDown, FiMusic } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { getRole } from '../api/auth-axios';
+import { useState, useEffect } from 'react';
+import { IoGameControllerOutline } from 'react-icons/io5';
+import { BiMovie } from 'react-icons/bi';
+import { FaWandMagicSparkles } from 'react-icons/fa6';
 
 const LinkItems = [
-  { name: 'Home', icon: FiHome },
-  { name: 'Trending', icon: FiTrendingUp },
-  { name: 'Explore', icon: FiCompass },
-  { name: 'Favourites', icon: FiStar },
+  { name: 'Movies', icon: BiMovie, link: '/movies' },
+  { name: 'Songs', icon: FiMusic, link: '/songs' },
+  { name: 'Games', icon: IoGameControllerOutline, link: '/games' },
+  { name: 'Recommend', icon: FaWandMagicSparkles, link: '/recommendation' },
   { name: 'Settings', icon: FiSettings }
 ];
 
 const SidebarContent = ({ onClose, ...rest }) => {
+  const Navigate = useNavigate();
   return (
     <Box
       transition="3s ease"
@@ -77,7 +55,12 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
+        <NavItem
+          key={link.name}
+          icon={link.icon}
+          onClick={() => {
+            Navigate(link.link);
+          }}>
           {link.name}
         </NavItem>
       ))}
@@ -117,6 +100,21 @@ const NavItem = ({ icon, children, ...rest }) => {
 };
 
 const MobileNav = ({ onOpen, ...rest }) => {
+  const Navigate = useNavigate();
+  const [role, setRole] = useState(null);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    getRole().then((data) => {
+      setRole(data);
+      setUsername(localStorage.getItem('userName'));
+    });
+  }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = '/movies';
+  };
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -143,46 +141,67 @@ const MobileNav = ({ onOpen, ...rest }) => {
         fontWeight="bold">
         Logo
       </Text>
+      {role == 'GUEST' && (
+        <Stack flex={{ base: 1, md: 0 }} justify={'flex-end'} direction={'row'} spacing={6}>
+          <Button
+            fontSize={'sm'}
+            fontWeight={500}
+            variant={'link'}
+            color={'black'}
+            onClick={() => Navigate('/login')}>
+            Sign In
+          </Button>
+          <Button
+            px={8}
+            fontSize={'sm'}
+            fontWeight={600}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={() => Navigate('/register')}>
+            Sign Up
+          </Button>
+        </Stack>
+      )}
 
-      <HStack spacing={{ base: '0', md: '6' }}>
-        <IconButton size="lg" variant="ghost" aria-label="open menu" icon={<FiBell />} />
-        <Flex alignItems={'center'}>
-          <Menu>
-            <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
-              <HStack>
-                <Avatar
-                  size={'sm'}
-                  src={
-                    'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
-                  }
-                />
-                <VStack
-                  display={{ base: 'none', md: 'flex' }}
-                  alignItems="flex-start"
-                  spacing="1px"
-                  ml="2">
-                  <Text fontSize="sm">Justina Clark</Text>
-                  <Text fontSize="xs" color="gray.600">
-                    Admin
-                  </Text>
-                </VStack>
-                <Box display={{ base: 'none', md: 'flex' }}>
-                  <FiChevronDown />
-                </Box>
-              </HStack>
-            </MenuButton>
-            <MenuList
-              bg={useColorModeValue('white', 'gray.900')}
-              borderColor={useColorModeValue('gray.200', 'gray.700')}>
-              <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
-              <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
-            </MenuList>
-          </Menu>
-        </Flex>
-      </HStack>
+      {role != 'GUEST' && (
+        <HStack spacing={{ base: '0', md: '6' }}>
+          <Flex alignItems={'center'}>
+            <Menu>
+              <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
+                <HStack>
+                  <Avatar
+                    size={'sm'}
+                    src={
+                      'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
+                    }
+                  />
+                  <VStack
+                    display={{ base: 'none', md: 'flex' }}
+                    alignItems="flex-start"
+                    spacing="1px"
+                    ml="2">
+                    <Text fontSize="sm">{username}</Text>
+                  </VStack>
+                  <Box display={{ base: 'none', md: 'flex' }}>
+                    <FiChevronDown />
+                  </Box>
+                </HStack>
+              </MenuButton>
+              <MenuList
+                bg={useColorModeValue('white', 'gray.900')}
+                borderColor={useColorModeValue('gray.200', 'gray.700')}>
+                <MenuItem onClick={() => Navigate('/profile')}>Profile</MenuItem>
+                <MenuItem onClick={() => logout()}>Sign out</MenuItem>
+              </MenuList>
+            </Menu>
+          </Flex>
+        </HStack>
+      )}
     </Flex>
   );
 };

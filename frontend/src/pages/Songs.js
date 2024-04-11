@@ -4,7 +4,7 @@ import { getPageSongs, searchSongs } from '../api/songs-axios';
 import styled from 'styled-components';
 import SongCard from '../components/SongCard';
 import LoadingWrapper from '../components/LoadingWrapper';
-import { Button, Text, Grid } from '@chakra-ui/react';
+import { Button, Input, Grid, GridItem, useColorModeValue } from '@chakra-ui/react';
 import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
@@ -31,7 +31,7 @@ export default function Songs() {
   const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
-  const songsPerPage = 12;
+  const songsPerPage = 15;
 
   const handleSearch = async () => {
     setLoading(true);
@@ -74,7 +74,7 @@ export default function Songs() {
     <div>
       <h1>Songs page</h1>
       <SearchWrapper>
-        <Text
+        <Input
           label="Search Songs"
           variant="outlined"
           size="small"
@@ -82,17 +82,26 @@ export default function Songs() {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <SearchButton variant="contained" onClick={handleSearch}>
+        <SearchButton
+          px={8}
+          bg={useColorModeValue('#151f21', 'gray.900')}
+          color={'white'}
+          rounded={'md'}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg'
+          }}
+          onClick={() => handleSearch()}>
           Search
         </SearchButton>
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalSongs > 0 ? (
-          <Grid container spacing={1}>
+          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
             {songs.map((song) => (
-              <Grid item key={song.id} xs={12} sm={6} md={4} lg={2}>
+              <GridItem item key={song.id}>
                 <SongCard song={song} />
-              </Grid>
+              </GridItem>
             ))}
           </Grid>
         ) : (

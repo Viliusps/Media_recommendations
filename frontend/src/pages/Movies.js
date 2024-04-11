@@ -3,13 +3,12 @@ import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
 import LoadingWrapper from '../components/LoadingWrapper';
-import { Input, Button } from '@chakra-ui/react';
+import { Input, Button, Grid, GridItem, useColorModeValue } from '@chakra-ui/react';
 import styled from 'styled-components';
 import { Pagination } from '@mui/material';
 
 const SearchWrapper = styled.div`
   margin: auto auto 20px auto;
-
   width: 500px;
 `;
 
@@ -25,7 +24,7 @@ export default function Movies() {
   const [totalMovies, setTotalMovies] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const moviesPerPage = 10;
+  const moviesPerPage = 12;
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
 
@@ -77,21 +76,30 @@ export default function Movies() {
           fullWidth
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <Button variant="contained" onClick={handleSearch}>
-                Search
-              </Button>
-            )
-          }}
         />
+        <Button
+          px={8}
+          bg={useColorModeValue('#151f21', 'gray.900')}
+          color={'white'}
+          rounded={'md'}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg'
+          }}
+          onClick={() => handleSearch()}>
+          Search
+        </Button>
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalMovies > 0 ? (
           <>
-            {movies.map((movie) => (
-              <DisplayCard key={movie.id} movie={movie} />
-            ))}
+            <Grid templateColumns="repeat(4, 1fr)" gap={6}>
+              {movies.map((movie) => (
+                <GridItem key={movie.id}>
+                  <DisplayCard movie={movie} />
+                </GridItem>
+              ))}
+            </Grid>
             <StyledPagination
               count={Math.ceil(totalMovies / moviesPerPage)}
               page={currentPage + 1}

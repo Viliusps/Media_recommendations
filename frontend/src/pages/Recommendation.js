@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import CustomCard from '../components/CustomCard';
 import movieImage from '../images/movie.png';
 import songImage from '../images/song.png';
@@ -11,14 +10,7 @@ import { checkIfMovieExists } from '../api/movies-axios';
 import { checkIfSongExists } from '../api/songs-axios';
 import { checkIfGameExists } from '../api/games-axios';
 import { getRole } from '../api/auth-axios';
-
-const StyledPaper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  height: 100vh;
-`;
+import { Grid, GridItem } from '@chakra-ui/react';
 
 export default function Recommendation() {
   const [openSelection, setOpenSelection] = useState(false);
@@ -37,6 +29,7 @@ export default function Recommendation() {
   }, []);
 
   const handleOpenSelection = (calledBy) => {
+    console.log('clicked');
     setType(calledBy);
     setOpenSelection(true);
   };
@@ -82,29 +75,38 @@ export default function Recommendation() {
       <div>
         <h1>Recommend me a...</h1>
 
-        <StyledPaper>
-          <CustomCard
-            title="Movie"
-            image={movieImage}
-            handleOpen={() => handleOpenSelection('Movie')}
-            cardHeight={700}
-            cardWidth={600}
-          />
-          <CustomCard
-            title="Song"
-            image={songImage}
-            handleOpen={() => handleOpenSelection('Song')}
-            cardHeight={700}
-            cardWidth={600}
-          />
-          <CustomCard
-            title="Game"
-            image={gameImage}
-            handleOpen={() => handleOpenSelection('Game')}
-            cardHeight={700}
-            cardWidth={600}
-          />
-        </StyledPaper>
+        <Grid templateColumns="repeat(3, 1fr)">
+          <GridItem>
+            <CustomCard
+              title="Movie"
+              image={movieImage}
+              handleOpen={() => handleOpenSelection('Movie')}
+              cardHeight={400}
+              cardWidth={300}
+              zIndex={1}
+            />
+          </GridItem>
+          <GridItem>
+            <CustomCard
+              title="Song"
+              image={songImage}
+              handleOpen={() => handleOpenSelection('Song')}
+              cardHeight={400}
+              cardWidth={300}
+              zIndex={1}
+            />
+          </GridItem>
+          <GridItem>
+            <CustomCard
+              title="Game"
+              image={gameImage}
+              handleOpen={() => handleOpenSelection('Game')}
+              cardHeight={400}
+              cardWidth={300}
+              zIndex={1}
+            />
+          </GridItem>
+        </Grid>
       </div>
       <SelectionModal
         type={type}
