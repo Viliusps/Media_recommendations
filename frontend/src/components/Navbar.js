@@ -18,22 +18,23 @@ import {
   MenuList,
   ChakraProvider,
   Stack,
-  Button
+  Button,
+  Image
 } from '@chakra-ui/react';
-import { FiSettings, FiMenu, FiChevronDown, FiMusic } from 'react-icons/fi';
+import { FiMenu, FiChevronDown, FiMusic } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { getRole } from '../api/auth-axios';
 import { useState, useEffect } from 'react';
 import { IoGameControllerOutline } from 'react-icons/io5';
 import { BiMovie } from 'react-icons/bi';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
+import logo from '../images/logo.png';
 
 const LinkItems = [
   { name: 'Movies', icon: BiMovie, link: '/movies' },
   { name: 'Songs', icon: FiMusic, link: '/songs' },
   { name: 'Games', icon: IoGameControllerOutline, link: '/games' },
-  { name: 'Recommend', icon: FaWandMagicSparkles, link: '/recommendation' },
-  { name: 'Settings', icon: FiSettings }
+  { name: 'Recommend', icon: FaWandMagicSparkles, link: '/recommendation' }
 ];
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -49,9 +50,7 @@ const SidebarContent = ({ onClose, ...rest }) => {
       h="full"
       {...rest}>
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Logo
-        </Text>
+        <Image src={logo} boxSize="110px" />
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
@@ -134,13 +133,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
         icon={<FiMenu />}
       />
 
-      <Text
-        display={{ base: 'flex', md: 'none' }}
-        fontSize="2xl"
-        fontFamily="monospace"
-        fontWeight="bold">
-        Logo
-      </Text>
+      <Image boxSize="100px" display={{ base: 'flex', md: 'none' }} src={logo} />
       {role == 'GUEST' && (
         <Stack flex={{ base: 1, md: 0 }} justify={'flex-end'} direction={'row'} spacing={6}>
           <Button
