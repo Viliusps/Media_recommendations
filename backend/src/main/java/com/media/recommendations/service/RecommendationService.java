@@ -6,13 +6,24 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.tensorflow.Result;
+import org.tensorflow.SavedModelBundle;
+import org.tensorflow.Tensor;
+import org.tensorflow.ndarray.FloatNdArray;
+import org.tensorflow.ndarray.NdArrays;
+import org.tensorflow.ndarray.Shape;
+import org.tensorflow.ndarray.buffer.FloatDataBuffer;
+import org.tensorflow.types.TFloat32;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
@@ -285,6 +296,44 @@ public class RecommendationService {
     private Boolean recommendationExists(Recommendation recommendation) {
         return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondTypeAndUser(recommendation.getFirst(),
             recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType(), recommendation.getUser());
+    }
+
+    public float[] getModelRecommendation(float[] inputs) {
+        try {
+            ScalerInitializer scalerInitializer = new ScalerInitializer();
+            scalerInitializer.initializeScalers("neuralModel/scaling_parameters.json");
+
+            StandardScaler standardScaler = scalerInitializer.getInputScaler();
+            MinMaxScaler minMaxScaler = scalerInitializer.getOutputScaler();
+
+            float[] scaledInputFeatures = standardScaler.transform(inputs);
+
+            String modelPath = "neuralModel/my_model";
+
+            SavedModelBundle model = SavedModelBundle.load(modelPath, "serve");
+            //NdArrays.vectorOf(-1.1716737f, 1.1482903f, 0.32620052f, 0.51656955f, -1.2679888f, -1.656383f, 0.94005483f, 1.5479871f, 1.148907f, -0.21117839f, 1.1034825f, 1.3006881f)
+            FloatNdArray input_matrix = NdArrays.ofFloats(Shape.of(1, 12));
+            input_matrix.set(NdArrays.vectorOf(scaledInputFeatures), 0);
+            Tensor input_tensor = TFloat32.tensorOf(input_matrix);
+
+            Map<String, Tensor> feed_dict = new HashMap<>();
+            feed_dict.put("dense_input", input_tensor);
+            Result result = model.function("serving_default").call(feed_dict);
+            Optional<Tensor> output = result.get("output_0");
+            if(output.isPresent()) {
+                Tensor outputTensor = output.get();
+                FloatDataBuffer resultsBuffer = outputTensor.asRawTensor().data().asFloats();
+                float[] results = new float[6];
+                resultsBuffer.read(results);
+                float[] originalOutput = minMaxScaler.inverseTransform(results);
+                return originalOutput;
+            }
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     public List<RecommendationResponse> getRecentRecommendations(String username) {

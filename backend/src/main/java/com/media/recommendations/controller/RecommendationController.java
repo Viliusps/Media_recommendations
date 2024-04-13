@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.TempRequestTest;
 import com.media.recommendations.model.requests.RecentRecommendationsRequest;
 import com.media.recommendations.model.requests.RecommendationRatingRequest;
 import com.media.recommendations.model.requests.RecommendationRequest;
@@ -68,5 +69,9 @@ public class RecommendationController {
         response.setSong(song);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
+    @PostMapping("/test")
+    public ResponseEntity<float[]> postMethodName(@RequestBody TempRequestTest request) {
+        float[] result = recommendationService.getModelRecommendation(request.getData());
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }
