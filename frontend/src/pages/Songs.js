@@ -4,7 +4,7 @@ import { getPageSongs, searchSongs } from '../api/songs-axios';
 import styled from 'styled-components';
 import SongCard from '../components/SongCard';
 import LoadingWrapper from '../components/LoadingWrapper';
-import { Button, Input, Grid, GridItem, useColorModeValue } from '@chakra-ui/react';
+import { Button, Input, Grid, GridItem, useColorModeValue, Heading } from '@chakra-ui/react';
 import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
@@ -72,13 +72,15 @@ export default function Songs() {
 
   return (
     <div>
-      <h1>Songs page</h1>
+      <Heading as="h3" size="md">
+        Most popular songs among users
+      </Heading>
       <SearchWrapper>
         <Input
-          label="Search Songs"
+          placeholder="Search for a song..."
           variant="outlined"
-          size="small"
-          fullWidth
+          marginTop={2}
+          marginBottom={2}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

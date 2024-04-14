@@ -10,7 +10,7 @@ import { checkIfMovieExists } from '../api/movies-axios';
 import { checkIfSongExists } from '../api/songs-axios';
 import { checkIfGameExists } from '../api/games-axios';
 import { getRole } from '../api/auth-axios';
-import { Grid, GridItem } from '@chakra-ui/react';
+import { Grid, GridItem, Heading } from '@chakra-ui/react';
 
 export default function Recommendation() {
   const [openSelection, setOpenSelection] = useState(false);
@@ -73,7 +73,9 @@ export default function Recommendation() {
   return (
     <>
       <div>
-        <h1>Recommend me a...</h1>
+        <Heading as="h2" size="xl">
+          Recommend me a...
+        </Heading>
 
         <Grid templateColumns="repeat(3, 1fr)">
           <GridItem>

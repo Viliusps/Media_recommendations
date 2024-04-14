@@ -12,25 +12,26 @@ import {
   GridItem,
   ModalHeader,
   ModalContent,
-  ModalBody
+  ModalBody,
+  ModalCloseButton
 } from '@chakra-ui/react';
 
 export default function SelectionModal({ type, handleClose, open, handleOpen, setType, role }) {
   const Navigate = useNavigate();
   return (
-    <Modal
-      isOpen={open}
-      onClose={handleClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description">
+    <Modal isOpen={open} onClose={handleClose}>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent width="90%" maxWidth="1200px">
         <ModalHeader>
           Recommend me a <b>{type}</b> based on...
         </ModalHeader>
+        <ModalCloseButton />
         <ModalBody>
-          <Grid templateColumns="repeat(3, 1fr)">
-            <GridItem>
+          <Grid
+            templateColumns="repeat(6, 1fr)"
+            templateRows={role !== 'GUEST' ? 'repeat(2, 1fr)' : 'repeat(1, 1fr)'}
+            gap={1}>
+            <GridItem rowSpan={1} colSpan={2}>
               <CustomCard
                 title="A movie"
                 image={movieImage}
@@ -43,7 +44,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                 zIndex={3}
               />
             </GridItem>
-            <GridItem>
+            <GridItem rowSpan={1} colSpan={2}>
               <CustomCard
                 title="A song"
                 image={songImage}
@@ -56,7 +57,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                 zIndex={2}
               />
             </GridItem>
-            <GridItem>
+            <GridItem rowSpan={1} colSpan={2}>
               <CustomCard
                 title="A game"
                 image={gameImage}
@@ -71,23 +72,23 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
             </GridItem>
             {role !== 'GUEST' && (
               <>
-                <GridItem>
+                <GridItem rowSpan={1} colSpan={3}>
                   <CustomCard
                     title="My Spotify history"
                     image={spotifyImage}
                     handleOpen={() => Navigate(`/playlistRecommendation/${type}`)}
                     cardHeight={350}
-                    cardWidth={300}
+                    cardWidth={500}
                     zIndex={2}
                   />
                 </GridItem>
-                <GridItem>
+                <GridItem rowSpan={1} colSpan={3}>
                   <CustomCard
                     title="My Steam history"
                     image={steamImage}
                     handleOpen={() => Navigate(`/gamesPlaylist/${type}`)}
                     cardHeight={350}
-                    cardWidth={300}
+                    cardWidth={500}
                     zIndex={2}
                   />
                 </GridItem>

@@ -12,47 +12,32 @@ export default function CustomCard({ title, image, handleOpen, cardWidth, cardHe
         onClick={() => handleOpen()}
         role={'group'}
         p={6}
-        maxW={'330px'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.800')}
         boxShadow={'2xl'}
         rounded={'lg'}
         pos={'relative'}
         height={cardHeight}
-        width={cardWidth}>
-        <Box
-          rounded={'lg'}
-          mt={-12}
-          pos={'relative'}
-          height={'230px'}
-          _after={{
-            transition: 'all .3s ease',
-            content: '""',
-            w: 'full',
-            h: 'full',
-            pos: 'absolute',
-            top: 3,
-            left: 0,
-            backgroundImage: `url(${image})`,
-            filter: 'blur(15px)',
-            zIndex: -1
-          }}
-          _groupHover={{
-            _after: {
-              filter: 'blur(20px)'
-            }
-          }}>
-          <Image
-            rounded={'lg'}
-            height={155}
-            width={145}
-            objectFit={'cover'}
-            src={image}
-            alt="#"
-            marginTop={30}
-          />
-        </Box>
+        width={cardWidth}
+        cursor={'pointer'}>
         <Stack pt={10} align={'center'}>
+          <Box rounded={'lg'} mt={-12} pos={'relative'} height={'230px'}>
+            <Center height="full">
+              <Image
+                rounded={'lg'}
+                height={160}
+                width={160}
+                objectFit={'cover'}
+                src={image}
+                alt="#"
+                _groupHover={{
+                  filter: 'blur(5px)'
+                }}
+                transition="filter 0.3s ease-in-out"
+              />
+            </Center>
+          </Box>
+
           <Heading fontSize={'2xl'} fontFamily={'body'} fontWeight={500}>
             {title}
           </Heading>

@@ -6,7 +6,7 @@ import { getMovie } from '../api/movies-axios';
 import { getGame } from '../api/games-axios';
 import { getSong } from '../api/songs-axios';
 import { toast } from 'react-toastify';
-import { Text, Input, Button, Divider } from '@chakra-ui/react';
+import { Text, Input, Button, Divider, useColorModeValue, Heading } from '@chakra-ui/react';
 import { Pagination } from '@mui/material';
 
 const CommentContainer = styled.div`
@@ -113,7 +113,7 @@ export default function CommentSection({ object, id, setObject, type }) {
       {localStorage.getItem('token') && (
         <>
           <CommentField
-            label="Add a comment"
+            placeholder="Add a comment"
             fullWidth
             value={comment}
             onChange={(e) => setComment(e.target.value)}
@@ -123,9 +123,14 @@ export default function CommentSection({ object, id, setObject, type }) {
           <StarRating rating={rating} onRatingChange={handleRatingChange} />
           <StyledText>{errorMesssage}</StyledText>
           <Button
-            type="submit"
-            variant="contained"
-            color="primary"
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
             onClick={() => handleCommentSubmit()}>
             Submit Comment
           </Button>
@@ -133,13 +138,11 @@ export default function CommentSection({ object, id, setObject, type }) {
         </>
       )}
 
-      <Text variant="h5" gutterBottom>
+      <Heading as="h4" size="md">
         Comments
-      </Text>
+      </Heading>
       {object.comments.length === 0 ? (
-        <Text variant="body2" color="textSecondary">
-          No comments yet.
-        </Text>
+        <Text>No comments yet.</Text>
       ) : (
         currentComments.map((comment, index) => (
           <StyledDiv key={index}>

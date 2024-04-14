@@ -3,7 +3,7 @@ import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
 import LoadingWrapper from '../components/LoadingWrapper';
-import { Input, Button, Grid, GridItem, useColorModeValue } from '@chakra-ui/react';
+import { Input, Button, Grid, GridItem, useColorModeValue, Heading } from '@chakra-ui/react';
 import styled from 'styled-components';
 import { Pagination } from '@mui/material';
 
@@ -67,13 +67,15 @@ export default function Movies() {
 
   return (
     <div>
-      <h1>Movies page</h1>
+      <Heading as="h3" size="md">
+        Most popular movies among users
+      </Heading>
       <SearchWrapper>
         <Input
-          label="Search Songs"
+          placeholder="Search for a movie..."
           variant="outlined"
-          size="small"
-          fullWidth
+          marginTop={2}
+          marginBottom={2}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

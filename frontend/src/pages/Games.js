@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
 import { getPageGames, searchGames } from '../api/games-axios';
 import GameCard from '../components/GameCard';
-import { Button, Input, useColorModeValue, Grid, GridItem } from '@chakra-ui/react';
+import { Button, Input, useColorModeValue, Grid, GridItem, Heading } from '@chakra-ui/react';
 import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
@@ -67,13 +67,15 @@ export default function Games() {
 
   return (
     <div>
-      <h1>Games page</h1>
+      <Heading as="h3" size="md">
+        Most popular games among users
+      </Heading>
       <SearchWrapper>
         <Input
-          label="Search Games"
+          placeholder="Search for a game..."
           variant="outlined"
-          size="small"
-          fullWidth
+          marginTop={2}
+          marginBottom={2}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
