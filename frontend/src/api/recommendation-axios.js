@@ -12,6 +12,16 @@ export const recommend = async (recommendingType, recommendingByType, recommendi
   return response.data;
 };
 
+export const testNeural = async (recommendingType, recommendingByType, recommendingBy) => {
+  const response = await axios.post(
+    `${URL}/recommend/test`,
+    { recommendingType, recommendingByType, recommendingBy },
+    authHeader()
+  );
+  console.log(response);
+  return response.data;
+};
+
 export const rateRecommendation = async (
   recommendingType,
   recommendingByType,

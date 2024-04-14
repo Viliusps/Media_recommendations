@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.List;
 
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,6 +25,7 @@ import com.media.recommendations.model.requests.GetSpotifyHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
+import com.media.recommendations.model.responses.SongArtistName;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyHistoryResponse;
 import com.media.recommendations.service.SongService;
@@ -103,15 +105,22 @@ public class SongController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PostMapping("/search-closest")
-    public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
-        String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity(), request.getMfccZeroMean(), request.getBpmHistogramFirstPeakMean(), request.getBpmHistogramFirstPeakMedian(), request.getBpmHistogramSecondPeakMean(), request.getBpmHistogramSecondPeakMedian(), request.getDanceability(), request.getOnsetRate(), request.getTuningFrequency(), request.getTuningEqualTemperedDeviation());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
+    // @PostMapping("/search-closest")
+    // public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
+    //     String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity(), request.getMfccZeroMean(), request.getBpmHistogramFirstPeakMean(), request.getBpmHistogramFirstPeakMedian(), request.getBpmHistogramSecondPeakMean(), request.getBpmHistogramSecondPeakMedian(), request.getDanceability(), request.getOnsetRate(), request.getTuningFrequency(), request.getTuningEqualTemperedDeviation());
+    //     return new ResponseEntity<>(result, HttpStatus.OK);
+    // }
 
     @PostMapping("/spotify-history")
     public ResponseEntity<SpotifyHistoryResponse> getSpotifyHistory(@RequestBody GetSpotifyHistoryRequest request) {
         SpotifyHistoryResponse response = songService.getSpotifyHistory(request.getUsername());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping("/testMbid")
+    public ResponseEntity<SongArtistName> postMethodName(@RequestBody String entity) {
+        SongArtistName name = songService.getSongAndArtistNameFromMbid(entity);
+        return new ResponseEntity<>(name, HttpStatus.OK);
+    }
+    
 }

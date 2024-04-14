@@ -16,4 +16,20 @@ public class StandardScaler {
         }
         return scaledFeatures;
     }
+
+    public float transform(float dataPoint, int index) {
+        return (float)((dataPoint - mean[index]) / std[index]);
+    }
+    
+    public float[] inverseTransform(float[] scaledFeatures) {
+        float[] originalFeatures = new float[scaledFeatures.length];
+        for (int i = 0; i < scaledFeatures.length; i++) {
+            originalFeatures[i] = scaledFeatures[i] * std[i] + mean[i];
+        }
+        return originalFeatures;
+    }
+
+    public float inverseTransform(float scaledDataPoint, int index) {
+        return scaledDataPoint * std[index] + mean[index];
+    }
 }

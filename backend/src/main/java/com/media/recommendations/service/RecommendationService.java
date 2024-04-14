@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.tensorflow.types.TFloat32;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.NeuralModelMovieFeatures;
 import com.media.recommendations.model.Recommendation;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.User;
@@ -58,10 +60,12 @@ public class RecommendationService {
 
     private UserService userService;
 
+    private ScalingService scalingService;
+
     private RecommendationRepository recommendationRepository;
 
     public RecommendationService(@Qualifier("openaiRestTemplate")@Autowired RestTemplate restTemplate, @Value("${OAI.model}") String model, @Value("${OAI.api.url}") String apiUrl,
-        SongService songService, MovieService movieService, GameService gameService, RecommendationRepository recommendationRepository, UserService userService)
+        SongService songService, MovieService movieService, GameService gameService, RecommendationRepository recommendationRepository, UserService userService, ScalingService scalingService)
     {
         this.restTemplate = restTemplate;
         this.model = model;
@@ -71,6 +75,7 @@ public class RecommendationService {
         this.gameService = gameService;
         this.recommendationRepository = recommendationRepository;
         this.userService = userService;
+        this.scalingService = scalingService;
     }
 
     public RecommendationResponse getRecommendation(RecommendationRequest originalRequest) {
@@ -298,42 +303,150 @@ public class RecommendationService {
             recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType(), recommendation.getUser());
     }
 
-    public float[] getModelRecommendation(float[] inputs) {
-        try {
-            ScalerInitializer scalerInitializer = new ScalerInitializer();
-            scalerInitializer.initializeScalers("neuralModel/scaling_parameters.json");
 
-            StandardScaler standardScaler = scalerInitializer.getInputScaler();
-            MinMaxScaler minMaxScaler = scalerInitializer.getOutputScaler();
+    //"data": [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]
+    // {
+    // "genre": "Drama",
+    // "date": "1988-06-18",
+    // "boxOffice": 165197633,
+    // "imdbRating": 7.2,
+    // "runtime": 106
+    // }
+    public RecommendationResponse getModelRecommendation(RecommendationRequest originalRequest) {
+        String modelPath = "neuralModel/model_";
+        String scalerPath = "neuralModel/scaling_parameters_";
+        float[] features = new float[0];
 
-            float[] scaledInputFeatures = standardScaler.transform(inputs);
+        Movie originalMovie = new Movie();
+        Song originalSong = new Song();
+        Game originalGame = new Game();
 
-            String modelPath = "neuralModel/my_model";
-
-            SavedModelBundle model = SavedModelBundle.load(modelPath, "serve");
-            //NdArrays.vectorOf(-1.1716737f, 1.1482903f, 0.32620052f, 0.51656955f, -1.2679888f, -1.656383f, 0.94005483f, 1.5479871f, 1.148907f, -0.21117839f, 1.1034825f, 1.3006881f)
-            FloatNdArray input_matrix = NdArrays.ofFloats(Shape.of(1, 12));
-            input_matrix.set(NdArrays.vectorOf(scaledInputFeatures), 0);
-            Tensor input_tensor = TFloat32.tensorOf(input_matrix);
-
-            Map<String, Tensor> feed_dict = new HashMap<>();
-            feed_dict.put("dense_input", input_tensor);
-            Result result = model.function("serving_default").call(feed_dict);
-            Optional<Tensor> output = result.get("output_0");
-            if(output.isPresent()) {
-                Tensor outputTensor = output.get();
-                FloatDataBuffer resultsBuffer = outputTensor.asRawTensor().data().asFloats();
-                float[] results = new float[6];
-                resultsBuffer.read(results);
-                float[] originalOutput = minMaxScaler.inverseTransform(results);
-                return originalOutput;
+        //SHOULD REUSE FROM CHATGPT METHOD!!!!!
+        if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
+        {
+            originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
+            originalSong = songService.getSongFeatures(originalSong);
+            if(!songService.existsSong(originalSong)) {
+                songService.createSong(originalSong);
             }
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
 
+        else if(originalRequest.getRecommendingByType().compareTo("Movie") == 0)
+        {
+            originalMovie = movieService.getMovieFromOmdb(originalRequest.getRecommendingBy());
+            if(!movieService.existsMovie(originalMovie)) {
+                movieService.createMovie(originalMovie);
+            }
+        }
+
+        else if(originalRequest.getRecommendingByType().compareTo("Game") == 0)
+        {
+            originalGame = gameService.getGameFromRAWG(originalRequest.getRecommendingBy());
+            if(!gameService.existsGame(originalGame)) {
+                gameService.createGame(originalGame);
+            }
+        }
+        //String genre, String dateString, int boxOffice, double imdbRating, int runtime
+        switch (originalRequest.getRecommendingType()) {
+            case "Movie":
+                switch (originalRequest.getRecommendingByType()) {
+                    case "Movie":
+                        System.out.println("Movie by movie");
+                        break;
+                    case "Song":
+                        scalerPath += "sm.json";
+                        modelPath += "sm";
+                        //features = scalingService.scaleSongFeatures(new NeuralModelMovieFeatures(genre, dateString, boxOffice, imdbRating, runtime) , scalerPath);
+                        break;
+                    case "Game":
+                        System.out.println("Movie by game");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "Song":
+                switch (originalRequest.getRecommendingByType()) {
+                    case "Movie":
+                        scalerPath += "ms.json";
+                        modelPath += "ms";
+                        Integer boxOffice = Integer.parseInt(originalMovie.getBoxOffice().replace("$", "").replace(",", ""));
+                        Integer runtime = Integer.parseInt(originalMovie.getRuntime().replace(" min", ""));
+                        String genre = originalMovie.getGenre().split(",")[0];
+                        features = scalingService.scaleMovieFeatures(new NeuralModelMovieFeatures(genre, originalMovie.getReleased(), boxOffice, Double.parseDouble(originalMovie.getImdbRating()), runtime) , scalerPath);
+                        break;
+                    case "Song":
+                        System.out.println("Song by song");
+                        break;
+                    case "Game":
+                        System.out.println("Song by game");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "Game":
+                switch (originalRequest.getRecommendingByType()) {
+                    case "Movie":
+                        System.out.println("Game by movie");
+                        break;
+                    case "Song":
+                        System.out.println("Game by song");
+                        break;
+                    case "Game":
+                        System.out.println("Game by game");
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+
+        SavedModelBundle model = SavedModelBundle.load(modelPath, "serve");
+        FloatNdArray input_matrix = NdArrays.ofFloats(Shape.of(1, features.length));
+        input_matrix.set(NdArrays.vectorOf(features), 0);
+        Tensor input_tensor = TFloat32.tensorOf(input_matrix);
+
+        Map<String, Tensor> feed_dict = new HashMap<>();
+        feed_dict.put("dense_input", input_tensor);
+        Result result = model.function("serving_default").call(feed_dict);
+        Optional<Tensor> output = result.get("output_0");
+        Movie movie = new Movie();
+        Song song = new Song();
+        Game game = new Game();
+
+        if(output.isPresent()) {
+            Tensor outputTensor = output.get();
+            FloatDataBuffer resultsBuffer = outputTensor.asRawTensor().data().asFloats();
+            float[] results = new float[(int)resultsBuffer.size()];
+            resultsBuffer.read(results);
+            float[] originalOutput = new float[0];
+            switch (originalRequest.getRecommendingType()) {
+                case "Movie":
+                    //originalOutput = scalingService.rescaleSongFeatures(results, scalerPath);
+                    //movie = movieService.getClosestMovieFromFeatures(scalerPath, 0, 0);
+                    break;
+                case "Song":
+                    originalOutput = scalingService.rescaleSongFeatures(results, scalerPath);
+                    //System.out.println("Neural model song features output: " + Arrays.toString(originalOutput));
+                    String closestString = songService.getClosestSongFromFeatures(originalOutput);
+                    song = songService.getSongFromSearchResults(closestString);
+                    //System.out.println("Found closest song: " + closestString);
+                    //System.out.println("Actual value: [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]");
+                    break;
+                case "Game":
+                    //originalOutput = scalingService.rescaleSongFeatures(results, scalerPath);
+                    //game = gameService.getClosestGameFromFeatures(originalOutput);
+                    break;
+                default:
+                    break;
+            }
+            
+            return new RecommendationResponse(originalRequest.getRecommendingType(), song, game, movie, originalRequest.getRecommendingByType(), originalSong, originalGame, originalMovie);
+        }
+        return null;
     }
 
     public List<RecommendationResponse> getRecentRecommendations(String username) {

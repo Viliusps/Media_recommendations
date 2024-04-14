@@ -13,6 +13,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Song;
 import com.media.recommendations.model.SpotifyHistory;
 import com.media.recommendations.model.User;
+import com.media.recommendations.model.responses.SongArtistName;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyAccessTokenResponse;
 import com.media.recommendations.model.responses.SpotifyHistoryResponse;
@@ -348,10 +354,8 @@ public class SongService {
             headers.set("Authorization", "Bearer " + accessToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            String encodedName = UriUtils.encode(name, StandardCharsets.UTF_8);
-
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                    .queryParam("q", encodedName)
+                    .queryParam("q", name)
                     .queryParam("type", "track")
                     .queryParam("limit", 1);
 
@@ -628,8 +632,20 @@ public class SongService {
         return str1 != null && str2 != null && (str1.contains(str2) || str2.contains(str1));
     }
 
-    public String getClosestSongFromFeatures(Double bpm, Double averageLoudness, Double dynamicComplexity, Double mfccZeroMean, Double bpmHistogramFirstPeakMean,
-            Double bpmHistogramFirstPeakMedian, Double bpmHistogramSecondPeakMean, Double bpmHistogramSecondPeakMedian, Double danceability, Double onsetRate, Double tuningFrequency, Double tuningEqualTemperedDeviation) {
+    public String getClosestSongFromFeatures(float[] originalFeatures) {
+        Float bpm = originalFeatures[6];
+        Float averageLoudness = originalFeatures[10];
+        Float dynamicComplexity = originalFeatures[11];
+        Float mfccZeroMean = originalFeatures[8];
+        Float bpmHistogramFirstPeakMean = originalFeatures[0];
+        Float bpmHistogramFirstPeakMedian = originalFeatures[7];
+        Float bpmHistogramSecondPeakMean = originalFeatures[5];
+        Float bpmHistogramSecondPeakMedian = originalFeatures[2];
+        Float danceability = originalFeatures[1];
+        Float onsetRate = originalFeatures[9];
+        Float tuningFrequency = originalFeatures[4];
+        Float tuningEqualTemperedDeviation = originalFeatures[3];
+
         String closestRow = "";
         Double minDistance = Double.MAX_VALUE;
         String filePath = "merged_file.csv";
@@ -640,41 +656,48 @@ public class SongService {
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split(",");
-                
-                Double rowAverageLoudness = Double.parseDouble(values[2]);
-                Double rowDynamicComplexity = Double.parseDouble(values[3]);
-                Double rowMfccZeroMean = Double.parseDouble(values[4]);
-                Double rowBpm = Double.parseDouble(values[6]);
-                Double rowBpmHistogramFirstPeakMean = Double.parseDouble(values[7]);
-                Double rowBpmHistogramFirstPeakMedian = Double.parseDouble(values[8]);
-                Double rowBpmHistogramSecondPeakMean = Double.parseDouble(values[9]);
-                Double rowBpmHistogramSecondPeakMedian = Double.parseDouble(values[10]);
-                Double rowDanceability = Double.parseDouble(values[11]);
-                Double rowOnsetRate = Double.parseDouble(values[12]);
-                Double rowTuningFrequency = Double.parseDouble(values[16]);
-                Double rowTuningTemperedDeviation = Double.parseDouble(values[17]);
+                if (values.length > 17 && 
+                    !values[2].isEmpty() && !values[3].isEmpty() && !values[4].isEmpty() && 
+                    !values[6].isEmpty() && !values[7].isEmpty() && !values[8].isEmpty() &&
+                    !values[9].isEmpty() && !values[10].isEmpty() && !values[11].isEmpty() && 
+                    !values[12].isEmpty() && !values[16].isEmpty() && !values[17].isEmpty()) {
+                    Float rowAverageLoudness = Float.parseFloat(values[2]);
+                    Float rowDynamicComplexity = Float.parseFloat(values[3]);
+                    Float rowMfccZeroMean = Float.parseFloat(values[4]);
+                    Float rowBpm = Float.parseFloat(values[6]);
+                    Float rowBpmHistogramFirstPeakMean = Float.parseFloat(values[7]);
+                    Float rowBpmHistogramFirstPeakMedian = Float.parseFloat(values[8]);
+                    Float rowBpmHistogramSecondPeakMean = Float.parseFloat(values[9]);
+                    Float rowBpmHistogramSecondPeakMedian = Float.parseFloat(values[10]);
+                    Float rowDanceability = Float.parseFloat(values[11]);
+                    Float rowOnsetRate = Float.parseFloat(values[12]);
+                    Float rowTuningFrequency = Float.parseFloat(values[16]);
+                    Float rowTuningTemperedDeviation = Float.parseFloat(values[17]);
 
 
 
-                Double distance = Math.sqrt(Math.pow(bpm - rowBpm, 2) +
-                                            Math.pow(averageLoudness - rowAverageLoudness, 2) +
-                                            Math.pow(dynamicComplexity - rowDynamicComplexity, 2) +
-                                            Math.pow(mfccZeroMean - rowMfccZeroMean, 2) +
-                                            Math.pow(bpmHistogramFirstPeakMean - rowBpmHistogramFirstPeakMean, 2) +
-                                            Math.pow(bpmHistogramFirstPeakMedian - rowBpmHistogramFirstPeakMedian, 2) +
-                                            Math.pow(bpmHistogramSecondPeakMean - rowBpmHistogramSecondPeakMean, 2) +
-                                            Math.pow(bpmHistogramSecondPeakMedian - rowBpmHistogramSecondPeakMedian, 2) +
-                                            Math.pow(danceability - rowDanceability, 2) +
-                                            Math.pow(onsetRate - rowOnsetRate, 2) +
-                                            Math.pow(tuningFrequency - rowTuningFrequency, 2) +
-                                            Math.pow(tuningEqualTemperedDeviation - rowTuningTemperedDeviation, 2));
+                    Double distance = Math.sqrt(Math.pow(bpm - rowBpm, 2) +
+                                                Math.pow(averageLoudness - rowAverageLoudness, 2) +
+                                                Math.pow(dynamicComplexity - rowDynamicComplexity, 2) +
+                                                Math.pow(mfccZeroMean - rowMfccZeroMean, 2) +
+                                                Math.pow(bpmHistogramFirstPeakMean - rowBpmHistogramFirstPeakMean, 2) +
+                                                Math.pow(bpmHistogramFirstPeakMedian - rowBpmHistogramFirstPeakMedian, 2) +
+                                                Math.pow(bpmHistogramSecondPeakMean - rowBpmHistogramSecondPeakMean, 2) +
+                                                Math.pow(bpmHistogramSecondPeakMedian - rowBpmHistogramSecondPeakMedian, 2) +
+                                                Math.pow(danceability - rowDanceability, 2) +
+                                                Math.pow(onsetRate - rowOnsetRate, 2) +
+                                                Math.pow(tuningFrequency - rowTuningFrequency, 2) +
+                                                Math.pow(tuningEqualTemperedDeviation - rowTuningTemperedDeviation, 2));
 
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestRow = line;
-                    if (minDistance <= threshold) {
-                        break;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestRow = line;
+                        if (minDistance <= threshold) {
+                            break;
+                        }
                     }
+                } else {
+                    continue;
                 }
             }
         } catch (IOException e) {
@@ -690,5 +713,119 @@ public class SongService {
         songFromDb.setPopularity(songFromDb.getPopularity() + 1);
         songRepository.save(songFromDb);
     }
+    // efd4ed21-3374-4b8f-9fe8-271ec9852074,0,0.743034541607,4.40243434906,-688.681518555,0,109.252311707,110,110,105,105,1.03447961807,3.24817299843,0,C,major,436.708374023,0.0884697809815
+    public Song getSongFromSearchResults(String searchResult) {
+        String[] values = searchResult.split(",");
+        Song resultSong = new Song();
 
+        resultSong.setAverageLoudness(values[2]);
+        resultSong.setDynamicComplexity(values[3]);
+        resultSong.setMfccZeroMean(values[4]);
+        resultSong.setBpm(values[4]);
+        resultSong.setBpmHistogramFirstPeakBpmMean(values[7]);
+        resultSong.setBpmHistogramFirstPeakBpmMedian(values[8]);
+        resultSong.setBpmHistogramSecondPeakBpmMean(values[9]);
+        resultSong.setBpmHistogramSecondPeakBpmMedian(values[10]);
+        resultSong.setDanceability(values[11]);
+        resultSong.setOnsetRate(values[12]);
+        resultSong.setTuningFrequency(values[16]);
+        resultSong.setTuningEqualTemperedDeviation(values[17]);
+
+        SongArtistName songAndArtistName = getSongAndArtistNameFromMbid(values[0]);
+
+        Song songFromSpotify = getSongByNameAndArtistFromSpotify(songAndArtistName);
+        System.out.println("Got song from spotify");
+        resultSong.setImageUrl(songFromSpotify.getImageUrl());
+        resultSong.setIsrc(songFromSpotify.getIsrc());
+        resultSong.setSinger(songFromSpotify.getSinger());
+        resultSong.setSpotifyId(songFromSpotify.getSpotifyId());
+        resultSong.setTitle(songFromSpotify.getTitle());
+
+        return resultSong;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Song getSongByNameAndArtistFromSpotify(SongArtistName songAndArtistName) {
+        System.out.println("Getting song from spotify");
+        String name = songAndArtistName.getSongName();
+        String artistName = songAndArtistName.getArtistName();
+        Song song = new Song();
+        String accessToken = getAccessToken();
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            //String encodedName = UriUtils.encode(name, StandardCharsets.UTF_8);
+            //String encodedArtistName = UriUtils.encode(artistName, StandardCharsets.UTF_8);
+
+            String query = "track:" + name + "+artist:" + artistName;
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", query)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+            System.out.println("-----------------------------------------------------------------------------");
+            System.out.println(response);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
+                if (!tracks.isEmpty()) {
+                    Map<String, Object> track = tracks.get(0);
+                    String songName = (String) track.get("name");
+                    List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
+                    String artist = artists.isEmpty() ? "" : (String) artists.get(0).get("name");
+                    Map<String, Object> album = (Map<String, Object>) track.get("album");
+                    String spotifyId = (String) track.get("id");
+                    List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
+                    String imageUrl = images.isEmpty() ? "" : (String) images.get(0).get("url");
+                    Map<String, Object> externalIds = (Map<String, Object>) track.get("external_ids");
+                    String isrc = externalIds == null ? "" : (String) externalIds.get("isrc");
+                    
+                    song = Song.builder()
+                                .title(songName)
+                                .singer(artist)
+                                .spotifyId(spotifyId)
+                                .imageUrl(imageUrl)
+                                .isrc(isrc)
+                                .build();
+                }
+            }
+        }
+        return song;
+    }
+    public SongArtistName getSongAndArtistNameFromMbid(String mbid) {
+        System.out.println("Getting song and artist from mbid: " + mbid);
+        String url = "https://musicbrainz.org/ws/2/recording/?query=mbid:" + mbid + "&fmt=json";
+         try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(url);
+            request.addHeader("User-Agent", "MyUniProject/0.0.1 (viliusps@gmail.com)");
+            HttpResponse response = client.execute(request);
+            String jsonResponse = EntityUtils.toString(response.getEntity());
+            System.out.println(jsonResponse);
+            
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(jsonResponse);
+            JsonNode recordingNode = rootNode.path("recordings").get(0);
+            String songName = recordingNode.path("title").asText();
+            JsonNode artistCreditNode = recordingNode.path("artist-credit").get(0);
+            String artistName = artistCreditNode.path("name").asText();
+
+            System.out.println("Song Name: " + songName);
+            System.out.println("Artist Name: " + artistName);
+            SongArtistName songArtistName = new SongArtistName();
+            songArtistName.setSongName(songName);
+            songArtistName.setArtistName(artistName);
+            return songArtistName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

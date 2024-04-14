@@ -18,4 +18,8 @@ public class MinMaxScaler {
         System.arraycopy(scaledData, numFeatures, originalData, numFeatures, scaledData.length - numFeatures);
         return originalData;
     }
+
+    public float scale(float dataPoint, int index) {
+        return (float)((dataPoint - min[index]) / (max[index] - min[index]));
+    }
 }
