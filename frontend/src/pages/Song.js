@@ -4,7 +4,7 @@ import LoadingWrapper from '../components/LoadingWrapper';
 import CommentSection from '../components/CommentSection';
 import { getSong } from '../api/songs-axios';
 import MovieDetails from '../components/MovieDetails';
-import { Heading, Grid, Image, GridItem } from '@chakra-ui/react';
+import { Heading, Grid, Image, GridItem, Box } from '@chakra-ui/react';
 
 export default function Song() {
   const [loading, setLoading] = useState(true);
@@ -35,15 +35,10 @@ export default function Song() {
             <Image src={song?.imageUrl} alt={song?.name} />
           </GridItem>
           <GridItem colSpan={3}>
-            <Heading>{song?.title}</Heading>
-            <Heading as="h4" size="md">
-              Overview
-            </Heading>
-            <MovieDetails label="Genre" value={song?.genre} />
-            <MovieDetails label="Release Date" value={song?.releaseDate} />
-            <MovieDetails label="Playtime" value={`${song?.playtime} hours.`} />
-            <MovieDetails label="Rating" value={song?.rating} />
-            <MovieDetails label="Popularity" value={song?.popularity} />
+            <Box textAlign="left">
+              <Heading>{song?.title}</Heading>
+              <MovieDetails label="Singer" value={song?.singer} />
+            </Box>
           </GridItem>
         </Grid>
         <CommentSection object={song} id={id} setObject={setSong} type={'Song'} />

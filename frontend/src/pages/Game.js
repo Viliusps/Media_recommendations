@@ -4,7 +4,7 @@ import LoadingWrapper from '../components/LoadingWrapper';
 import CommentSection from '../components/CommentSection';
 import { getGame } from '../api/games-axios';
 import MovieDetails from '../components/MovieDetails';
-import { Grid, Image, GridItem, Heading } from '@chakra-ui/react';
+import { Grid, Image, GridItem, Heading, Box } from '@chakra-ui/react';
 
 export default function Game() {
   const [loading, setLoading] = useState(true);
@@ -34,15 +34,13 @@ export default function Game() {
             <Image src={game?.backgroundImage} alt={game?.name} />
           </GridItem>
           <GridItem colSpan={3}>
-            <Heading>{game?.name}</Heading>
-            <Heading as="h4" size="md">
-              Overview
-            </Heading>
-            <MovieDetails label="Genre" value={game?.genre} />
-            <MovieDetails label="Release Date" value={game?.releaseDate} />
-            <MovieDetails label="Playtime" value={`${game?.playtime} hours.`} />
-            <MovieDetails label="Rating" value={game?.rating} />
-            <MovieDetails label="Popularity" value={game?.popularity} />
+            <Box textAlign="left">
+              <Heading>{game?.name}</Heading>
+              <MovieDetails label="Genre" value={game?.genre} />
+              <MovieDetails label="Release Date" value={game?.releaseDate} />
+              <MovieDetails label="Playtime" value={`${game?.playtime} hours.`} />
+              <MovieDetails label="Rating" value={game?.rating} />
+            </Box>
           </GridItem>
         </Grid>
         <CommentSection object={game} id={id} setObject={setGame} type={'Game'} />

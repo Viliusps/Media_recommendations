@@ -6,6 +6,11 @@ export default function CustomCard({ title, image, handleOpen, cardWidth, cardHe
   return (
     <Center py={12}>
       <Box
+        transition="transform 0.2s ease-in-out, box-shadow 0.3s ease"
+        _hover={{
+          transform: 'scale(1.05)',
+          boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         zIndex={isHovered ? zIndex : 0}

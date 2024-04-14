@@ -101,7 +101,7 @@ export default function Songs() {
         {totalSongs > 0 ? (
           <Grid templateColumns="repeat(5, 1fr)" gap={6}>
             {songs.map((song) => (
-              <GridItem item key={song.id}>
+              <GridItem key={song.id}>
                 <SongCard song={song} />
               </GridItem>
             ))}
