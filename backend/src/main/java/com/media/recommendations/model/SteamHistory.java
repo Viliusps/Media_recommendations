@@ -36,4 +36,7 @@ public class SteamHistory {
     @ManyToOne
     @JoinColumn(name = "game_id", referencedColumnName = "id")
     private Game game;
+
+    @Column(name = "steam_id")
+    private String steamId;
 }

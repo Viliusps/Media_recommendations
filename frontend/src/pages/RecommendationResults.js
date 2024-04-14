@@ -1,58 +1,20 @@
-import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { rateRecommendation, recommend } from '../api/recommendation-axios';
 import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
-import { Button } from '@mui/material';
 import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
 import ObjectFeatures from '../components/ObjectFeatures';
-
-const StyledContainer = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-`;
-
-const Section = styled.div`
-  margin: 20px 0;
-`;
-
-const RecommendationBox = styled.div`
-  min-width: 80%;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 20px;
-  margin: 0px 40px 0px 40px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  }
-`;
-
-const StyledH1 = styled.h1`
-  margin-bottom: 10px;
-  color: #333333;
-`;
-
-const StyledH2 = styled.h2`
-  margin-bottom: 10px;
-  color: #333333;
-`;
-
-const RecommendingBy = styled.p`
-  font-size: 14px;
-  color: #777777;
-`;
-
-const Recommendations = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-`;
+import {
+  Button,
+  Card,
+  Grid,
+  GridItem,
+  Heading,
+  Stack,
+  Text,
+  useColorModeValue
+} from '@chakra-ui/react';
 
 const RecommendationResults = () => {
   const params = useParams();
@@ -65,8 +27,12 @@ const RecommendationResults = () => {
 
   useEffect(() => {
     setLoading(true);
+    console.log('Recommending type: ' + recommendingType);
+    console.log('recommending by type: ' + recommendingByType);
+    console.log('recommending by: ' + recommendingBy);
     recommend(recommendingType, recommendingByType, recommendingBy)
       .then((result) => {
+        console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
         else if (result.type == 'Song') setRecommendation(result.song);
         else if (result.type == 'Game') setRecommendation(result.game);
@@ -100,47 +66,62 @@ const RecommendationResults = () => {
   };
 
   return (
-    <StyledContainer>
-      <Section>
-        <StyledH1>Recommending a: {recommendingType}</StyledH1>
-        <RecommendingBy>
+    <>
+      <Stack>
+        <Heading>Recommending a: {recommendingType}</Heading>
+        <Text>
           Recommending by: {recommendingBy} which is a {recommendingByType}
-        </RecommendingBy>
-      </Section>
-      <RecommendationBox>
-        <StyledH2>Details analyzed by the model:</StyledH2>
-        <ObjectFeatures object={originalRequest} type={recommendingByType} />
-      </RecommendationBox>
+        </Text>
+      </Stack>
+      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+        <GridItem colSpan={2}>
+          <Card>
+            <Heading>Details analyzed by the model:</Heading>
+            <ObjectFeatures object={originalRequest} type={recommendingByType} />
+          </Card>
+        </GridItem>
 
-      <Section>
-        <Recommendations>
-          <RecommendationBox>
-            <StyledH2>ChatGPT recommendation</StyledH2>
+        <GridItem colSpan={1}>
+          <Card>
+            <Heading>ChatGPT recommendation</Heading>
             <LoadingWrapper loading={loading} error={error}>
               <RecommendationResultDisplay
                 recommendation={recommendation}
                 recommendingType={recommendingType}
               />
             </LoadingWrapper>
-          </RecommendationBox>
-          <Button onClick={() => handleOpenRating()}>Rate the recommendation.</Button>
-          <RecommendationBox>
-            <StyledH2>Neural model recommendation</StyledH2>
+          </Card>
+          <Button
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={() => handleOpenRating()}>
+            Rate the recommendation.
+          </Button>
+        </GridItem>
+        <GridItem colSpan={1}>
+          <Card>
+            <Heading>Neural model recommendation</Heading>
             <LoadingWrapper loading={loading} error={error}>
               <RecommendationResultDisplay
                 recommendation={recommendation}
                 recommendingType={recommendingType}
               />
             </LoadingWrapper>
-          </RecommendationBox>
-        </Recommendations>
-      </Section>
+          </Card>
+        </GridItem>
+      </Grid>
       <RatingModal
         handleClose={handleCloseRating}
         open={openRating}
         handleClick={handleRatingClick}
       />
-    </StyledContainer>
+    </>
   );
 };
 

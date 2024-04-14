@@ -1,26 +1,21 @@
 import React, { useState } from 'react';
 import { getRecentlyPlayedGames } from '../api/games-axios';
-import { Button, TextField, Typography } from '@mui/material';
-import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
-
-const StyledText = styled(Typography)`
-  color: red;
-  margin-bottom: 10px;
-`;
-
-const Container = styled('div')`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-`;
-
-const GamesGrid = styled('div')`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-`;
+import {
+  Button,
+  Text,
+  Input,
+  Container,
+  Image,
+  useColorModeValue,
+  Heading,
+  Tooltip,
+  Flex,
+  Grid,
+  GridItem
+} from '@chakra-ui/react';
+import styled from 'styled-components';
+import { RxQuestionMarkCircled } from 'react-icons/rx';
 
 const GameCard = styled('div')`
   display: flex;
@@ -30,21 +25,6 @@ const GameCard = styled('div')`
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const GameImage = styled('img')`
-  width: 100%;
-  height: auto;
-  border-radius: 8px 8px 0 0;
-`;
-
-const GameName = styled('span')`
-  margin: 10px 0;
-  text-align: center;
-`;
-
-const ContinueButton = styled(Button)`
-  margin-top: 20px;
 `;
 
 const RecentlyPlayedGames = () => {
@@ -61,12 +41,14 @@ const RecentlyPlayedGames = () => {
     const trimmedUserId = userId.trim();
 
     if (!trimmedUserId) {
+      console.log('h');
       setIncorrect(true);
       setNonNumeric(false);
       return;
     }
 
     if (!/^\d+$/.test(trimmedUserId)) {
+      console.log('h');
       setNonNumeric(true);
       setIncorrect(false);
       return;
@@ -101,42 +83,85 @@ const RecentlyPlayedGames = () => {
   return (
     <>
       <Container>
+        <Heading as="h3" size="md">
+          Enter your Steam user ID to get your recent games
+        </Heading>
         {error && (
-          <StyledText>Error. Make sure the id is correct and profile is set to public.</StyledText>
+          <Text color={'red'}>
+            Error. Make sure the id is correct and profile is set to public.
+          </Text>
         )}
-        <TextField
-          label="Enter Steam User ID"
-          variant="outlined"
-          value={userId}
-          onChange={handleInputChange}
-          margin="normal"
-          error={incorrect || nonNumeric}
-          helperText={
-            (incorrect || nonNumeric) && 'User ID cannot be empty or contain non-numeric characters'
-          }
-          required
-        />
-        <Button variant="contained" color="primary" onClick={() => getGames()}>
+        {(incorrect || nonNumeric) && (
+          <Text color={'red'}>
+            Error. User ID cannot be empty or contain non-numeric characters.
+          </Text>
+        )}
+        <Flex alignItems="center">
+          <Input
+            marginTop={2}
+            marginBottom={2}
+            placeholder="Steam User ID"
+            variant="outlined"
+            value={userId}
+            onChange={handleInputChange}
+            isInvalid={incorrect || nonNumeric}
+            isRequired
+          />
+          <Tooltip
+            hasArrow
+            label="Your Steam user ID can be found within Steam by clicking your username in the top right and then clicking Account details."
+            fontSize="md">
+            <Button variant="ghost" size="sm" minHeight="1rem" minWidth="1rem" padding={0}>
+              <RxQuestionMarkCircled />
+            </Button>
+          </Tooltip>
+        </Flex>
+        <Button
+          px={8}
+          bg={useColorModeValue('#151f21', 'gray.900')}
+          color={'white'}
+          rounded={'md'}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg'
+          }}
+          onClick={() => getGames()}>
           Get Games
         </Button>
         {recentGames.length > 0 && (
           <div>
-            <h3>Recently Played Games:</h3>
-            <GamesGrid>
+            <Heading as="h3" size="md" marginTop={5} marginBottom={3}>
+              Recently Played Games:
+            </Heading>
+            <Grid templateColumns={`repeat(${recentGames.length}, 1fr)`} gap={6}>
               {recentGames.map((game) => (
-                <GameCard key={game.appid}>
-                  <GameImage
-                    src={`https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`}
-                    alt={game.name}
-                  />
-                  <GameName>{game.name}</GameName>
-                </GameCard>
+                <GridItem key={game.appid}>
+                  <GameCard>
+                    <Image
+                      src={`https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`}
+                      alt={game.name}
+                    />
+                    <Text>{game.name}</Text>
+                  </GameCard>
+                </GridItem>
               ))}
-            </GamesGrid>
+            </Grid>
+            <Button
+              marginTop={2}
+              px={8}
+              bg={useColorModeValue('#151f21', 'gray.900')}
+              color={'white'}
+              rounded={'md'}
+              _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg'
+              }}
+              onClick={() => getRecommendation()}>
+              Continue
+            </Button>
           </div>
         )}
       </Container>
-      <ContinueButton onClick={() => getRecommendation()}>Continue</ContinueButton>
     </>
   );
 };

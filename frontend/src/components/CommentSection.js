@@ -1,4 +1,3 @@
-import { Pagination, Divider, Typography, Paper, TextField, Button } from '@mui/material';
 import StarRating from './StarRating';
 import styled from 'styled-components';
 import { useState } from 'react';
@@ -7,18 +6,20 @@ import { getMovie } from '../api/movies-axios';
 import { getGame } from '../api/games-axios';
 import { getSong } from '../api/songs-axios';
 import { toast } from 'react-toastify';
+import { Text, Input, Button, Divider, useColorModeValue, Heading } from '@chakra-ui/react';
+import { Pagination } from '@mui/material';
 
-const CommentContainer = styled(Paper)`
+const CommentContainer = styled.div`
   padding: 20px;
   margin-top: 20px;
   border-radius: 8px;
 `;
 
-const CommentField = styled(TextField)`
+const CommentField = styled(Input)`
   max-width: 400px;
 `;
 
-const StyledText = styled(Typography)`
+const StyledText = styled(Text)`
   color: red;
 `;
 
@@ -112,7 +113,7 @@ export default function CommentSection({ object, id, setObject, type }) {
       {localStorage.getItem('token') && (
         <>
           <CommentField
-            label="Add a comment"
+            placeholder="Add a comment"
             fullWidth
             value={comment}
             onChange={(e) => setComment(e.target.value)}
@@ -122,9 +123,14 @@ export default function CommentSection({ object, id, setObject, type }) {
           <StarRating rating={rating} onRatingChange={handleRatingChange} />
           <StyledText>{errorMesssage}</StyledText>
           <Button
-            type="submit"
-            variant="contained"
-            color="primary"
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
             onClick={() => handleCommentSubmit()}>
             Submit Comment
           </Button>
@@ -132,20 +138,18 @@ export default function CommentSection({ object, id, setObject, type }) {
         </>
       )}
 
-      <Typography variant="h5" gutterBottom>
+      <Heading as="h4" size="md">
         Comments
-      </Typography>
+      </Heading>
       {object.comments.length === 0 ? (
-        <Typography variant="body2" color="textSecondary">
-          No comments yet.
-        </Typography>
+        <Text>No comments yet.</Text>
       ) : (
         currentComments.map((comment, index) => (
           <StyledDiv key={index}>
             <StyledDivider />
-            <Typography key={index} variant="body2">
+            <Text key={index} variant="body2">
               {comment.commentText}
-            </Typography>
+            </Text>
             <StarRating rating={comment.rating} onRatingChange={() => {}} />
           </StyledDiv>
         ))

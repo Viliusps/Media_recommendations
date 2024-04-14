@@ -1,38 +1,53 @@
-import { CardActionArea, Card, CardContent, Typography } from '@mui/material';
-import styled from 'styled-components';
+import { useColorModeValue, Center, Box, Image, Stack, Heading } from '@chakra-ui/react';
+import { useState } from 'react';
 
-const StyledCard = styled(Card)`
-  text-align: center;
-`;
-
-const StyledCardActionArea = styled(CardActionArea)`
-  height: 100%;
-`;
-
-const StyledImg = styled.img`
-  height: 100px;
-  width: 100px;
-`;
-
-export default function CustomCard({ title, image, handleOpen, cardWidth, cardHeight }) {
+export default function CustomCard({ title, image, handleOpen, cardWidth, cardHeight, zIndex }) {
+  const [isHovered, setIsHovered] = useState(false);
   return (
-    <StyledCard
-      style={{
-        width: cardWidth,
-        height: cardHeight
-      }}>
-      <StyledCardActionArea
-        onClick={() => {
-          handleOpen();
-        }}>
-        <StyledImg src={image} />
+    <Center py={12}>
+      <Box
+        transition="transform 0.2s ease-in-out, box-shadow 0.3s ease"
+        _hover={{
+          transform: 'scale(1.05)',
+          boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        zIndex={isHovered ? zIndex : 0}
+        onClick={() => handleOpen()}
+        role={'group'}
+        p={6}
+        w={'full'}
+        bg={useColorModeValue('white', 'gray.800')}
+        boxShadow={'2xl'}
+        rounded={'lg'}
+        pos={'relative'}
+        height={cardHeight}
+        width={cardWidth}
+        cursor={'pointer'}>
+        <Stack pt={10} align={'center'}>
+          <Box rounded={'lg'} mt={-12} pos={'relative'} height={'230px'}>
+            <Center height="full">
+              <Image
+                rounded={'lg'}
+                height={160}
+                width={160}
+                objectFit={'cover'}
+                src={image}
+                alt="#"
+                _groupHover={{
+                  filter: 'blur(5px)'
+                }}
+                transition="filter 0.3s ease-in-out"
+              />
+            </Center>
+          </Box>
 
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
+          <Heading fontSize={'2xl'} fontFamily={'body'} fontWeight={500}>
             {title}
-          </Typography>
-        </CardContent>
-      </StyledCardActionArea>
-    </StyledCard>
+          </Heading>
+        </Stack>
+      </Box>
+    </Center>
   );
 }

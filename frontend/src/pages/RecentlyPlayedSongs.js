@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getUserSpotifySongs } from '../api/songs-axios';
-import { Button, Typography, Tooltip, IconButton } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Text, Tooltip, Icon, useColorModeValue, Heading } from '@chakra-ui/react';
 
 // eslint-disable-next-line no-undef
 const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -43,16 +43,6 @@ const SongImg = styled.img`
 
 const SongCardContent = styled.div`
   padding: 10px;
-`;
-
-const ContinueButton = styled(Button)`
-  margin-top: 20px;
-`;
-
-const StyledH1 = styled.h1`
-  font-size: 24px;
-  text-align: center;
-  text-transform: uppercase;
 `;
 
 export default function RecentlyPlayedSongs() {
@@ -100,37 +90,68 @@ export default function RecentlyPlayedSongs() {
     <PageContainer>
       {loggedin ? (
         <>
-          <StyledH1>Recommending based on a playlist.</StyledH1>
-          <ContinueButton variant="contained" onClick={handleShowSongs}>
+          <Heading>Recommending based on a playlist.</Heading>
+          <Button
+            marginTop={2}
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={handleShowSongs}>
             {showSongs ? 'Hide songs' : 'Show my most recent songs'}
-          </ContinueButton>
+          </Button>
           <SongListContainer style={{ display: showSongs ? 'flex' : 'none' }}>
             {userSongs.map((song, index) => (
               <SongCard key={index}>
                 <SongImg src={song.imageUrl || 'placeholder-image-url'} alt="Album Cover" />
                 <SongCardContent>
-                  <Typography variant="h6">{song.title}</Typography>
-                  <Typography variant="body2">{song.artist}</Typography>
-                  <Tooltip title="Listen on Spotify">
-                    <IconButton
-                      color="primary"
+                  <Text variant="h6">{song.title}</Text>
+                  <Text variant="body2">{song.artist}</Text>
+                  <Tooltip hasArrow label="Listen on Spotify">
+                    <Icon
+                      cursor={'pointer'}
                       onClick={() => {
                         const spotifyUri = `spotify:track:${song.spotifyId}`;
                         window.location.href = spotifyUri;
-                      }}>
-                      <PlayCircleOutlineIcon />
-                    </IconButton>
+                      }}
+                      as={PlayCircleOutlineIcon}
+                    />
                   </Tooltip>
                 </SongCardContent>
               </SongCard>
             ))}
           </SongListContainer>
-          <ContinueButton onClick={() => getRecommendation()}>Continue</ContinueButton>
+          <Button
+            marginTop={2}
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={() => getRecommendation()}>
+            Continue
+          </Button>
         </>
       ) : (
         <>
-          <h1>Not logged in</h1>
-          <Button variant="contained" onClick={() => handleLogin()}>
+          <Button
+            marginTop={2}
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={() => handleLogin()}>
             Login with Spotify
           </Button>
         </>

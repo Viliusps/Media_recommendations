@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,25 +109,68 @@ public class GameService {
         User user = userService.userByUsername(username);
         Long userId = user.getId();
         List<SteamHistory> history = steamRepository.findAllByUserId(userId);
-        List<Game> games = history.stream()
-                .map(SteamHistory::getGame)
-                .collect(Collectors.toList());
-        SteamHistoryResponse response = new SteamHistoryResponse(games, history.get(0).getDate());
-        return response;
+        if(history.size() > 0) {
+            List<Game> games = history.stream()
+                    .map(SteamHistory::getGame)
+                    .collect(Collectors.toList());
+            SteamHistoryResponse response = new SteamHistoryResponse(games, history.get(0).getDate());
+            return response;
+        }
+        return new SteamHistoryResponse();
     }
 
     public ResponseEntity<String> getRecentlyPlayedGames(String userId, String username) {
         String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
-        String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId;
+        String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId + "&count=5";
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         List<Game> games = extractGamesFromSteamResponse(response);
-        addGamesToHistory(games, username);
+        for(Game game : games) {
+            System.out.println(game.getName());
+        }
+        addGamesToHistory(games, username, userId);
+        Game averageGame = calculateAverage(games);
         return response;
     }
 
-    private void addGamesToHistory(List<Game> games, String username) { 
+    private Game calculateAverage(List<Game> games) {
+        Game averageGame = new Game();
+
+        // Genre: Calculate the most frequent genre
+        Map<String, Integer> genreFrequency = new HashMap<>();
+        for (Game game : games) {
+            genreFrequency.put(game.getGenre(), genreFrequency.getOrDefault(game.getGenre(), 0) + 1);
+        }
+        String mostFrequentGenre = Collections.max(genreFrequency.entrySet(), Map.Entry.comparingByValue()).getKey();
+        averageGame.setGenre(mostFrequentGenre);
+
+        // Release Date: Calculate the median date
+        List<LocalDate> dates = games.stream()
+            .map(game -> LocalDate.parse(game.getReleaseDate(), DateTimeFormatter.ISO_LOCAL_DATE))
+            .sorted()
+            .collect(Collectors.toList());
+        LocalDate medianDate = dates.get(dates.size() / 2);
+        averageGame.setReleaseDate(medianDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+        // Rating: Calculate the average rating
+        double averageRating = games.stream()
+            .mapToDouble(Game::getRating)
+            .average()
+            .orElse(0.0);
+        averageGame.setRating(averageRating);
+
+        // Playtime: Calculate the average playtime
+        int averagePlaytime = (int) games.stream()
+            .mapToInt(Game::getPlaytime)
+            .average()
+            .orElse(0);
+        averageGame.setPlaytime(averagePlaytime);
+
+        return averageGame;
+    }
+
+    private void addGamesToHistory(List<Game> games, String username, String steamUserId) { 
         //Clean previous history
         User user = userService.userByUsername(username);
         steamRepository.deleteByUser(user);
@@ -141,6 +187,7 @@ public class GameService {
             entry.setDate(currDate);
             entry.setGame(game);
             entry.setUser(user);
+            entry.setSteamId(steamUserId);
             steamRepository.save(entry);
         }
     }
@@ -168,16 +215,19 @@ public class GameService {
     }
 
     public Game getGameFromRAWG(String gameName) {
+        System.out.println("Game name: " + gameName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("User-Agent", "MyUniProject/v1.0");
 
-        String searchUrl = RAWG_API_BASE_URL + "games?search=" + gameName + "&key=" + rawgApiKey;
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String searchUrl = RAWG_API_BASE_URL + "games?search=" + encodedGameName + "&key=" + rawgApiKey;
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
         String gameSearchResponse = restTemplate.exchange(searchUrl, HttpMethod.GET, entity, String.class).getBody();
 
         String gameId = parseGameIdFromSearchResponse(gameSearchResponse);
+        System.out.println("Game ID: " + gameId);
 
         if (gameId != null) {
 
