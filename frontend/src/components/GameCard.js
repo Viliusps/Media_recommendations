@@ -1,30 +1,27 @@
-import { CardActionArea, Card, CardContent, CardMedia, Typography } from '@mui/material';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-
-const StyledCard = styled(Card)`
-  width: 345px;
-`;
-
-const StyledCardActionArea = styled(CardActionArea)`
-  height: 100%;
-`;
+import { Card, CardBody, Image, Heading, Box } from '@chakra-ui/react';
 
 export default function GameCard({ game }) {
   const Navigate = useNavigate();
   return (
-    <StyledCard>
-      <StyledCardActionArea
-        onClick={() => {
-          Navigate(`/games/${game.id}`);
-        }}>
-        <CardMedia component="img" height="140" image={game.backgroundImage} />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {game.name}
-          </Typography>
-        </CardContent>
-      </StyledCardActionArea>
-    </StyledCard>
+    <Card
+      transition="transform 0.2s ease-in-out, box-shadow 0.3s ease"
+      _hover={{
+        transform: 'scale(1.05)',
+        boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+      }}
+      cursor={'pointer'}
+      onClick={() => {
+        Navigate(`/games/${game.id}`);
+      }}>
+      <Box width="100%" height="225px" overflow="hidden">
+        <Image src={game.backgroundImage} width="100%" objectFit="cover" />
+      </Box>
+      <CardBody>
+        <Heading as="h4" size="md">
+          {game.name}
+        </Heading>
+      </CardBody>
+    </Card>
   );
 }

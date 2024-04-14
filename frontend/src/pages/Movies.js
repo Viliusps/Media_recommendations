@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react';
 import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
 import DisplayCard from '../components/MovieCard';
-import { Paper, Pagination, Button, TextField, InputAdornment } from '@mui/material';
-import styled from 'styled-components';
 import LoadingWrapper from '../components/LoadingWrapper';
+import { Input, Button, Grid, GridItem, useColorModeValue, Heading } from '@chakra-ui/react';
+import styled from 'styled-components';
+import { Pagination } from '@mui/material';
 
-const StyledPaper = styled(Paper)`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+const SearchWrapper = styled.div`
+  margin: auto auto 20px auto;
+  width: 500px;
 `;
 
 const StyledPagination = styled(Pagination)`
@@ -19,23 +18,13 @@ const StyledPagination = styled(Pagination)`
   margin-top: 20px;
 `;
 
-const SearchWrapper = styled.div`
-  margin: auto auto 20px auto;
-
-  width: 500px;
-`;
-
-const SearchButton = styled(Button)`
-  margin-left: 10px;
-`;
-
 export default function Movies() {
   const [movies, setMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalMovies, setTotalMovies] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const moviesPerPage = 10;
+  const moviesPerPage = 15;
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
 
@@ -78,34 +67,41 @@ export default function Movies() {
 
   return (
     <div>
-      <h1>Movies page</h1>
+      <Heading as="h3" size="md">
+        Most popular movies among users
+      </Heading>
       <SearchWrapper>
-        <TextField
-          label="Search Songs"
+        <Input
+          placeholder="Search for a movie..."
           variant="outlined"
-          size="small"
-          fullWidth
+          marginTop={2}
+          marginBottom={2}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchButton variant="contained" onClick={handleSearch}>
-                  Search
-                </SearchButton>
-              </InputAdornment>
-            )
-          }}
         />
+        <Button
+          px={8}
+          bg={useColorModeValue('#151f21', 'gray.900')}
+          color={'white'}
+          rounded={'md'}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg'
+          }}
+          onClick={() => handleSearch()}>
+          Search
+        </Button>
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalMovies > 0 ? (
           <>
-            <StyledPaper>
+            <Grid templateColumns="repeat(5, 1fr)" gap={6}>
               {movies.map((movie) => (
-                <DisplayCard key={movie.id} movie={movie} />
+                <GridItem key={movie.id}>
+                  <DisplayCard movie={movie} />
+                </GridItem>
               ))}
-            </StyledPaper>
+            </Grid>
             <StyledPagination
               count={Math.ceil(totalMovies / moviesPerPage)}
               page={currentPage + 1}
