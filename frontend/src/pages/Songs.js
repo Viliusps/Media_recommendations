@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPageSongs, searchSongs } from '../api/songs-axios';
-import { Grid, Pagination, TextField, InputAdornment, Button } from '@mui/material';
 import styled from 'styled-components';
 import SongCard from '../components/SongCard';
 import LoadingWrapper from '../components/LoadingWrapper';
+import { Button, Input, Grid, GridItem, useColorModeValue, Heading } from '@chakra-ui/react';
+import { Pagination } from '@mui/material';
 
 const StyledPagination = styled(Pagination)`
   display: flex;
@@ -30,7 +31,7 @@ export default function Songs() {
   const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
-  const songsPerPage = 12;
+  const songsPerPage = 15;
 
   const handleSearch = async () => {
     setLoading(true);
@@ -71,33 +72,38 @@ export default function Songs() {
 
   return (
     <div>
-      <h1>Songs page</h1>
+      <Heading as="h3" size="md">
+        Most popular songs among users
+      </Heading>
       <SearchWrapper>
-        <TextField
-          label="Search Songs"
+        <Input
+          placeholder="Search for a song..."
           variant="outlined"
-          size="small"
-          fullWidth
+          marginTop={2}
+          marginBottom={2}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <SearchButton variant="contained" onClick={handleSearch}>
-                  Search
-                </SearchButton>
-              </InputAdornment>
-            )
-          }}
         />
+        <SearchButton
+          px={8}
+          bg={useColorModeValue('#151f21', 'gray.900')}
+          color={'white'}
+          rounded={'md'}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg'
+          }}
+          onClick={() => handleSearch()}>
+          Search
+        </SearchButton>
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalSongs > 0 ? (
-          <Grid container spacing={1}>
+          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
             {songs.map((song) => (
-              <Grid item key={song.id} xs={12} sm={6} md={4} lg={2}>
+              <GridItem key={song.id}>
                 <SongCard song={song} />
-              </Grid>
+              </GridItem>
             ))}
           </Grid>
         ) : (

@@ -1,33 +1,37 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { login } from '../api/auth-axios';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import styled from 'styled-components';
+import {
+  FormLabel,
+  Button,
+  Flex,
+  Stack,
+  Heading,
+  Text,
+  useColorModeValue,
+  Box,
+  FormControl,
+  Input,
+  Link
+} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
-const StyledText = styled(Typography)`
+const StyledText = styled(Text)`
   color: red;
 `;
 
 export default function SignIn() {
-  const Navigate = useNavigate();
   const [incorrect, setIncorrect] = useState(false);
+  const formRef = useRef(null);
+  const Navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    login(data.get('username'), data.get('password'))
+    const formData = new FormData(formRef.current);
+    login(formData.get('username'), formData.get('password'))
       .then(() => {
-        localStorage.setItem('userName', data.get('username'));
+        localStorage.setItem('userName', formData.get('username'));
         setIncorrect(false);
         window.location.href = '/movies';
       })
@@ -44,58 +48,49 @@ export default function SignIn() {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}>
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
-        </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoComplete="username"
-            autoFocus
-          />
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-          />
-          {incorrect && <StyledText>Incorrect username or password.</StyledText>}
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Sign In
-          </Button>
-          <Grid container>
-            <Grid item>
-              <Link
-                onClick={() => Navigate('/register')}
-                style={{ cursor: 'pointer' }}
-                variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
+    <Flex>
+      <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+        <Stack align={'center'}>
+          <Heading fontSize={'4xl'}>Sign in to your account</Heading>
+        </Stack>
+        <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow={'lg'} p={8}>
+          <form onSubmit={handleSubmit} ref={formRef}>
+            <Stack spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>Username</FormLabel>
+                <Input type="username" id="username" name="username" />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Password</FormLabel>
+                <Input type="password" id="password" name="password" />
+              </FormControl>
+              {incorrect && <StyledText>Incorrect username or password.</StyledText>}
+              <Stack spacing={10}>
+                <Button
+                  type="submit"
+                  px={8}
+                  bg={useColorModeValue('#151f21', 'gray.900')}
+                  color={'white'}
+                  rounded={'md'}
+                  _hover={{
+                    transform: 'translateY(-2px)',
+                    boxShadow: 'lg'
+                  }}>
+                  Sign in
+                </Button>
+              </Stack>
+              <Stack pt={6}>
+                <Text align={'center'}>
+                  Don&apos;t have an account yet?{' '}
+                  <Link color={'blue.400'} onClick={() => Navigate('/register')}>
+                    Sign up
+                  </Link>
+                </Text>
+              </Stack>
+            </Stack>
+          </form>
         </Box>
-      </Box>
-    </Container>
+      </Stack>
+    </Flex>
   );
 }

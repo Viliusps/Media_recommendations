@@ -6,7 +6,7 @@ const StarRating = ({ rating, onRatingChange }) => {
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', justifyContent: 'center' }}>
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
