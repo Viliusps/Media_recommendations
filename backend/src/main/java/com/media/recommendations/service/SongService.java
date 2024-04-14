@@ -206,11 +206,9 @@ public class SongService {
     }
 
     private void addSongsToHistory(List<Song> songs, String username) {
-        //Clean previous history
         User user = userService.userByUsername(username);
         spotifyRepository.deleteByUser(user);
 
-        //Add new entries
         LocalDate currDate = LocalDate.now();
         for(Song song : songs) {
             if(!existsSong(song)) {

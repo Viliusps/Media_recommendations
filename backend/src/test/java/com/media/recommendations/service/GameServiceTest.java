@@ -16,6 +16,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.SteamHistory;
 import com.media.recommendations.model.User;
