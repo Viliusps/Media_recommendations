@@ -3,6 +3,7 @@ package com.media.recommendations.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
@@ -122,5 +123,11 @@ public class SongController {
         SongArtistName name = songService.getSongAndArtistNameFromMbid(entity);
         return new ResponseEntity<>(name, HttpStatus.OK);
     }
+
+    // @PostMapping("/testSpotify")
+    // public ResponseEntity<Song> postMethodName(@RequestBody SongArtistName entity) throws UnsupportedEncodingException {
+    //     Song name = songService.getSongByNameAndArtistFromSpotify(entity);
+    //     return new ResponseEntity<>(name, HttpStatus.OK);
+    // }
     
 }

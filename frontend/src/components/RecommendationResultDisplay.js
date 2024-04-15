@@ -12,13 +12,11 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
     <>
       {recommendation && (
         <>
-          {recommendingType === 'Song' && recommendation.spotifyId.length > 22 ? (
-            <RecommendationText>{recommendation.spotifyId}</RecommendationText>
-          ) : (
-            recommendingType === 'Song' && (
-              <>
-                <h3>{recommendation.title}</h3>
-                <h4>By: {recommendation.singer}</h4>
+          {recommendingType === 'Song' && (
+            <>
+              <h3>{recommendation.title}</h3>
+              <h4>By: {recommendation.singer}</h4>
+              {recommendation.spotifyId != null && (
                 <RecommendationText
                   onClick={() => {
                     const spotifyUri = `spotify:track:${recommendation.spotifyId}`;
@@ -26,8 +24,8 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
                   }}>
                   Click here!
                 </RecommendationText>
-              </>
-            )
+              )}
+            </>
           )}
           {recommendingType === 'Movie' && recommendation.imdbID.length > 9 ? (
             <RecommendationText>{recommendation.imdbID}</RecommendationText>

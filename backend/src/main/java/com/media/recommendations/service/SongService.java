@@ -3,6 +3,9 @@ package com.media.recommendations.service;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -648,7 +651,7 @@ public class SongService {
 
         String closestRow = "";
         Double minDistance = Double.MAX_VALUE;
-        String filePath = "merged_file.csv";
+        String filePath = "songFeaturesFinal.csv";
         Double threshold = 0.1;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -732,77 +735,22 @@ public class SongService {
         resultSong.setTuningEqualTemperedDeviation(values[17]);
 
         SongArtistName songAndArtistName = getSongAndArtistNameFromMbid(values[0]);
+        resultSong.setTitle(songAndArtistName.getSongName());
+        resultSong.setSinger(songAndArtistName.getArtistName());
 
-        Song songFromSpotify = getSongByNameAndArtistFromSpotify(songAndArtistName);
-        System.out.println("Got song from spotify");
-        resultSong.setImageUrl(songFromSpotify.getImageUrl());
-        resultSong.setIsrc(songFromSpotify.getIsrc());
-        resultSong.setSinger(songFromSpotify.getSinger());
-        resultSong.setSpotifyId(songFromSpotify.getSpotifyId());
-        resultSong.setTitle(songFromSpotify.getTitle());
+        // Song songFromSpotify = getSongByNameAndArtistFromSpotify(songAndArtistName);
+        // System.out.println("Got song from spotify");
+        // resultSong.setImageUrl(songFromSpotify.getImageUrl());
+        // resultSong.setIsrc(songFromSpotify.getIsrc());
+        // resultSong.setSinger(songFromSpotify.getSinger());
+        // resultSong.setSpotifyId(songFromSpotify.getSpotifyId());
+        // resultSong.setTitle(songFromSpotify.getTitle());
 
         return resultSong;
     }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Song getSongByNameAndArtistFromSpotify(SongArtistName songAndArtistName) {
-        System.out.println("Getting song from spotify");
-        String name = songAndArtistName.getSongName();
-        String artistName = songAndArtistName.getArtistName();
-        Song song = new Song();
-        String accessToken = getAccessToken();
-
-        if (accessToken != null) {
-            String apiUrl = spotifyUrl + "/v1/search";
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + accessToken);
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            //String encodedName = UriUtils.encode(name, StandardCharsets.UTF_8);
-            //String encodedArtistName = UriUtils.encode(artistName, StandardCharsets.UTF_8);
-
-            String query = "track:" + name + "+artist:" + artistName;
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                    .queryParam("q", query)
-                    .queryParam("type", "track")
-                    .queryParam("limit", 1);
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
-            System.out.println("-----------------------------------------------------------------------------");
-            System.out.println(response);
-
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                Map<String, Object> responseBody = response.getBody();
-                List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
-                if (!tracks.isEmpty()) {
-                    Map<String, Object> track = tracks.get(0);
-                    String songName = (String) track.get("name");
-                    List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
-                    String artist = artists.isEmpty() ? "" : (String) artists.get(0).get("name");
-                    Map<String, Object> album = (Map<String, Object>) track.get("album");
-                    String spotifyId = (String) track.get("id");
-                    List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
-                    String imageUrl = images.isEmpty() ? "" : (String) images.get(0).get("url");
-                    Map<String, Object> externalIds = (Map<String, Object>) track.get("external_ids");
-                    String isrc = externalIds == null ? "" : (String) externalIds.get("isrc");
-                    
-                    song = Song.builder()
-                                .title(songName)
-                                .singer(artist)
-                                .spotifyId(spotifyId)
-                                .imageUrl(imageUrl)
-                                .isrc(isrc)
-                                .build();
-                }
-            }
-        }
-        return song;
-    }
     public SongArtistName getSongAndArtistNameFromMbid(String mbid) {
         System.out.println("Getting song and artist from mbid: " + mbid);
-        String url = "https://musicbrainz.org/ws/2/recording/?query=mbid:" + mbid + "&fmt=json";
+        String url = "https://musicbrainz.org/ws/2/recording/?query=mbid:" + mbid + "&fmt=json&inc=isrcs";
          try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(url);
             request.addHeader("User-Agent", "MyUniProject/0.0.1 (viliusps@gmail.com)");
