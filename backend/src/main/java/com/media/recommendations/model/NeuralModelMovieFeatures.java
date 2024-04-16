@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NeuralModelMovieFeatures {
     private String genre;
-    private String date;
+    private int year;
     private int boxOffice;
     private double imdbRating;
     private int runtime;

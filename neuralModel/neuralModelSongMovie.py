@@ -27,8 +27,9 @@ movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_BoxOffice'
 
 df['movie_BoxOffice'] = df['movie_BoxOffice'] / 1000000
 
-df['movie_Released'] = pd.to_datetime(df['movie_Released'])
-df['movie_Released'] = (df['movie_Released'] - pd.Timestamp('1970-01-01')).dt.days.astype('float32')
+# df['movie_Released'] = pd.to_datetime(df['movie_Released'])
+# df['movie_Released'] = (df['movie_Released'] - pd.Timestamp('1970-01-01')).dt.days.astype('float32')
+df['movie_Released'] = pd.to_datetime(df['movie_Released']).dt.year.astype('float32')
 X = df[song_features].astype('float32')
 y_numerical = df[movie_numerical_features].astype('float32')
 y_genre = pd.get_dummies(df['movie_Genre'], dtype='float32')
@@ -67,13 +68,15 @@ def model_serving(dense_input):
     return model(dense_input, training=False)
 
 tf.saved_model.save(model, 'neuralModel/model_sm', signatures={'serving_default': model_serving})
+genre_encoding = y_genre.columns.tolist()
 
 # Create a dictionary with all the necessary scaling parameters
 scaling_parameters = {
     "input_mean": scaler_X.mean_.tolist(),
     "input_std": scaler_X.scale_.tolist(),
     "output_min": scaler_y_numerical.data_min_.tolist(),
-    "output_max": scaler_y_numerical.data_max_.tolist()
+    "output_max": scaler_y_numerical.data_max_.tolist(),
+    "genre_encoding": genre_encoding
 }
 
 # Write to a JSON file

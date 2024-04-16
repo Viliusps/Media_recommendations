@@ -2,5 +2,5 @@
 application.properties
 recommendations/src/main/resources/application.properties
 .vscode
-movie_features.tsv
+movieFeaturesFinal.tsv
 songFeaturesFinal.csv

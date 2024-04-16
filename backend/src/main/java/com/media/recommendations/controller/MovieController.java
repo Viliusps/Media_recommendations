@@ -92,10 +92,10 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    @PostMapping("/search-closest")
-    public ResponseEntity<String> searchClosestMovieFeatures(@RequestBody GetClosestMovieRequest request) {
-        String response = movieService.getClosestMovieFromFeatures(request.getGenres(), request.getYear(), request.getRuntime());
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+    // @PostMapping("/search-closest")
+    // public ResponseEntity<String> searchClosestMovieFeatures(@RequestBody GetClosestMovieRequest request) {
+    //     String response = movieService.getClosestMovieFromFeatures(request.getGenres(), request.getYear(), request.getRuntime());
+    //     return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
     
 }

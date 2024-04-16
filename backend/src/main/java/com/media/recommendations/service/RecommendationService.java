@@ -356,7 +356,20 @@ public class RecommendationService {
                     case "Song":
                         scalerPath += "sm.json";
                         modelPath += "sm";
-                        //features = scalingService.scaleSongFeatures(new NeuralModelMovieFeatures(genre, dateString, boxOffice, imdbRating, runtime) , scalerPath);
+                        float[] arr = new float[12];
+                        arr[0] = Float.parseFloat(originalSong.getBpmHistogramFirstPeakBpmMean());
+                        arr[1] = Float.parseFloat(originalSong.getDanceability());
+                        arr[2] = Float.parseFloat(originalSong.getBpmHistogramSecondPeakBpmMedian());
+                        arr[3] = Float.parseFloat(originalSong.getTuningEqualTemperedDeviation());
+                        arr[4] = Float.parseFloat(originalSong.getTuningFrequency());
+                        arr[5] = Float.parseFloat(originalSong.getBpmHistogramSecondPeakBpmMean());
+                        arr[6] = Float.parseFloat(originalSong.getBpm());
+                        arr[7] = Float.parseFloat(originalSong.getBpmHistogramFirstPeakBpmMedian());
+                        arr[8] = Float.parseFloat(originalSong.getMfccZeroMean());
+                        arr[9] = Float.parseFloat(originalSong.getOnsetRate());
+                        arr[10] = Float.parseFloat(originalSong.getAverageLoudness());
+                        arr[11] = Float.parseFloat(originalSong.getDynamicComplexity());
+                        features = scalingService.scaleSongFeatures(arr, scalerPath);
                         break;
                     case "Game":
                         System.out.println("Movie by game");
@@ -373,7 +386,7 @@ public class RecommendationService {
                         Integer boxOffice = Integer.parseInt(originalMovie.getBoxOffice().replace("$", "").replace(",", ""));
                         Integer runtime = Integer.parseInt(originalMovie.getRuntime().replace(" min", ""));
                         String genre = originalMovie.getGenre().split(",")[0];
-                        features = scalingService.scaleMovieFeatures(new NeuralModelMovieFeatures(genre, originalMovie.getReleased(), boxOffice, Double.parseDouble(originalMovie.getImdbRating()), runtime) , scalerPath);
+                        features = scalingService.scaleMovieFeatures(new NeuralModelMovieFeatures(genre, Integer.parseInt(originalMovie.getYear()), boxOffice, Double.parseDouble(originalMovie.getImdbRating()), runtime) , scalerPath);
                         break;
                     case "Song":
                         System.out.println("Song by song");
@@ -422,23 +435,22 @@ public class RecommendationService {
             FloatDataBuffer resultsBuffer = outputTensor.asRawTensor().data().asFloats();
             float[] results = new float[(int)resultsBuffer.size()];
             resultsBuffer.read(results);
-            float[] originalOutput = new float[0];
             switch (originalRequest.getRecommendingType()) {
                 case "Movie":
-                    //originalOutput = scalingService.rescaleSongFeatures(results, scalerPath);
-                    //movie = movieService.getClosestMovieFromFeatures(scalerPath, 0, 0);
+                    NeuralModelMovieFeatures movieOutput = scalingService.rescaleMovieFeatures(results, scalerPath);
+                    movie = movieService.getClosestMovieFromFeatures(movieOutput.getGenre(), movieOutput.getYear(), movieOutput.getRuntime(), movieOutput.getImdbRating());
                     break;
                 case "Song":
-                    originalOutput = scalingService.rescaleSongFeatures(results, scalerPath);
+                    float[] songOutput = scalingService.rescaleSongFeatures(results, scalerPath);
                     //System.out.println("Neural model song features output: " + Arrays.toString(originalOutput));
-                    String closestString = songService.getClosestSongFromFeatures(originalOutput);
+                    String closestString = songService.getClosestSongFromFeatures(songOutput);
                     song = songService.getSongFromSearchResults(closestString);
                     //System.out.println("Found closest song: " + closestString);
                     //System.out.println("Actual value: [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]");
                     break;
                 case "Game":
-                    //originalOutput = scalingService.rescaleSongFeatures(results, scalerPath);
-                    //game = gameService.getClosestGameFromFeatures(originalOutput);
+                    //gameOutput = scalingService.rescaleSongFeatures(results, scalerPath);
+                    //game = gameService.getClosestGameFromFeatures(gameOutput);
                     break;
                 default:
                     break;

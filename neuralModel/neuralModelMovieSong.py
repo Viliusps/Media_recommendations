@@ -27,8 +27,11 @@ movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_BoxOffice'
 
 df['movie_BoxOffice'] = df['movie_BoxOffice'] / 1000000
 
-df['movie_Released'] = pd.to_datetime(df['movie_Released'])
-df['movie_Released'] = (df['movie_Released'] - pd.Timestamp('1970-01-01')).dt.days.astype('float32')
+# df['movie_Released'] = pd.to_datetime(df['movie_Released'])
+# df['movie_Released'] = (df['movie_Released'] - pd.Timestamp('1970-01-01')).dt.days.astype('float32')
+
+df['movie_Released'] = pd.to_datetime(df['movie_Released']).dt.year.astype('float32')
+
 y = df[song_features].astype('float32')
 X_numerical = df[movie_numerical_features].astype('float32')
 X_genre = pd.get_dummies(df['movie_Genre'], dtype='float32')

@@ -19,6 +19,10 @@ public class MinMaxScaler {
         return originalData;
     }
 
+    public float inverseTransform(float scaledData, int index) {
+        return scaledData * (max[index] - min[index]) + min[index];
+    }
+
     public float scale(float dataPoint, int index) {
         return (float)((dataPoint - min[index]) / (max[index] - min[index]));
     }

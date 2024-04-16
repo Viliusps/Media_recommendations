@@ -2,6 +2,8 @@ package com.media.recommendations.service;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,48 +117,61 @@ public class MovieService {
         return omdbMovie;
     }
 
+    public Movie getMovieFromOmdbByIMBDID(String imdbId) {
+        String apiUrl = String.format("%s?apikey=%s&i=%s", omdbApiUrl, apiKey, imdbId);
+        Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
+        return omdbMovie;
+    }
+
     public MoviePageResponse search(String search) {
         List<Movie> found = movieRepository.findByTitleContaining(search);
         MoviePageResponse response = new MoviePageResponse(found, found.size());
         return response;
     }
 
-    public String getClosestMovieFromFeatures(String genres, int year, int runtime) {
+    public Movie getClosestMovieFromFeatures(String genre, int year, int runtime, Double imdbRating) {
         String closestRow = "";
         double minDistance = Double.MAX_VALUE;
-        String filePath = "movie_features.tsv";
+        String filePath = "movieFeaturesFinal.tsv";
         double threshold = 0.1;
+        System.out.println("Model recommendation: " + genre + " " + year + " " + runtime + " " + imdbRating);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split("\t");
-                String rowGenres = values[8];
+                List<String> rowGenres = Arrays.asList(values[8].split(","));
                 int rowYear = values[5].equals("\\N") ? 0 : Integer.parseInt(values[5]);
                 int rowRuntime = values[7].equals("\\N") ? 0 : Integer.parseInt(values[7]);
+                Double rowRating = values[9].equals("\\N") ? 0 : Double.parseDouble(values[9]);
 
-                boolean genresMatch = rowGenres.equals(genres);
+                boolean genresMatch = genre.isEmpty() || rowGenres.contains(genre);
 
+                double distance = Math.sqrt(Math.pow(year - rowYear, 2) +
+                                            Math.pow(runtime - rowRuntime, 2) +
+                                            Math.pow(imdbRating - rowRating, 2));
+                
                 if (genresMatch) {
-                    double distance = Math.sqrt(Math.pow(year - rowYear, 2) +
-                                                Math.pow(runtime - rowRuntime, 2));
+                    distance *= 0.75;
+                }
 
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestRow = line;
-                        if (minDistance <= threshold) {
-                            break;
-                        }
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestRow = line;
+                    if (minDistance <= threshold) {
+                        break;
                     }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return "Error reading the TSV file.";
+            return null;
         }
+        System.out.println("Closest row: " + closestRow);
 
-        return closestRow;
+        String imdbId = closestRow.split("\t")[0];
+        return getMovieFromOmdbByIMBDID(imdbId);
     }
 
     public void increasePopularity(Movie movie) {

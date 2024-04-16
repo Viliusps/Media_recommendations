@@ -356,11 +356,12 @@ public class SongService {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + accessToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
+            String query = "track:" + name;
 
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                    .queryParam("q", name)
+                    .queryParam("q", query)
                     .queryParam("type", "track")
-                    .queryParam("limit", 1);
+                    .queryParam("limit", 2);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
