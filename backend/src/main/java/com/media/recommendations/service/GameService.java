@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.SteamHistory;
 import com.media.recommendations.model.User;
@@ -140,10 +142,10 @@ public class GameService {
         // Genre: Calculate the most frequent genre
         Map<String, Integer> genreFrequency = new HashMap<>();
         for (Game game : games) {
-            genreFrequency.put(game.getGenre(), genreFrequency.getOrDefault(game.getGenre(), 0) + 1);
+            genreFrequency.put(game.getGenres(), genreFrequency.getOrDefault(game.getGenres(), 0) + 1);
         }
         String mostFrequentGenre = Collections.max(genreFrequency.entrySet(), Map.Entry.comparingByValue()).getKey();
-        averageGame.setGenre(mostFrequentGenre);
+        averageGame.setGenres(mostFrequentGenre);
 
         // Release Date: Calculate the median date
         List<LocalDate> dates = games.stream()
@@ -262,7 +264,18 @@ public class GameService {
             Game game = new Game();
             game.setName(root.get("name").asText());
             game.setReleaseDate(root.get("released").asText());
-            game.setGenre(root.get("genres").get(0).get("name").asText());
+            ArrayNode genres = (ArrayNode) root.get("genres");
+            String genresStr = StreamSupport.stream(genres.spliterator(), false)
+                                            .map(genre -> genre.get("name").asText())
+                                            .collect(Collectors.joining(", "));
+            game.setGenres(genresStr);
+
+            ArrayNode platforms = (ArrayNode) root.get("platforms");
+            String platformsStr = StreamSupport.stream(platforms.spliterator(), false)
+                                            .map(platform -> platform.get("platform").get("name").asText())
+                                            .collect(Collectors.joining(", "));
+            game.setPlatforms(platformsStr);
+            game.setDescription(root.get("description").asText());
             game.setRating(root.get("rating").asDouble());
             game.setPlaytime(root.get("playtime").asInt());
             game.setBackgroundImage(root.get("background_image").asText());

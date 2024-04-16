@@ -67,7 +67,7 @@ public class ScalingService {
         JSONObject jsonObject = getJsonObject(filePath);
         float[] inputMin = jsonArrayToFloatArray(jsonObject.getJSONArray("input_min"));
         float[] inputMax = jsonArrayToFloatArray(jsonObject.getJSONArray("input_max"));
-        String[] encoder = jsonArrayToStringArray(jsonObject.getJSONArray("genre_encoding"));
+        String[] encoder = jsonArrayToStringArray(jsonObject.getJSONArray("movie_genre_encoding"));
         MinMaxScaler inputScaler = new MinMaxScaler(inputMin, inputMax);
 
         //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
@@ -104,7 +104,7 @@ public class ScalingService {
         JSONObject jsonObject = getJsonObject(filePath);
         float[] outputMin = jsonArrayToFloatArray(jsonObject.getJSONArray("output_min"));
         float[] outputMax = jsonArrayToFloatArray(jsonObject.getJSONArray("output_max"));
-        String[] encoder = jsonArrayToStringArray(jsonObject.getJSONArray("genre_encoding"));
+        String[] encoder = jsonArrayToStringArray(jsonObject.getJSONArray("movie_genre_encoding"));
         MinMaxScaler inputScaler = new MinMaxScaler(outputMin, outputMax);
 
         int year = (int) inputScaler.inverseTransform(scaledFeatures[0], 0);

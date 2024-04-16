@@ -76,7 +76,7 @@ scaling_parameters = {
     "input_std": scaler_X.scale_.tolist(),
     "output_min": scaler_y_numerical.data_min_.tolist(),
     "output_max": scaler_y_numerical.data_max_.tolist(),
-    "genre_encoding": genre_encoding
+    "movie_genre_encoding": genre_encoding
 }
 
 # Write to a JSON file

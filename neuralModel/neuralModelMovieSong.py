@@ -88,7 +88,7 @@ scaling_parameters = {
     "input_max": scaler_X_numerical.data_max_.tolist(),
     "output_mean": scaler_y.mean_.tolist(),
     "output_std": scaler_y.scale_.tolist(),
-    "genre_encoding": genre_encoding
+    "movie_genre_encoding": genre_encoding
 }
 
 with open('neuralModel/scaling_parameters_ms.json', 'w') as f:

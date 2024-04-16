@@ -41,7 +41,7 @@ public class Game {
 
     @NotBlank(message = "Genre is mandatory")
     @Column(name = "genre", nullable = false)
-    private String genre;
+    private String genres;
 
     @NotNull(message = "Rating is mandatory")
     @Column(name = "rating", nullable = false)
@@ -58,6 +58,14 @@ public class Game {
     @NotBlank(message = "Background image is mandatory")
     @Column(name = "background_image", nullable = false)
     private String backgroundImage;
+
+    @NotBlank(message = "Description is mandatory")
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    @NotBlank(message = "Platforms is mandatory")
+    @Column(name = "platforms", nullable = false)
+    private String platforms;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "game")

@@ -45,7 +45,7 @@ public class GameController {
 
     @PostMapping("/getGameFromFeatures")
     public ResponseEntity<Game> getGameFromFeatures(@RequestBody Game game) {
-        Game response = gameService.findGameFromFeatures(game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPlaytime());
+        Game response = gameService.findGameFromFeatures(game.getGenres(), game.getReleaseDate(), game.getRating(), game.getPlaytime());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
