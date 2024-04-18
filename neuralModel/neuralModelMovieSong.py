@@ -23,12 +23,7 @@ song_features = [
     'song_onsetRate', 'song_averageLoudness', 'song_dynamicComplexity'
 ]
 
-movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_BoxOffice', 'movie_imdbRating']
-
-df['movie_BoxOffice'] = df['movie_BoxOffice'] / 1000000
-
-# df['movie_Released'] = pd.to_datetime(df['movie_Released'])
-# df['movie_Released'] = (df['movie_Released'] - pd.Timestamp('1970-01-01')).dt.days.astype('float32')
+movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
 
 df['movie_Released'] = pd.to_datetime(df['movie_Released']).dt.year.astype('float32')
 
@@ -49,16 +44,6 @@ y_test_scaled = scaler_y.transform(y_test)
 
 X_train = np.concatenate((X_train_numerical_scaled, X_train_genre), axis=1)
 X_test = np.concatenate((X_test_numerical_scaled, X_test_genre), axis=1)
-
-print("Unscaled Input (Numerical Features Only):")
-print(X_numerical.iloc[0])
-print("Scaled Input (Numerical Features Only):")
-print(X_train_numerical_scaled[0])
-
-print("Unscaled Output:")
-print(y.iloc[0])
-print("Scaled Output:")
-print(y_train_scaled[0])
 
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
@@ -88,7 +73,7 @@ scaling_parameters = {
     "input_max": scaler_X_numerical.data_max_.tolist(),
     "output_mean": scaler_y.mean_.tolist(),
     "output_std": scaler_y.scale_.tolist(),
-    "movie_genre_encoding": genre_encoding
+    "input_movie_genre_encoding": genre_encoding
 }
 
 with open('neuralModel/scaling_parameters_ms.json', 'w') as f:

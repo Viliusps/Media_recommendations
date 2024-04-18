@@ -23,12 +23,8 @@ song_features = [
     'song_onsetRate', 'song_averageLoudness', 'song_dynamicComplexity'
 ]
 
-movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_BoxOffice', 'movie_imdbRating']
+movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
 
-df['movie_BoxOffice'] = df['movie_BoxOffice'] / 1000000
-
-# df['movie_Released'] = pd.to_datetime(df['movie_Released'])
-# df['movie_Released'] = (df['movie_Released'] - pd.Timestamp('1970-01-01')).dt.days.astype('float32')
 df['movie_Released'] = pd.to_datetime(df['movie_Released']).dt.year.astype('float32')
 X = df[song_features].astype('float32')
 y_numerical = df[movie_numerical_features].astype('float32')
@@ -76,7 +72,7 @@ scaling_parameters = {
     "input_std": scaler_X.scale_.tolist(),
     "output_min": scaler_y_numerical.data_min_.tolist(),
     "output_max": scaler_y_numerical.data_max_.tolist(),
-    "movie_genre_encoding": genre_encoding
+    "output_movie_genre_encoding": genre_encoding
 }
 
 # Write to a JSON file

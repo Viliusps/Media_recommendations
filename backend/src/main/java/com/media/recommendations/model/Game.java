@@ -59,12 +59,10 @@ public class Game {
     @Column(name = "background_image", nullable = false)
     private String backgroundImage;
 
-    @NotBlank(message = "Description is mandatory")
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     private String description;
 
-    @NotBlank(message = "Platforms is mandatory")
-    @Column(name = "platforms", nullable = false)
+    @Column(name = "platforms")
     private String platforms;
 
     @OneToMany(cascade = CascadeType.ALL)

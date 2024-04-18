@@ -7,10 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NeuralModelMovieFeatures {
+public class NeuralModelGameFeatures {
     private String genre;
+    private int playtime;
     private int year;
-    private int imdbVotes;
-    private double imdbRating;
-    private int runtime;
+    private double rating;
 }

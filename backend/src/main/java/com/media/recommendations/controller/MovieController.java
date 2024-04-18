@@ -98,4 +98,9 @@ public class MovieController {
     //     return new ResponseEntity<>(response, HttpStatus.OK);
     // }
     
+    @PostMapping("/testimdbid")
+    public ResponseEntity<Movie> postMethodName(@RequestBody String entity) {
+        Movie name = movieService.getMovieFromOmdbByIMBDID(entity);
+        return new ResponseEntity<>(name, HttpStatus.OK);
+    }
 }

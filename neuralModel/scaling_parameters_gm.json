@@ -1,0 +1,1 @@
+{"input_min": [2004.0, 3.0199999809265137, 0.0], "input_max": [2023.0, 4.650000095367432, 47.0], "output_min": [1979.0, 91.0, 297577.0, 6.5], "output_max": [2018.0, 178.0, 2855919.0, 9.0], "input_game_genre_encoding": ["Action", "Adventure", "Strategy"], "output_movie_genre_encoding": ["Action", "Adventure", "Animation", "Drama", "Horror"]}

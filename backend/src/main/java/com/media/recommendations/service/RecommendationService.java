@@ -29,6 +29,7 @@ import org.tensorflow.types.TFloat32;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.Movie;
+import com.media.recommendations.model.NeuralModelGameFeatures;
 import com.media.recommendations.model.NeuralModelMovieFeatures;
 import com.media.recommendations.model.Recommendation;
 import com.media.recommendations.model.Song;
@@ -359,8 +360,8 @@ public class RecommendationService {
                     case "Song":
                         scalerPath += "sm.json";
                         modelPath += "sm";
-                        float[] arr = prepareSongFeatures(originalSong);
-                        features = scalingService.scaleSongFeatures(arr, scalerPath);
+                        float[] songFeatures = prepareSongFeatures(originalSong);
+                        features = scalingService.scaleSongFeatures(songFeatures, scalerPath);
                         break;
                     case "Spotify":
                         scalerPath += "sm.json";
@@ -372,7 +373,8 @@ public class RecommendationService {
                     case "Game":
                         scalerPath += "gm.json";
                         modelPath += "gm";
-                        System.out.println("Movie by game");
+                        NeuralModelGameFeatures gameFeatures = prepareGameFeatures(originalGame);
+                        features = scalingService.scaleGameFeatures(gameFeatures, scalerPath);
                         break;
                     default:
                         break;
@@ -395,7 +397,8 @@ public class RecommendationService {
                     case "Game":
                         scalerPath += "gs.json";
                         modelPath += "gs";
-                        System.out.println("Song by game");
+                        NeuralModelGameFeatures gameFeatures = prepareGameFeatures(originalGame);
+                        features = scalingService.scaleGameFeatures(gameFeatures, scalerPath);
                         break;
                     default:
                         break;
@@ -418,7 +421,8 @@ public class RecommendationService {
                     case "Game":
                         scalerPath += "gg.json";
                         modelPath += "gg";
-                        System.out.println("Game by game");
+                        NeuralModelGameFeatures gameFeatures = prepareGameFeatures(originalGame);
+                        features = scalingService.scaleGameFeatures(gameFeatures, scalerPath);
                         break;
                     default:
                         break;
@@ -460,8 +464,11 @@ public class RecommendationService {
                     //System.out.println("Actual value: [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]");
                     break;
                 case "Game":
-                    //gameOutput = scalingService.rescaleSongFeatures(results, scalerPath);
-                    //game = gameService.getClosestGameFromFeatures(gameOutput);
+                    System.out.println("Results before rescaling: " + Arrays.toString(results));
+                    NeuralModelGameFeatures gameOutput = scalingService.rescaleGameFeatures(results, scalerPath);
+                    System.out.println("Model recommended game: " + gameOutput.getGenre() + " " + gameOutput.getPlaytime() + " " + gameOutput.getRating() + " " + gameOutput.getYear());
+                    game = gameService.findGameFromFeatures(gameOutput);
+                    System.out.println("Closest found game: " + game.getName() + " " + game.getGenres() + " " + game.getPlaytime() + " " + game.getRating() + " " + game.getReleaseDate());
                     break;
                 default:
                     break;
@@ -494,6 +501,13 @@ public class RecommendationService {
         Integer runtime = Integer.parseInt(movie.getRuntime().replace(" min", ""));
         String genre = movie.getGenre().split(",")[0];
         return new NeuralModelMovieFeatures(genre, Integer.parseInt(movie.getYear()), boxOffice, Double.parseDouble(movie.getImdbRating()), runtime);
+    }
+
+    private NeuralModelGameFeatures prepareGameFeatures(Game game) {
+        Integer year = LocalDate.parse(game.getReleaseDate()).getYear();
+        String genre = game.getGenres().split(",")[0];
+        System.out.println(year + " " + genre + " " + game.getPlaytime() + " " + game.getRating());
+        return new NeuralModelGameFeatures(genre, game.getPlaytime(), year, game.getRating());
     }
 
     public List<RecommendationResponse> getRecentRecommendations(String username) {

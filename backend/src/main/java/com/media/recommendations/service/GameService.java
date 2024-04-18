@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.media.recommendations.model.Game;
+import com.media.recommendations.model.NeuralModelGameFeatures;
 import com.media.recommendations.model.SteamHistory;
 import com.media.recommendations.model.User;
 import com.media.recommendations.model.responses.GamePageResponse;
@@ -275,7 +276,7 @@ public class GameService {
                                             .map(platform -> platform.get("platform").get("name").asText())
                                             .collect(Collectors.joining(", "));
             game.setPlatforms(platformsStr);
-            game.setDescription(root.get("description").asText());
+            if(root.get("description") != null) game.setDescription(root.get("description").asText());
             game.setRating(root.get("rating").asDouble());
             game.setPlaytime(root.get("playtime").asInt());
             game.setBackgroundImage(root.get("background_image").asText());
@@ -331,9 +332,15 @@ public class GameService {
         return false;
     }
 
-    public Game findGameFromFeatures(String genres, String releaseDate, double minimumRating, int playtime) {
-        String year = releaseDate.substring(0, 4);
+    public Game findGameFromFeatures(NeuralModelGameFeatures features) {
+        String genres = features.getGenre();
+        int year = features.getYear();
+        double minimumRating = features.getRating();
+        int playtime = features.getPlaytime();
         String dateRange = year + "-01-01," + year + "-12-31";
+
+        System.out.println("Searching for genre: " + genres);
+        System.out.println("Searching for dateRange: " + dateRange);
 
         String url = "https://api.rawg.io/api/games?key=" + rawgApiKey + "&genres=" + genres.toLowerCase() + "&dates=" + dateRange;
 

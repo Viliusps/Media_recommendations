@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.http.HttpStatus;
@@ -119,8 +120,8 @@ public class SongController {
     }
 
     @PostMapping("/testMbid")
-    public ResponseEntity<SongArtistName> postMethodName(@RequestBody String entity) {
-        SongArtistName name = songService.getSongAndArtistNameFromMbid(entity);
+    public ResponseEntity<Map<String, String>> postMethodName(@RequestBody String entity) {
+        Map<String, String> name = songService.getSongFeaturesByMBID(entity);
         return new ResponseEntity<>(name, HttpStatus.OK);
     }
 

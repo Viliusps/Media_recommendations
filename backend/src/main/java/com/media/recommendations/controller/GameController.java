@@ -43,11 +43,11 @@ public class GameController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PostMapping("/getGameFromFeatures")
-    public ResponseEntity<Game> getGameFromFeatures(@RequestBody Game game) {
-        Game response = gameService.findGameFromFeatures(game.getGenres(), game.getReleaseDate(), game.getRating(), game.getPlaytime());
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+    // @PostMapping("/getGameFromFeatures")
+    // public ResponseEntity<Game> getGameFromFeatures(@RequestBody Game game) {
+    //     Game response = gameService.findGameFromFeatures(game.getGenres(), game.getReleaseDate(), game.getRating(), game.getPlaytime());
+    //     return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
     
     @PostMapping("/search")
     public ResponseEntity<GamePageResponse> searchGames(@RequestBody @Valid GameSearchRequest request) {
@@ -72,5 +72,11 @@ public class GameController {
             return new ResponseEntity<>(gameService.getGameById(id), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping("/gameid")
+    public ResponseEntity<Game> postMethodName(@RequestBody String entity) {
+        Game name = gameService.getGameFromRAWG(entity);
+        return new ResponseEntity<>(name, HttpStatus.OK);
     }
 }
