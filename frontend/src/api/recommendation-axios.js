@@ -4,18 +4,24 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const recommend = async (recommendingType, recommendingByType, recommendingBy) => {
+  var username = '';
+  if (recommendingByType === 'Spotify' || recommendingByType === 'Steam')
+    username = localStorage.getItem('userName');
   const response = await axios.post(
     `${URL}/recommend`,
-    { recommendingType, recommendingByType, recommendingBy },
+    { recommendingType, recommendingByType, recommendingBy, username },
     authHeader()
   );
   return response.data;
 };
 
 export const testNeural = async (recommendingType, recommendingByType, recommendingBy) => {
+  var username = '';
+  if (recommendingByType === 'Spotify' || recommendingByType === 'Steam')
+    username = localStorage.getItem('userName');
   const response = await axios.post(
     `${URL}/recommend/test`,
-    { recommendingType, recommendingByType, recommendingBy },
+    { recommendingType, recommendingByType, recommendingBy, username },
     authHeader()
   );
   console.log(response);

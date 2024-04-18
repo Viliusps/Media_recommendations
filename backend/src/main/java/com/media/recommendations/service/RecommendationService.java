@@ -351,27 +351,27 @@ public class RecommendationService {
             case "Movie":
                 switch (originalRequest.getRecommendingByType()) {
                     case "Movie":
-                        System.out.println("Movie by movie");
+                        scalerPath += "mm.json";
+                        modelPath += "mm";
+                        NeuralModelMovieFeatures movieFeatures = prepareMovieFeatures(originalMovie);
+                        features = scalingService.scaleMovieFeatures(movieFeatures, scalerPath);
                         break;
                     case "Song":
                         scalerPath += "sm.json";
                         modelPath += "sm";
-                        float[] arr = new float[12];
-                        arr[0] = Float.parseFloat(originalSong.getBpmHistogramFirstPeakBpmMean());
-                        arr[1] = Float.parseFloat(originalSong.getDanceability());
-                        arr[2] = Float.parseFloat(originalSong.getBpmHistogramSecondPeakBpmMedian());
-                        arr[3] = Float.parseFloat(originalSong.getTuningEqualTemperedDeviation());
-                        arr[4] = Float.parseFloat(originalSong.getTuningFrequency());
-                        arr[5] = Float.parseFloat(originalSong.getBpmHistogramSecondPeakBpmMean());
-                        arr[6] = Float.parseFloat(originalSong.getBpm());
-                        arr[7] = Float.parseFloat(originalSong.getBpmHistogramFirstPeakBpmMedian());
-                        arr[8] = Float.parseFloat(originalSong.getMfccZeroMean());
-                        arr[9] = Float.parseFloat(originalSong.getOnsetRate());
-                        arr[10] = Float.parseFloat(originalSong.getAverageLoudness());
-                        arr[11] = Float.parseFloat(originalSong.getDynamicComplexity());
+                        float[] arr = prepareSongFeatures(originalSong);
                         features = scalingService.scaleSongFeatures(arr, scalerPath);
                         break;
+                    case "Spotify":
+                        scalerPath += "sm.json";
+                        modelPath += "sm";
+                        Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        float[] spotifySong = prepareSongFeatures(averageSong);
+                        features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
+                        break;
                     case "Game":
+                        scalerPath += "gm.json";
+                        modelPath += "gm";
                         System.out.println("Movie by game");
                         break;
                     default:
@@ -383,15 +383,18 @@ public class RecommendationService {
                     case "Movie":
                         scalerPath += "ms.json";
                         modelPath += "ms";
-                        Integer boxOffice = Integer.parseInt(originalMovie.getBoxOffice().replace("$", "").replace(",", ""));
-                        Integer runtime = Integer.parseInt(originalMovie.getRuntime().replace(" min", ""));
-                        String genre = originalMovie.getGenre().split(",")[0];
-                        features = scalingService.scaleMovieFeatures(new NeuralModelMovieFeatures(genre, Integer.parseInt(originalMovie.getYear()), boxOffice, Double.parseDouble(originalMovie.getImdbRating()), runtime) , scalerPath);
+                        NeuralModelMovieFeatures movieFeatures = prepareMovieFeatures(originalMovie);
+                        features = scalingService.scaleMovieFeatures(movieFeatures, scalerPath);
                         break;
                     case "Song":
-                        System.out.println("Song by song");
+                        scalerPath += "ss.json";
+                        modelPath += "ss";
+                        float[] arr = prepareSongFeatures(originalSong);
+                        features = scalingService.scaleSongFeatures(arr, scalerPath);
                         break;
                     case "Game":
+                        scalerPath += "gs.json";
+                        modelPath += "gs";
                         System.out.println("Song by game");
                         break;
                     default:
@@ -401,12 +404,20 @@ public class RecommendationService {
             case "Game":
                 switch (originalRequest.getRecommendingByType()) {
                     case "Movie":
-                        System.out.println("Game by movie");
+                        scalerPath += "mg.json";
+                        modelPath += "mg";
+                        NeuralModelMovieFeatures movieFeatures = prepareMovieFeatures(originalMovie);
+                        features = scalingService.scaleMovieFeatures(movieFeatures, scalerPath);
                         break;
                     case "Song":
-                        System.out.println("Game by song");
+                        scalerPath += "sg.json";
+                        modelPath += "sg";
+                        float[] arr = prepareSongFeatures(originalSong);
+                        features = scalingService.scaleSongFeatures(arr, scalerPath);
                         break;
                     case "Game":
+                        scalerPath += "gg.json";
+                        modelPath += "gg";
                         System.out.println("Game by game");
                         break;
                     default:
@@ -442,9 +453,9 @@ public class RecommendationService {
                     break;
                 case "Song":
                     float[] songOutput = scalingService.rescaleSongFeatures(results, scalerPath);
-                    //System.out.println("Neural model song features output: " + Arrays.toString(originalOutput));
                     String closestString = songService.getClosestSongFromFeatures(songOutput);
                     song = songService.getSongFromSearchResults(closestString);
+                    //System.out.println("Neural model song features output: " + Arrays.toString(originalOutput));
                     //System.out.println("Found closest song: " + closestString);
                     //System.out.println("Actual value: [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]");
                     break;
@@ -459,6 +470,30 @@ public class RecommendationService {
             return new RecommendationResponse(originalRequest.getRecommendingType(), song, game, movie, originalRequest.getRecommendingByType(), originalSong, originalGame, originalMovie);
         }
         return null;
+    }
+
+    private float[] prepareSongFeatures(Song song) {
+        float[] arr = new float[12];
+        arr[0] = Float.parseFloat(song.getBpmHistogramFirstPeakBpmMean());
+        arr[1] = Float.parseFloat(song.getDanceability());
+        arr[2] = Float.parseFloat(song.getBpmHistogramSecondPeakBpmMedian());
+        arr[3] = Float.parseFloat(song.getTuningEqualTemperedDeviation());
+        arr[4] = Float.parseFloat(song.getTuningFrequency());
+        arr[5] = Float.parseFloat(song.getBpmHistogramSecondPeakBpmMean());
+        arr[6] = Float.parseFloat(song.getBpm());
+        arr[7] = Float.parseFloat(song.getBpmHistogramFirstPeakBpmMedian());
+        arr[8] = Float.parseFloat(song.getMfccZeroMean());
+        arr[9] = Float.parseFloat(song.getOnsetRate());
+        arr[10] = Float.parseFloat(song.getAverageLoudness());
+        arr[11] = Float.parseFloat(song.getDynamicComplexity());
+        return arr;
+    }
+
+    private NeuralModelMovieFeatures prepareMovieFeatures(Movie movie) {
+        Integer boxOffice = Integer.parseInt(movie.getBoxOffice().replace("$", "").replace(",", ""));
+        Integer runtime = Integer.parseInt(movie.getRuntime().replace(" min", ""));
+        String genre = movie.getGenre().split(",")[0];
+        return new NeuralModelMovieFeatures(genre, Integer.parseInt(movie.getYear()), boxOffice, Double.parseDouble(movie.getImdbRating()), runtime);
     }
 
     public List<RecommendationResponse> getRecentRecommendations(String username) {

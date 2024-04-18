@@ -262,14 +262,31 @@ public class SongService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //getSongFeatures(songs.get(8).getSpotifyId(), songs.get(8).getTitle());
-        //getMultipleSongsFeatures(songs);
         
         return songs;
     }
 
+    public Song calculateAverage(String username) {
+        Song song = new Song();
+        SpotifyHistoryResponse history = getSpotifyHistory(username);
+        Map<String, String> features = getMultipleSongsFeatures(history.getSongs());
+        song.setMfccZeroMean(features.get("mfccZeroMean"));
+        song.setDynamicComplexity(features.get("dynamicComplexity"));
+        song.setAverageLoudness(features.get("averageLoudness"));
+        song.setOnsetRate(features.get("onsetRate"));
+        song.setBpmHistogramSecondPeakBpmMedian(features.get("bpmHistogramSecondPeakBpmMedian"));
+        song.setBpmHistogramSecondPeakBpmMean(features.get("bpmHistogramSecondPeakBpmMean"));
+        song.setBpmHistogramFirstPeakBpmMedian(features.get("bpmHistogramFirstPeakBpmMedian"));
+        song.setBpmHistogramFirstPeakBpmMean(features.get("bpmHistogramFirstPeakBpmMean"));
+        song.setBpm(features.get("bpm"));
+        song.setDanceability(features.get("danceability"));
+        song.setTuningFrequency(features.get("tuningFrequency"));
+        song.setTuningEqualTemperedDeviation(features.get("tuningEqualTemperedDeviation"));
+        return song;
+    }
+
     
-    public void getMultipleSongsFeatures(List<Song> songs) {
+    public Map<String, String> getMultipleSongsFeatures(List<Song> songs) {
 
         String joinedMBIDS = "";
         for(Song song : songs) {
@@ -278,10 +295,9 @@ public class SongService {
         }
         if(joinedMBIDS != "") {
             Map<String, String> features = getSongFeaturesByMBID(joinedMBIDS);
-            for (Map.Entry<String, String> entry : features.entrySet()) {
-                    System.out.println(entry.getKey() + ": " + entry.getValue());
-                }
+            return features;
         }
+        return null;
     }
 
     public SongPageResponse search(String search) {

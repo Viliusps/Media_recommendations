@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, Text, Image, Box, Heading, CardBody } from '@chakra-ui/react';
 
-export default function DisplayCard({ movie }) {
+export default function MovieCard({ movie }) {
   const Navigate = useNavigate();
   return (
     <Card
