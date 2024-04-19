@@ -116,11 +116,13 @@ const RecentlyPlayedGames = () => {
           Get Games
         </Button>
         {recentGames.length > 0 && (
-          <div>
+          <>
             <Heading as="h3" size="md" marginTop={5} marginBottom={3}>
               Recently Played Games:
             </Heading>
-            <SteamGamesList games={recentGames} />
+            <Flex justifyContent="center" width="100%">
+              <SteamGamesList games={recentGames} />
+            </Flex>
             <Button
               marginTop={2}
               px={8}
@@ -134,7 +136,7 @@ const RecentlyPlayedGames = () => {
               onClick={() => getRecommendation()}>
               Continue
             </Button>
-          </div>
+          </>
         )}
       </Container>
     </>

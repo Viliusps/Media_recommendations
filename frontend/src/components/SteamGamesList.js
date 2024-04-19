@@ -16,17 +16,22 @@ const GameCard = styled('div')`
 
 export default function SteamGamesList({ games }) {
   return (
-    <>
-      <Grid templateColumns={`repeat(${games.length}, 1fr)`} gap={6} marginTop={5}>
-        {games.map((game, index) => (
-          <GridItem key={index}>
-            <GameCard>
-              <Image src={game.backgroundImage} alt={game.name} />
-              <Text>{game.name}</Text>
-            </GameCard>
-          </GridItem>
-        ))}
-      </Grid>
-    </>
+    <Grid templateColumns={`repeat(${games.length}, 1fr)`} gap={6} marginTop={5} width={900}>
+      {games.map((game, index) => (
+        <GridItem key={index}>
+          <GameCard>
+            <Image
+              src={
+                game.appid
+                  ? `https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`
+                  : game.backgroundImage
+              }
+              alt={game.name}
+            />
+            <Text>{game.name}</Text>
+          </GameCard>
+        </GridItem>
+      ))}
+    </Grid>
   );
 }

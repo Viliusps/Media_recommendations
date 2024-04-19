@@ -364,6 +364,7 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Song getSongByNameFromSpotify(String name) {
+        System.out.println("Searching for this song on spotify: " + name);
         String accessToken = getAccessToken();
         Song song = null;
 
@@ -610,7 +611,8 @@ public class SongService {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getMBIDByISRC(String isrc, String title) {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1500);
+            System.out.println("Getting");
             String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
 
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)

@@ -86,19 +86,19 @@ public class RecommendationService {
                 prompt += "Recommend me a song, based on ";
                 switch(originalRequest.getRecommendingByType()){
                     case "Song":
-                        prompt += "a song that I like. The song's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
+                        prompt += "a song that I like. The song's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, do not include artist.";
                         break;
                     case "Movie":
-                        prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
+                        prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, do not include artist.";
                         break;
                     case "Spotify":
-                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, add nothing else.";
+                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, do not include artist.";
                         break;
                     case "Game":
-                        prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, add nothing else.";
+                        prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, do not include artist.";
                         break;
                     case "Steam":
-                        prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, add nothing else.";
+                        prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, do not include artist.";
                         break;
                 }
                 break;
@@ -147,6 +147,7 @@ public class RecommendationService {
         ChatRequest request = new ChatRequest(model, prompt);
         ChatResponse response = restTemplate.postForObject(apiUrl, request, ChatResponse.class);
         String chatGPTresponse = response.getChoices().get(0).getMessage().getContent();
+        System.out.println("Chat gpt response: " + chatGPTresponse);
 
         Movie movie = new Movie();
         Song song = new Song();
@@ -376,6 +377,13 @@ public class RecommendationService {
                         NeuralModelGameFeatures gameFeatures = prepareGameFeatures(originalGame);
                         features = scalingService.scaleGameFeatures(gameFeatures, scalerPath);
                         break;
+                    case "Steam":
+                        scalerPath += "gm.json";
+                        modelPath += "gm";
+                        Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
+                        features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
+                        break;
                     default:
                         break;
                 }
@@ -394,11 +402,25 @@ public class RecommendationService {
                         float[] arr = prepareSongFeatures(originalSong);
                         features = scalingService.scaleSongFeatures(arr, scalerPath);
                         break;
+                    case "Spotify":
+                        scalerPath += "ss.json";
+                        modelPath += "ss";
+                        Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        float[] spotifySong = prepareSongFeatures(averageSong);
+                        features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
+                        break;
                     case "Game":
                         scalerPath += "gs.json";
                         modelPath += "gs";
                         NeuralModelGameFeatures gameFeatures = prepareGameFeatures(originalGame);
                         features = scalingService.scaleGameFeatures(gameFeatures, scalerPath);
+                        break;
+                    case "Steam":
+                        scalerPath += "gs.json";
+                        modelPath += "gs";
+                        Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
+                        features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
                     default:
                         break;
@@ -418,11 +440,25 @@ public class RecommendationService {
                         float[] arr = prepareSongFeatures(originalSong);
                         features = scalingService.scaleSongFeatures(arr, scalerPath);
                         break;
+                    case "Spotify":
+                        scalerPath += "sg.json";
+                        modelPath += "sg";
+                        Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        float[] spotifySong = prepareSongFeatures(averageSong);
+                        features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
+                        break;
                     case "Game":
                         scalerPath += "gg.json";
                         modelPath += "gg";
                         NeuralModelGameFeatures gameFeatures = prepareGameFeatures(originalGame);
                         features = scalingService.scaleGameFeatures(gameFeatures, scalerPath);
+                        break;
+                    case "Steam":
+                        scalerPath += "gg.json";
+                        modelPath += "gg";
+                        Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
+                        features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
                     default:
                         break;
@@ -457,10 +493,10 @@ public class RecommendationService {
                     break;
                 case "Song":
                     float[] songOutput = scalingService.rescaleSongFeatures(results, scalerPath);
+                    System.out.println("Neural model song features output: " + Arrays.toString(songOutput));
                     String closestString = songService.getClosestSongFromFeatures(songOutput);
+                    System.out.println("Found closest song: " + closestString);
                     song = songService.getSongFromSearchResults(closestString);
-                    //System.out.println("Neural model song features output: " + Arrays.toString(originalOutput));
-                    //System.out.println("Found closest song: " + closestString);
                     //System.out.println("Actual value: [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]");
                     break;
                 case "Game":
@@ -497,10 +533,10 @@ public class RecommendationService {
     }
 
     private NeuralModelMovieFeatures prepareMovieFeatures(Movie movie) {
-        Integer boxOffice = Integer.parseInt(movie.getBoxOffice().replace("$", "").replace(",", ""));
+        Integer votes = Integer.parseInt(movie.getImdbVotes().replace(",", ""));
         Integer runtime = Integer.parseInt(movie.getRuntime().replace(" min", ""));
         String genre = movie.getGenre().split(",")[0];
-        return new NeuralModelMovieFeatures(genre, Integer.parseInt(movie.getYear()), boxOffice, Double.parseDouble(movie.getImdbRating()), runtime);
+        return new NeuralModelMovieFeatures(genre, Integer.parseInt(movie.getYear()), votes, Double.parseDouble(movie.getImdbRating()), runtime);
     }
 
     private NeuralModelGameFeatures prepareGameFeatures(Game game) {

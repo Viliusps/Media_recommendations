@@ -133,11 +133,11 @@ public class GameService {
             System.out.println(game.getName());
         }
         addGamesToHistory(games, username, userId);
-        Game averageGame = calculateAverage(games);
         return response;
     }
 
-    private Game calculateAverage(List<Game> games) {
+    public Game calculateAverage(String username) {
+        List<Game> games = getSteamHistory(username).getGames();
         Game averageGame = new Game();
 
         // Genre: Calculate the most frequent genre

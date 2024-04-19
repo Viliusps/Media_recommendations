@@ -55,7 +55,7 @@ model = Sequential([
 ])
 
 adam = Adam(learning_rate=0.001)
-model.compile(optimizer=adam, loss='mse', metrics=['mae'])
+model.compile(optimizer=adam, loss='mae', metrics=['mae'])
 
 history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
 

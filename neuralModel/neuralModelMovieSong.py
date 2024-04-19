@@ -25,11 +25,9 @@ song_features = [
 
 movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
 
-df['movie_Released'] = pd.to_datetime(df['movie_Released']).dt.year.astype('float32')
-
 y = df[song_features].astype('float32')
 X_numerical = df[movie_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['movie_Genre'], dtype='float32')
+X_genre = pd.get_dummies(df['movie_Genre_0'], dtype='float32')
 
 X_train_numerical, X_test_numerical, y_train, y_test = train_test_split(X_numerical, y, test_size=0.2, random_state=42)
 X_train_genre, X_test_genre, _, _ = train_test_split(X_genre, y, test_size=0.2, random_state=42)

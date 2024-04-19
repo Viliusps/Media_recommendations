@@ -52,6 +52,7 @@ public class ScalingService {
     }
     
     public float[] rescaleSongFeatures(float[] scaledFeatures, String filePath) {
+        System.out.println("Features before trying to rescale: " + Arrays.toString(scaledFeatures));
         JSONObject jsonObject = getJsonObject(filePath);
         float[] outputMean = jsonArrayToFloatArray(jsonObject.getJSONArray("output_mean"));
         float[] outputStd = jsonArrayToFloatArray(jsonObject.getJSONArray("output_std"));
