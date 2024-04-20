@@ -2,6 +2,9 @@ package com.media.recommendations.controller;
 
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,10 +21,13 @@ import com.media.recommendations.model.requests.GameSearchRequest;
 import com.media.recommendations.model.requests.GetSteamHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SteamRequest;
+import com.media.recommendations.model.requests.TempPairsRequest;
 import com.media.recommendations.model.responses.GamePageResponse;
 import com.media.recommendations.model.responses.SteamHistoryResponse;
+import com.media.recommendations.model.responses.TempPairsResponse;
 import com.media.recommendations.service.GameService;
 
+import io.micrometer.core.ipc.http.HttpSender.Response;
 import jakarta.validation.Valid;
 
 
@@ -79,4 +85,20 @@ public class GameController {
         Game name = gameService.getGameFromRAWG(entity);
         return new ResponseEntity<>(name, HttpStatus.OK);
     }
+
+    @PostMapping("/getPairs")
+    public ResponseEntity<List<TempPairsResponse>> postMethodName(@RequestBody List<TempPairsRequest> entity) {
+        List<TempPairsResponse> result = new ArrayList<>();
+        for(TempPairsRequest req : entity) {
+            Game first = gameService.getGameFromRAWG(req.getFirst());
+            Game second = gameService.getGameFromRAWG(req.getSecond());
+            TempPairsResponse resp = new TempPairsResponse();
+            resp.setFirstGame(first);
+            resp.setSecondGame(second);
+            result.add(resp);
+        }
+    
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+    
 }

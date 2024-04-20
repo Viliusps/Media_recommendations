@@ -16,8 +16,6 @@ import json
 df = pd.read_csv('neuralModel/GameMovies/MovieGame.csv')
 
 game_numerical_features = ['game_releaseDate', 'game_rating', 'game_playtime']
-
-df['game_ReleaseDate'] = pd.to_datetime(df['game_releaseDate']).dt.year.astype('float32')
 movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
 
 X_numerical = df[game_numerical_features].astype('float32')
