@@ -36,16 +36,23 @@ export default function ObjectFeatures({ object, type }) {
           )}
           {type === 'Song' && (
             <div>
-              {Object.entries(object).map(
-                ([key, value]) =>
-                  songFeatures.includes(key) && (
-                    <div key={key}>
-                      <strong>{key}:</strong> {value}
-                    </div>
-                  )
+              {Object.entries(object).some(
+                ([key, value]) => value === null && songFeatures.includes(key)
+              ) ? (
+                <div>Unfortunately the features of this song could not be analyzed.</div>
+              ) : (
+                Object.entries(object).map(
+                  ([key, value]) =>
+                    songFeatures.includes(key) && (
+                      <div key={key}>
+                        <strong>{key}:</strong> {value}
+                      </div>
+                    )
+                )
               )}
             </div>
           )}
+
           {type === 'Game' && (
             <div>
               {Object.entries(object).map(

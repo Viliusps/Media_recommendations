@@ -13,7 +13,7 @@ import tensorflow as tf
 import json
 
 
-df = pd.read_csv('neuralModel/GameMovies/GameMovies1k.csv')
+df = pd.read_csv('neuralModel/GameSong/GameSong.csv')
 
 song_features = [
     'song_bpmHistogramFirstPeakBpmMean', 'song_danceability', 
@@ -23,13 +23,11 @@ song_features = [
     'song_onsetRate', 'song_averageLoudness', 'song_dynamicComplexity'
 ]
 
-game_numerical_features = ['game_ReleaseDate', 'game_Rating', 'game_Playtime']
-
-df['game_ReleaseDate'] = pd.to_datetime(df['game_ReleaseDate']).dt.year.astype('float32')
+game_numerical_features = ['game_releaseDate', 'game_rating', 'game_playtime']
 
 y = df[song_features].astype('float32')
 X_numerical = df[game_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['game_Genre'], dtype='float32')
+X_genre = pd.get_dummies(df['game_genres_0'], dtype='float32')
 
 X_train_numerical, X_test_numerical, y_train, y_test = train_test_split(X_numerical, y, test_size=0.2, random_state=42)
 X_train_genre, X_test_genre, _, _ = train_test_split(X_genre, y, test_size=0.2, random_state=42)
@@ -83,10 +81,10 @@ scaling_parameters = {
     "input_max": scaler_X_numerical.data_max_.tolist(),
     "output_mean": scaler_y.mean_.tolist(),
     "output_std": scaler_y.scale_.tolist(),
-    "genre_encoding": genre_encoding
+    "input_game_genre_encoding": genre_encoding
 }
 
-with open('neuralModel/scaling_parameters_ms.json', 'w') as f:
+with open('neuralModel/scaling_parameters_gs.json', 'w') as f:
     json.dump(scaling_parameters, f)
 
 

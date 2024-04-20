@@ -12,6 +12,10 @@ export default function Game() {
   const [game, setGame] = useState(null);
   const [error, setError] = useState(false);
 
+  function stripHtml(html) {
+    return html.replace(/<\/?[^>]+(>|$)/g, '').replace(/&#39;/g, "'");
+  }
+
   useEffect(() => {
     getGame(id)
       .then((data) => {
@@ -37,10 +41,11 @@ export default function Game() {
           <GridItem colSpan={3}>
             <Box textAlign="left">
               <Heading>{game?.name}</Heading>
-              <MovieDetails label="Genre" value={game?.genre} />
+              <MovieDetails label="Genres" value={game?.genres} />
               <MovieDetails label="Release Date" value={game?.releaseDate} />
               <MovieDetails label="Playtime" value={`${game?.playtime} hours.`} />
               <MovieDetails label="Rating" value={game?.rating} />
+              <MovieDetails label="Description" value={stripHtml(game?.description)} />
             </Box>
           </GridItem>
         </Grid>

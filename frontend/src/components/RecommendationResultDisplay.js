@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Text } from '@chakra-ui/react';
 
 const RecommendationText = styled.p`
   font-size: 18px;
@@ -10,7 +11,7 @@ const RecommendationText = styled.p`
 export default function RecommendationResultDisplay({ recommendation, recommendingType }) {
   return (
     <>
-      {recommendation && (
+      {recommendation ? (
         <>
           {recommendingType === 'Song' && (
             <>
@@ -47,6 +48,8 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
             <RecommendationText>{recommendation.name}</RecommendationText>
           )}
         </>
+      ) : (
+        <Text>Recommendation could not be provided.</Text>
       )}
     </>
   );

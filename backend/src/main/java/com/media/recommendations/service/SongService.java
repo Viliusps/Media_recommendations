@@ -3,10 +3,6 @@ package com.media.recommendations.service;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -362,6 +357,64 @@ public class SongService {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
+    private Song parseSpotifyResponse(List<Map<String, Object>> tracks, int index) {
+        Map<String, Object> track = tracks.get(index);
+        String songName = (String) track.get("name");
+        List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
+        String artist = artists.isEmpty() ? "" : (String) artists.get(0).get("name");
+        Map<String, Object> album = (Map<String, Object>) track.get("album");
+        String spotifyId = (String) track.get("id");
+        List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
+        String imageUrl = images.isEmpty() ? "" : (String) images.get(0).get("url");
+        Map<String, Object> externalIds = (Map<String, Object>) track.get("external_ids");
+        String isrc = externalIds == null ? "" : (String) externalIds.get("isrc");
+        
+        Song song = Song.builder()
+                    .title(songName)
+                    .singer(artist)
+                    .spotifyId(spotifyId)
+                    .imageUrl(imageUrl)
+                    .isrc(isrc)
+                    .build();
+        return song;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<Song> getSongSuggestions(String name) {
+        List<Song> songs = new ArrayList<>();
+        String accessToken = getAccessToken();
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String query = "track:" + name;
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", query)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 5);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
+                if (!tracks.isEmpty()) {
+                    for(int i = 0; i < 5; i++) {
+                        Song song = parseSpotifyResponse(tracks, i);
+                        songs.add(song);
+                    }
+                }
+            }
+        }
+        return songs;
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Song getSongByNameFromSpotify(String name) {
         System.out.println("Searching for this song on spotify: " + name);
@@ -388,24 +441,7 @@ public class SongService {
                 Map<String, Object> responseBody = response.getBody();
                 List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
                 if (!tracks.isEmpty()) {
-                    Map<String, Object> track = tracks.get(0);
-                    String songName = (String) track.get("name");
-                    List<Map<String, Object>> artists = (List<Map<String, Object>>) track.get("artists");
-                    String artist = artists.isEmpty() ? "" : (String) artists.get(0).get("name");
-                    Map<String, Object> album = (Map<String, Object>) track.get("album");
-                    String spotifyId = (String) track.get("id");
-                    List<Map<String, Object>> images = (List<Map<String, Object>>) album.get("images");
-                    String imageUrl = images.isEmpty() ? "" : (String) images.get(0).get("url");
-                    Map<String, Object> externalIds = (Map<String, Object>) track.get("external_ids");
-                    String isrc = externalIds == null ? "" : (String) externalIds.get("isrc");
-                    
-                    song = Song.builder()
-                                .title(songName)
-                                .singer(artist)
-                                .spotifyId(spotifyId)
-                                .imageUrl(imageUrl)
-                                .isrc(isrc)
-                                .build();
+                    song = parseSpotifyResponse(tracks, 0);
                 }
             }
         }

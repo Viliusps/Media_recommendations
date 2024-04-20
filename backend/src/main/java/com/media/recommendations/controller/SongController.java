@@ -3,11 +3,9 @@ package com.media.recommendations.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,12 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
-import com.media.recommendations.model.requests.GetClosestSongRequest;
 import com.media.recommendations.model.requests.GetSpotifyHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SongSearchRequest;
 import com.media.recommendations.model.requests.SpotifyUserSongsRequest;
-import com.media.recommendations.model.responses.SongArtistName;
 import com.media.recommendations.model.responses.SongPageResponse;
 import com.media.recommendations.model.responses.SpotifyHistoryResponse;
 import com.media.recommendations.service.SongService;
@@ -123,6 +119,13 @@ public class SongController {
     public ResponseEntity<Map<String, String>> postMethodName(@RequestBody String entity) {
         Map<String, String> name = songService.getSongFeaturesByMBID(entity);
         return new ResponseEntity<>(name, HttpStatus.OK);
+    }
+
+    @PostMapping("/suggestions")
+    public ResponseEntity<List<Song>> getSongSuggestions(@RequestBody NameRequest request)
+    {
+        List<Song> songs = songService.getSongSuggestions(request.getName());
+        return new ResponseEntity<>(songs, HttpStatus.OK);
     }
 
     // @PostMapping("/testSpotify")

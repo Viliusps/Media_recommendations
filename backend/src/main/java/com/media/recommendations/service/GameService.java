@@ -140,7 +140,6 @@ public class GameService {
         List<Game> games = getSteamHistory(username).getGames();
         Game averageGame = new Game();
 
-        // Genre: Calculate the most frequent genre
         Map<String, Integer> genreFrequency = new HashMap<>();
         for (Game game : games) {
             genreFrequency.put(game.getGenres(), genreFrequency.getOrDefault(game.getGenres(), 0) + 1);
@@ -148,7 +147,6 @@ public class GameService {
         String mostFrequentGenre = Collections.max(genreFrequency.entrySet(), Map.Entry.comparingByValue()).getKey();
         averageGame.setGenres(mostFrequentGenre);
 
-        // Release Date: Calculate the median date
         List<LocalDate> dates = games.stream()
             .map(game -> LocalDate.parse(game.getReleaseDate(), DateTimeFormatter.ISO_LOCAL_DATE))
             .sorted()
@@ -156,14 +154,12 @@ public class GameService {
         LocalDate medianDate = dates.get(dates.size() / 2);
         averageGame.setReleaseDate(medianDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
 
-        // Rating: Calculate the average rating
         double averageRating = games.stream()
             .mapToDouble(Game::getRating)
             .average()
             .orElse(0.0);
         averageGame.setRating(averageRating);
 
-        // Playtime: Calculate the average playtime
         int averagePlaytime = (int) games.stream()
             .mapToInt(Game::getPlaytime)
             .average()
@@ -174,11 +170,9 @@ public class GameService {
     }
 
     private void addGamesToHistory(List<Game> games, String username, String steamUserId) { 
-        //Clean previous history
         User user = userService.userByUsername(username);
         steamRepository.deleteByUser(user);
 
-        //Add new entries
         LocalDate currDate = LocalDate.now();
         for(Game game : games) {
             if(!existsGame(game)) {

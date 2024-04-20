@@ -32,6 +32,7 @@ export const searchMovies = async (search) => {
 };
 
 export const checkIfMovieExists = async (movieName) => {
+  console.log(movieName);
   try {
     const response = await axios.get(OMDB_API_BASE_URL, {
       params: {
@@ -40,6 +41,7 @@ export const checkIfMovieExists = async (movieName) => {
       }
     });
 
+    console.log(response);
     return response.data.Response === 'True';
   } catch (error) {
     console.error('Error checking movie existence:', error);

@@ -7,7 +7,6 @@ import RecommendationModal from '../components/RecommendationModal';
 import SelectionModal from '../components/SelectionModal';
 import { useNavigate } from 'react-router-dom';
 import { checkIfMovieExists } from '../api/movies-axios';
-import { checkIfSongExists } from '../api/songs-axios';
 import { checkIfGameExists } from '../api/games-axios';
 import { getRole } from '../api/auth-axios';
 import { Grid, GridItem, Heading } from '@chakra-ui/react';
@@ -45,6 +44,7 @@ export default function Recommendation() {
     setErrorLabel('');
     if (recommendBy === 'Movie') {
       checkIfMovieExists(selection).then((result) => {
+        console.log(result);
         if (result) {
           navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
         } else {
@@ -52,15 +52,10 @@ export default function Recommendation() {
         }
       });
     } else if (recommendBy === 'Song') {
-      checkIfSongExists(selection).then((result) => {
-        if (result) {
-          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
-        } else {
-          setErrorLabel('Song not found.');
-        }
-      });
+      navigate(`/recommendationResults/${type}/${selection.title}/${recommendBy}`);
     } else if (recommendBy === 'Game') {
       checkIfGameExists(selection).then((result) => {
+        console.log(result);
         if (result) {
           navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
         } else {

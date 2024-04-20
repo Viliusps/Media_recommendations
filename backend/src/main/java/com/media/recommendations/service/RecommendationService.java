@@ -328,6 +328,7 @@ public class RecommendationService {
         {
             originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
             originalSong = songService.getSongFeatures(originalSong);
+            if(originalSong.getDynamicComplexity() == null) return null;
             if(!songService.existsSong(originalSong)) {
                 songService.createSong(originalSong);
             }
