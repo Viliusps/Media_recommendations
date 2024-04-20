@@ -3,6 +3,7 @@ package com.media.recommendations.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,9 @@ import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.requests.GetClosestMovieRequest;
 import com.media.recommendations.model.requests.MovieSearchRequest;
 import com.media.recommendations.model.requests.OmdbRequest;
+import com.media.recommendations.model.requests.TempPairsRequest;
 import com.media.recommendations.model.responses.MoviePageResponse;
+import com.media.recommendations.model.responses.TempPairsResponse;
 import com.media.recommendations.service.MovieService;
 
 
@@ -102,5 +105,20 @@ public class MovieController {
     public ResponseEntity<Movie> postMethodName(@RequestBody String entity) {
         Movie name = movieService.getMovieFromOmdbByIMBDID(entity);
         return new ResponseEntity<>(name, HttpStatus.OK);
+    }
+
+    @PostMapping("/getPairs")
+    public ResponseEntity<List<TempPairsResponse>> postMethodName(@RequestBody List<TempPairsRequest> entity) {
+        List<TempPairsResponse> result = new ArrayList<>();
+        for(TempPairsRequest req : entity) {
+            Movie first = movieService.getMovieFromOmdb(req.getFirst());
+            Movie second = movieService.getMovieFromOmdb(req.getSecond());
+            TempPairsResponse resp = new TempPairsResponse();
+            resp.setFirstMovie(first);
+            resp.setSecondMovie(second);
+            result.add(resp);
+        }
+    
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

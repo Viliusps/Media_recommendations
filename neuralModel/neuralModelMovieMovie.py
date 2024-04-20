@@ -13,21 +13,15 @@ import tensorflow as tf
 import json
 
 
-df = pd.read_csv('neuralModel/SongMovies/SongMovies1k.csv')
+df = pd.read_csv('neuralModel/MovieMovie/MovieMovie.csv')
 
-in_movie_numerical_features = ['in_movie_Released', 'in_movie_Runtime', 'in_movie_BoxOffice', 'in_movie_imdbRating']
-out_movie_numerical_features = ['out_movie_Released', 'out_movie_Runtime', 'out_movie_BoxOffice', 'out_movie_imdbRating']
+firstMovie_numerical_features = ['firstMovie_Released', 'firstMovie_Runtime', 'firstMovie_imdbVotes', 'firstMovie_imdbRating']
+secondMovie_numerical_features = ['secondMovie_Released', 'secondMovie_Runtime', 'secondMovie_imdbVotes', 'secondMovie_imdbRating']
 
-df['in_movie_BoxOffice'] = df['in_movie_BoxOffice'] / 1000000
-df['out_movie_BoxOffice'] = df['out_movie_BoxOffice'] / 1000000
-
-df['in_movie_Released'] = pd.to_datetime(df['in_movie_Released']).dt.year.astype('float32')
-df['out_movie_Released'] = pd.to_datetime(df['out_movie_Released']).dt.year.astype('float32')
-
-y_numerical = df[out_movie_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['out_movie_Genre'], dtype='float32')
-X_numerical = df[in_movie_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['in_movie_Genre'], dtype='float32')
+y_numerical = df[secondMovie_numerical_features].astype('float32')
+y_genre = pd.get_dummies(df['secondMovie_Genre_0'], dtype='float32')
+X_numerical = df[firstMovie_numerical_features].astype('float32')
+X_genre = pd.get_dummies(df['firstMovie_Genre_0'], dtype='float32')
 
 X_train_numerical, X_test_numerical, y_train_numerical, y_test_numerical = train_test_split(X_numerical, y_numerical, test_size=0.2, random_state=42)
 X_train_genre, X_test_genre, y_train_genre, y_test_genre = train_test_split(X_genre, y_genre, test_size=0.2, random_state=42)

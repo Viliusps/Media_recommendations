@@ -85,20 +85,5 @@ public class GameController {
         Game name = gameService.getGameFromRAWG(entity);
         return new ResponseEntity<>(name, HttpStatus.OK);
     }
-
-    @PostMapping("/getPairs")
-    public ResponseEntity<List<TempPairsResponse>> postMethodName(@RequestBody List<TempPairsRequest> entity) {
-        List<TempPairsResponse> result = new ArrayList<>();
-        for(TempPairsRequest req : entity) {
-            Game first = gameService.getGameFromRAWG(req.getFirst());
-            Game second = gameService.getGameFromRAWG(req.getSecond());
-            TempPairsResponse resp = new TempPairsResponse();
-            resp.setFirstGame(first);
-            resp.setSecondGame(second);
-            result.add(resp);
-        }
-    
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
     
 }
