@@ -34,13 +34,15 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
             recommendingType === 'Movie' && (
               <>
                 <h3>{recommendation.Title}</h3>
-                <h4>By: {recommendation.Director}</h4>
-                <RecommendationText
-                  onClick={() =>
-                    window.open(`https://www.imdb.com/title/${recommendation.imdbID}`, '_blank')
-                  }>
-                  Click here!
-                </RecommendationText>
+                {recommendation.Director != null && <h4>By: {recommendation.Director}</h4>}
+                {recommendation.imdbID != null && (
+                  <RecommendationText
+                    onClick={() =>
+                      window.open(`https://www.imdb.com/title/${recommendation.imdbID}`, '_blank')
+                    }>
+                    Click here!
+                  </RecommendationText>
+                )}
               </>
             )
           )}

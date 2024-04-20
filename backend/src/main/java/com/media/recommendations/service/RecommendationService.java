@@ -156,16 +156,19 @@ public class RecommendationService {
 
         if(originalRequest.getRecommendingType().compareTo("Song") == 0)
         {
+            song.setTitle(chatGPTresponse);
             song = songService.getSongByNameFromSpotify(chatGPTresponse);
         }
 
         else if(originalRequest.getRecommendingType().compareTo("Movie") == 0)
         {
+            movie.setTitle(chatGPTresponse);
             movie = movieService.getMovieFromOmdb(chatGPTresponse);
         }
 
         else if(originalRequest.getRecommendingType().compareTo("Game") == 0)
         {
+            game.setName(chatGPTresponse);
             game = gameService.getGameFromRAWG(chatGPTresponse);
         }
         

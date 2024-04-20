@@ -4,7 +4,7 @@ import LoadingWrapper from '../components/LoadingWrapper';
 import CommentSection from '../components/CommentSection';
 import { getGame } from '../api/games-axios';
 import MovieDetails from '../components/MovieDetails';
-import { Grid, Image, GridItem, Heading, Box } from '@chakra-ui/react';
+import { Grid, Image, GridItem, Heading, Box, Text } from '@chakra-ui/react';
 
 export default function Game() {
   const [loading, setLoading] = useState(true);
@@ -12,9 +12,9 @@ export default function Game() {
   const [game, setGame] = useState(null);
   const [error, setError] = useState(false);
 
-  function stripHtml(html) {
+  const stripHtml = (html) => {
     return html.replace(/<\/?[^>]+(>|$)/g, '').replace(/&#39;/g, "'");
-  }
+  };
 
   useEffect(() => {
     getGame(id)
@@ -41,11 +41,13 @@ export default function Game() {
           <GridItem colSpan={3}>
             <Box textAlign="left">
               <Heading>{game?.name}</Heading>
+              <Text marginBottom={2}>
+                {game?.description != null && stripHtml(game?.description)}
+              </Text>
               <MovieDetails label="Genres" value={game?.genres} />
               <MovieDetails label="Release Date" value={game?.releaseDate} />
               <MovieDetails label="Playtime" value={`${game?.playtime} hours.`} />
               <MovieDetails label="Rating" value={game?.rating} />
-              <MovieDetails label="Description" value={stripHtml(game?.description)} />
             </Box>
           </GridItem>
         </Grid>

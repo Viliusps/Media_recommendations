@@ -16,8 +16,8 @@ export default function ObjectFeatures({ object, type }) {
     'keyKey'
   ];
 
-  const movieFeatures = ['Released', 'Genre', 'imdbRating', 'Runtime', 'BoxOffice'];
-  const gameFeatures = ['releaseDate', 'rating', 'genre', 'playtime'];
+  const movieFeatures = ['Released', 'Genre', 'imdbRating', 'Runtime', 'imdbVotes'];
+  const gameFeatures = ['releaseDate', 'rating', 'genres', 'playtime'];
   return (
     <>
       {object && (

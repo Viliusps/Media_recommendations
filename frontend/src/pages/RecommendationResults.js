@@ -5,16 +5,7 @@ import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
 import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
 import ObjectFeatures from '../components/ObjectFeatures';
-import {
-  Button,
-  Card,
-  Grid,
-  GridItem,
-  Heading,
-  Stack,
-  Text,
-  useColorModeValue
-} from '@chakra-ui/react';
+import { Button, Card, Grid, GridItem, Heading, Stack, useColorModeValue } from '@chakra-ui/react';
 
 const RecommendationResults = () => {
   const params = useParams();
@@ -85,22 +76,39 @@ const RecommendationResults = () => {
   return (
     <>
       <Stack>
-        <Heading>Recommending a: {recommendingType}</Heading>
-        <Text>
-          Recommending by: {recommendingBy} which is a {recommendingByType}
-        </Text>
+        {recommendingByType === 'Spotify' && (
+          <Heading>
+            Recommending a {recommendingType.toLowerCase()} based on your Spotify playlist.
+          </Heading>
+        )}
+        {recommendingByType === 'Steam' && (
+          <Heading>
+            Recommending a {recommendingType.toLowerCase()} based on your Steam playlist.
+          </Heading>
+        )}
+        {(recommendingByType === 'Game' ||
+          recommendingByType === 'Movie' ||
+          recommendingByType === 'Song') && (
+          <Heading>
+            Recommending a {recommendingType.toLowerCase()} based on your Spotify playlist.
+          </Heading>
+        )}
       </Stack>
-      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+      <Grid marginTop={2} templateColumns="repeat(2, 1fr)" gap={6}>
         <GridItem colSpan={2}>
           <Card>
-            <Heading>Details analyzed by the model:</Heading>
+            <Heading as="h3" size="md">
+              Details analyzed by the model:
+            </Heading>
             <ObjectFeatures object={originalRequest} type={recommendingByType} />
           </Card>
         </GridItem>
 
         <GridItem colSpan={1}>
           <Card>
-            <Heading>ChatGPT recommendation</Heading>
+            <Heading as="h3" size="md">
+              ChatGPT recommendation
+            </Heading>
             <LoadingWrapper loading={loadingGPT} error={error}>
               <RecommendationResultDisplay
                 recommendation={recommendation}
@@ -109,6 +117,7 @@ const RecommendationResults = () => {
             </LoadingWrapper>
           </Card>
           <Button
+            marginTop={2}
             px={8}
             bg={useColorModeValue('#151f21', 'gray.900')}
             color={'white'}
@@ -123,7 +132,9 @@ const RecommendationResults = () => {
         </GridItem>
         <GridItem colSpan={1}>
           <Card>
-            <Heading>Neural model recommendation</Heading>
+            <Heading as="h3" size="md">
+              Neural model recommendation
+            </Heading>
             <LoadingWrapper loading={loadingNeural} error={error}>
               <RecommendationResultDisplay
                 recommendation={neuralRecommendation}

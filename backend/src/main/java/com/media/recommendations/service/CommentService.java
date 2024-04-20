@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.media.recommendations.model.Comment;
+import com.media.recommendations.model.User;
+import com.media.recommendations.model.requests.CommentRequest;
 import com.media.recommendations.repository.CommentRepository;
 
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import lombok.AllArgsConstructor;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final UserService userService;
 
     public List<Comment> getAllComments() {
         return commentRepository.findAllByOrderByIdAsc();
@@ -27,13 +30,15 @@ public class CommentService {
         return null;
     }
 
-    public Comment createComment(Comment comment) {
+    public Comment createComment(CommentRequest comment) {
+        User user = userService.userByUsername(comment.getUsername());
         Comment newComment = new Comment();
         newComment.setCommentText(comment.getCommentText());
         newComment.setMovie(comment.getMovie());
         newComment.setGame(comment.getGame());
         newComment.setSong(comment.getSong());
         newComment.setRating(comment.getRating());
+        newComment.setUser(user);
         return commentRepository.save(newComment);
     }
 
