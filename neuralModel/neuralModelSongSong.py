@@ -13,26 +13,26 @@ import tensorflow as tf
 import json
 
 
-df = pd.read_csv('neuralModel/SongMovies/SongMovies1k.csv')
+df = pd.read_csv('neuralModel/SongSong/SongSong.csv')
 
-in_song_features = [
-    'in_song_bpmHistogramFirstPeakBpmMean', 'in_song_danceability', 
-    'in_song_bpmHistogramSecondPeakBpmMedian', 'in_song_tuningEqualTemperedDeviation', 
-    'in_song_tuningFrequency', 'in_song_bpmHistogramSecondPeakBpmMean', 
-    'in_song_bpm', 'in_song_bpmHistogramFirstPeakBpmMedian', 'in_song_mfccZeroMean', 
-    'in_song_onsetRate', 'in_song_averageLoudness', 'in_song_dynamicComplexity'
+firstSong_features = [
+    'firstSong_bpmHistogramFirstPeakBpmMean', 'firstSong_danceability', 
+    'firstSong_bpmHistogramSecondPeakBpmMedian', 'firstSong_tuningEqualTemperedDeviation', 
+    'firstSong_tuningFrequency', 'firstSong_bpmHistogramSecondPeakBpmMean', 
+    'firstSong_bpm', 'firstSong_bpmHistogramFirstPeakBpmMedian', 'firstSong_mfccZeroMean', 
+    'firstSong_onsetRate', 'firstSong_averageLoudness', 'firstSong_dynamicComplexity'
 ]
 
-out_song_features = [
-    'out_song_bpmHistogramFirstPeakBpmMean', 'out_song_danceability', 
-    'out_song_bpmHistogramSecondPeakBpmMedian', 'out_song_tuningEqualTemperedDeviation', 
-    'out_song_tuningFrequency', 'out_song_bpmHistogramSecondPeakBpmMean', 
-    'out_song_bpm', 'out_song_bpmHistogramFirstPeakBpmMedian', 'out_song_mfccZeroMean', 
-    'out_song_onsetRate', 'out_song_averageLoudness', 'out_song_dynamicComplexity'
+secondSong_features = [
+    'secondSong_bpmHistogramFirstPeakBpmMean', 'secondSong_danceability', 
+    'secondSong_bpmHistogramSecondPeakBpmMedian', 'secondSong_tuningEqualTemperedDeviation', 
+    'secondSong_tuningFrequency', 'secondSong_bpmHistogramSecondPeakBpmMean', 
+    'secondSong_bpm', 'secondSong_bpmHistogramFirstPeakBpmMedian', 'secondSong_mfccZeroMean', 
+    'secondSong_onsetRate', 'secondSong_averageLoudness', 'secondSong_dynamicComplexity'
 ]
 
-X = df[in_song_features].astype('float32')
-y = df[out_song_features].astype('float32')
+X = df[firstSong_features].astype('float32')
+y = df[secondSong_features].astype('float32')
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 

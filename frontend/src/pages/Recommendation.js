@@ -52,6 +52,7 @@ export default function Recommendation() {
         }
       });
     } else if (recommendBy === 'Song') {
+      localStorage.setItem('song', selection);
       navigate(`/recommendationResults/${type}/${selection.title}/${recommendBy}`);
     } else if (recommendBy === 'Game') {
       checkIfGameExists(selection).then((result) => {

@@ -4,6 +4,7 @@ import authHeader from '../auth/auth-header';
 const URL = process.env.REACT_APP_API_URL;
 
 export const recommend = async (recommendingType, recommendingByType, recommendingBy) => {
+  console.log(recommendingType, recommendingByType, recommendingBy);
   var username = '';
   if (recommendingByType === 'Spotify' || recommendingByType === 'Steam')
     username = localStorage.getItem('userName');
