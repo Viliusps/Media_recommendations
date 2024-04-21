@@ -2,7 +2,6 @@ package com.media.recommendations.controller;
 
 import lombok.AllArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -16,18 +15,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.media.recommendations.model.Game;
 import com.media.recommendations.model.requests.GameSearchRequest;
 import com.media.recommendations.model.requests.GetSteamHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SteamRequest;
-import com.media.recommendations.model.requests.TempPairsRequest;
 import com.media.recommendations.model.responses.GamePageResponse;
 import com.media.recommendations.model.responses.SteamHistoryResponse;
-import com.media.recommendations.model.responses.TempPairsResponse;
 import com.media.recommendations.service.GameService;
-
-import io.micrometer.core.ipc.http.HttpSender.Response;
 import jakarta.validation.Valid;
 
 
@@ -42,18 +39,6 @@ public class GameController {
     public ResponseEntity<String> getRecentlyPlayedGames(@RequestBody SteamRequest request) {
         return gameService.getRecentlyPlayedGames(request.getUserId(), request.getUsername());
     }
-
-    @PostMapping("/check")
-    public ResponseEntity<Boolean> checkIfGameExists(@RequestBody NameRequest request) {
-        Boolean result = gameService.checkIfGameExists(request.getName());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    // @PostMapping("/getGameFromFeatures")
-    // public ResponseEntity<Game> getGameFromFeatures(@RequestBody Game game) {
-    //     Game response = gameService.findGameFromFeatures(game.getGenres(), game.getReleaseDate(), game.getRating(), game.getPlaytime());
-    //     return new ResponseEntity<>(response, HttpStatus.OK);
-    // }
     
     @PostMapping("/search")
     public ResponseEntity<GamePageResponse> searchGames(@RequestBody @Valid GameSearchRequest request) {
@@ -80,10 +65,9 @@ public class GameController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/gameid")
-    public ResponseEntity<Game> postMethodName(@RequestBody String entity) {
-        Game name = gameService.getGameFromRAWG(entity);
-        return new ResponseEntity<>(name, HttpStatus.OK);
+    @PostMapping("/suggestions")
+    public ResponseEntity<List<Game>> getGameSuggestions(@RequestBody NameRequest request) throws JsonMappingException, JsonProcessingException {
+        List<Game> games = gameService.getGameSuggestions(request.getName());
+        return new ResponseEntity<>(games, HttpStatus.OK);
     }
-    
 }

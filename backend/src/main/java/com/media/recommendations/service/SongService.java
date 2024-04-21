@@ -326,37 +326,6 @@ public class SongService {
         return null;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Boolean checkIfSongExists(String name) {
-        String accessToken = getAccessToken();
-
-        if (accessToken != null) {
-            String apiUrl = spotifyUrl + "/v1/search";
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + accessToken);
-
-            String searchQuery = "%" + name + "%";
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                    .queryParam("q", searchQuery)
-                    .queryParam("type", "track")
-                    .queryParam("limit", 1);
-
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
-
-            Map<String, Object> responseBody = response.getBody();
-            if (responseBody != null && responseBody.containsKey("tracks")) {
-                Map<String, Object> tracks = (Map<String, Object>) responseBody.get("tracks");
-                Integer total = (Integer) tracks.get("total");
-
-                return total > 0;
-            }
-        }
-
-        return false;
-    }
-
     @SuppressWarnings("unchecked")
     private Song parseSpotifyResponse(List<Map<String, Object>> tracks, int index) {
         Map<String, Object> track = tracks.get(index);
@@ -382,6 +351,7 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<Song> getSongSuggestions(String name) {
+        System.out.println("Suggestions for song: " + name);
         List<Song> songs = new ArrayList<>();
         String accessToken = getAccessToken();
 
@@ -390,22 +360,23 @@ public class SongService {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + accessToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
-            String query = "track:" + name;
 
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
-                    .queryParam("q", query)
+                    .queryParam("q", name)
                     .queryParam("type", "track")
-                    .queryParam("limit", 5);
+                    .queryParam("limit", 5)
+                    .queryParam("market", "US");
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
+            System.out.println(builder.toUriString());
             ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 Map<String, Object> responseBody = response.getBody();
                 List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
                 if (!tracks.isEmpty()) {
-                    for(int i = 0; i < 5; i++) {
+                    for(int i = 0; i < Math.min(tracks.size(), 5); i++) {
                         Song song = parseSpotifyResponse(tracks, i);
                         songs.add(song);
                     }
@@ -448,6 +419,40 @@ public class SongService {
         return song;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Song getSongByISRCFromSpotify(String isrc) {
+        System.out.println("Getting song by isrc: " + isrc);
+        String accessToken = getAccessToken();
+        Song song = null;
+
+        if (accessToken != null) {
+            String apiUrl = spotifyUrl + "/v1/search";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String query = "isrc:" + isrc;
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("q", query)
+                    .queryParam("type", "track")
+                    .queryParam("limit", 1)
+                    .queryParam("market", "US");
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
+                if (!tracks.isEmpty()) {
+                    song = parseSpotifyResponse(tracks, 0);
+                    System.out.println("Got song: " + song.getTitle());
+                }
+            }
+        }
+        return song;
+    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getSongIdByName(String songName) {

@@ -3,7 +3,7 @@ package com.media.recommendations.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -20,12 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Movie;
-import com.media.recommendations.model.requests.GetClosestMovieRequest;
 import com.media.recommendations.model.requests.MovieSearchRequest;
 import com.media.recommendations.model.requests.OmdbRequest;
-import com.media.recommendations.model.requests.TempPairsRequest;
 import com.media.recommendations.model.responses.MoviePageResponse;
-import com.media.recommendations.model.responses.TempPairsResponse;
+import com.media.recommendations.model.responses.OMDBSearchResponse;
 import com.media.recommendations.service.MovieService;
 
 
@@ -95,30 +93,9 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    // @PostMapping("/search-closest")
-    // public ResponseEntity<String> searchClosestMovieFeatures(@RequestBody GetClosestMovieRequest request) {
-    //     String response = movieService.getClosestMovieFromFeatures(request.getGenres(), request.getYear(), request.getRuntime());
-    //     return new ResponseEntity<>(response, HttpStatus.OK);
-    // }
-    
-    @PostMapping("/testimdbid")
-    public ResponseEntity<Movie> postMethodName(@RequestBody String entity) {
-        Movie name = movieService.getMovieFromOmdbByIMBDID(entity);
-        return new ResponseEntity<>(name, HttpStatus.OK);
-    }
-
-    @PostMapping("/getPairs")
-    public ResponseEntity<List<TempPairsResponse>> postMethodName(@RequestBody List<TempPairsRequest> entity) {
-        List<TempPairsResponse> result = new ArrayList<>();
-        for(TempPairsRequest req : entity) {
-            Movie first = movieService.getMovieFromOmdb(req.getFirst());
-            Movie second = movieService.getMovieFromOmdb(req.getSecond());
-            TempPairsResponse resp = new TempPairsResponse();
-            resp.setFirstMovie(first);
-            resp.setSecondMovie(second);
-            result.add(resp);
-        }
-    
-        return new ResponseEntity<>(result, HttpStatus.OK);
+    @PostMapping("/suggestions")
+    public ResponseEntity<List<OMDBSearchResponse>> getMovieSuggestions(@RequestBody OmdbRequest request) throws IOException {
+        List<OMDBSearchResponse> list = movieService.getMovieSuggestions(request.getTitle());
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

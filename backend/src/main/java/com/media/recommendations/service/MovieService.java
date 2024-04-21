@@ -2,10 +2,16 @@ package com.media.recommendations.service;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.responses.MoviePageResponse;
+import com.media.recommendations.model.responses.OMDBSearchResponse;
 import com.media.recommendations.repository.MovieRepository;
 
 @Service
@@ -110,6 +117,40 @@ public class MovieService {
         movieRepository.deleteById(id);
     }
 
+    public List<OMDBSearchResponse> getMovieSuggestions(String title) throws IOException {
+        List<OMDBSearchResponse> movies = new ArrayList<>();
+        String apiUrl = String.format("%s?apikey=%s&s=%s", omdbApiUrl, apiKey, title.replace(" ", "+"));
+        URL url = new URL(apiUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+
+        if (responseCode != 200) {
+            throw new RuntimeException("HttpResponseCode: " + responseCode);
+        } else {
+            StringBuilder inline = new StringBuilder();
+            Scanner scanner = new Scanner(url.openStream());
+
+            while (scanner.hasNext()) {
+                inline.append(scanner.nextLine());
+            }
+            scanner.close();
+
+            JSONObject dataObject = new JSONObject(inline.toString());
+            JSONArray searchArray = dataObject.getJSONArray("Search");
+
+            for (int i = 0; i < Math.min(searchArray.length(), 5); i++) {
+                JSONObject movieJson = searchArray.getJSONObject(i);
+                String movieTitle = movieJson.getString("Title");
+                String movieYear = movieJson.getString("Year");
+                String imdbId = movieJson.getString("imdbID");
+                movies.add(new OMDBSearchResponse(movieTitle, movieYear, imdbId));
+            }
+        }
+        return movies;
+    }
+
     public Movie getMovieFromOmdb(String title) {
         String apiUrl = String.format("%s?apikey=%s&t=%s", omdbApiUrl, apiKey, title);
         Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
@@ -117,8 +158,10 @@ public class MovieService {
     }
 
     public Movie getMovieFromOmdbByIMBDID(String imdbId) {
+        System.out.println("Geting movie by imdbid: " + imdbId);
         String apiUrl = String.format("%s?apikey=%s&i=%s", omdbApiUrl, apiKey, imdbId);
         Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
+        System.out.println("Got movie: " + omdbMovie.getTitle());
         return omdbMovie;
     }
 

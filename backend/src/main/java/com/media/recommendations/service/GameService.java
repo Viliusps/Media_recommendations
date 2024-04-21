@@ -28,6 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -211,6 +213,41 @@ public class GameService {
         return fullGames;
     }
 
+    public List<Game> getGameSuggestions(String gameName) throws JsonMappingException, JsonProcessingException {
+        List<Game> games = new ArrayList<>();
+        System.out.println("Game name: " + gameName);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("User-Agent", "MyUniProject/v1.0");
+
+        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+        String searchUrl = RAWG_API_BASE_URL + "games?search=" + encodedGameName + "&key=" + rawgApiKey;
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        String gameSearchResponse = restTemplate.exchange(searchUrl, HttpMethod.GET, entity, String.class).getBody();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(gameSearchResponse);
+        JsonNode resultsNode = root.get("results");
+        for(int i = 0; i < Math.min(resultsNode.size(), 5); i++) {
+            Game game = parseRAWGJsonNode(resultsNode.get(i));
+            games.add(game);
+        }
+        return games;
+    }
+
+    public Game getGameFromRAWGByID(String gameId) {
+        System.out.println("getting game from game id: " + gameId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("User-Agent", "MyUniProject/v1.0");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        String gameDetailsUrl = RAWG_API_BASE_URL + "games/" + gameId + "?key=" + rawgApiKey;
+        String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
+
+        return parseGameFromDetailsResponse(gameDetailsResponse);
+    }
+
     public Game getGameFromRAWG(String gameName) {
         System.out.println("Game name: " + gameName);
         HttpHeaders headers = new HttpHeaders();
@@ -227,15 +264,33 @@ public class GameService {
         System.out.println("Game ID: " + gameId);
 
         if (gameId != null) {
-
-            String gameDetailsUrl = RAWG_API_BASE_URL + "games/" + gameId + "?key=" + rawgApiKey;
-
-            String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
-
-            return parseGameFromDetailsResponse(gameDetailsResponse);
+            return getGameFromRAWGByID(gameId);
         } else {
             return null;
         }
+    }
+
+    private Game parseRAWGJsonNode (JsonNode node) {
+        Game game = new Game();
+        game.setName(node.get("name").asText());
+        game.setReleaseDate(node.get("released").asText());
+        ArrayNode genres = (ArrayNode) node.get("genres");
+        String genresStr = StreamSupport.stream(genres.spliterator(), false)
+                                        .map(genre -> genre.get("name").asText())
+                                        .collect(Collectors.joining(", "));
+        game.setGenres(genresStr);
+
+        ArrayNode platforms = (ArrayNode) node.get("platforms");
+        String platformsStr = StreamSupport.stream(platforms.spliterator(), false)
+                                        .map(platform -> platform.get("platform").get("name").asText())
+                                        .collect(Collectors.joining(", "));
+        game.setPlatforms(platformsStr);
+        if(node.get("description") != null) game.setDescription(node.get("description").asText());
+        game.setRating(node.get("rating").asDouble());
+        game.setPlaytime(node.get("playtime").asInt());
+        game.setBackgroundImage(node.get("background_image").asText());
+        game.setRawgID(node.get("id").asInt());
+        return game;
     }
 
     private String parseGameIdFromSearchResponse(String searchResponse) {
@@ -274,6 +329,8 @@ public class GameService {
             game.setRating(root.get("rating").asDouble());
             game.setPlaytime(root.get("playtime").asInt());
             game.setBackgroundImage(root.get("background_image").asText());
+            game.setRawgID(root.get("id").asInt());
+            System.out.println("Parsed game name: " + game.getName());
             return game;
         } catch (IOException e) {
             e.printStackTrace();
@@ -282,48 +339,21 @@ public class GameService {
     }
 
     private List<Game> parseGamesFromResponse(String jsonResponse) {
-    List<Game> games = new ArrayList<>();
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-        JsonNode root = mapper.readTree(jsonResponse);
-        JsonNode results = root.path("results");
-        for (JsonNode node : results) {
-            Game game = parseGameFromDetailsResponse(node.toString());
-            if (game != null) {
-                games.add(game);
-            }
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-    return games;
-}
-
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public boolean checkIfGameExists(String gameName) {
+        List<Game> games = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            String modifiedGameName = gameName.replace(" ", "-").toLowerCase();
-            String encodedGameName = URLEncoder.encode(modifiedGameName, StandardCharsets.UTF_8.toString());
-            final String url = "https://api.rawg.io/api/games?key=" + rawgApiKey + "&search=" + encodedGameName + "&search_precise=true";
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-
-            Map<String, Object> responseBody = response.getBody();
-            if (responseBody != null && responseBody.containsKey("results")) {
-                List<Map<String, Object>> results = (List<Map<String, Object>>) responseBody.get("results");
-
-                for (Map<String, Object> game : results) {
-                    String name = (String) game.get("name");
-                    if (gameName.equalsIgnoreCase(name)) {
-                        return true;
-                    }
+            JsonNode root = mapper.readTree(jsonResponse);
+            JsonNode results = root.path("results");
+            for (JsonNode node : results) {
+                Game game = parseGameFromDetailsResponse(node.toString());
+                if (game != null) {
+                    games.add(game);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return games;
     }
 
     public Game findGameFromFeatures(NeuralModelGameFeatures features) {

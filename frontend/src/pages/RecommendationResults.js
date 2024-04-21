@@ -9,7 +9,7 @@ import { Button, Card, Grid, GridItem, Heading, Stack, useColorModeValue } from 
 
 const RecommendationResults = () => {
   const params = useParams();
-  const { recommendingType, recommendingBy, recommendingByType } = params;
+  const { recommendingType, recommendingBy, recommendingByType, recommendingByID } = params;
   const [recommendation, setRecommendation] = useState(null);
   const [neuralRecommendation, setNeuralRecommendation] = useState(null);
   const [originalRequest, setOriginalRequest] = useState(null);
@@ -21,10 +21,12 @@ const RecommendationResults = () => {
   useEffect(() => {
     setLoadingGPT(true);
     setLoadingNeural(true);
+    const selection = localStorage.getItem('selection');
+    console.log('Selection: ' + selection);
     console.log('Recommending type: ' + recommendingType);
     console.log('recommending by type: ' + recommendingByType);
     console.log('recommending by: ' + recommendingBy);
-    recommend(recommendingType, recommendingByType, recommendingBy)
+    recommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
         console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
@@ -42,7 +44,7 @@ const RecommendationResults = () => {
       .finally(() => {
         setLoadingGPT(false);
       });
-    testNeural(recommendingType, recommendingByType, recommendingBy)
+    testNeural(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
         console.log(result);
         if (result.type == 'Movie') setNeuralRecommendation(result.movie);
@@ -90,7 +92,8 @@ const RecommendationResults = () => {
           recommendingByType === 'Movie' ||
           recommendingByType === 'Song') && (
           <Heading>
-            Recommending a {recommendingType.toLowerCase()} based on your Spotify playlist.
+            Recommending a {recommendingType.toLowerCase()} based on a{' '}
+            {recommendingByType.toLowerCase()}.
           </Heading>
         )}
       </Stack>

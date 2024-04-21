@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,34 +90,16 @@ public class SongController {
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
 
-    @PostMapping("/check")
-    public ResponseEntity<Boolean> checkIfSongExists(@RequestBody NameRequest request) {
-        Boolean result = songService.checkIfSongExists(request.getName());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
     @PostMapping("/isrc")
     public ResponseEntity<String> getSongISRC(@RequestBody NameRequest request) {
         String result = songService.getISRCBySongName(request.getName());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    // @PostMapping("/search-closest")
-    // public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
-    //     String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity(), request.getMfccZeroMean(), request.getBpmHistogramFirstPeakMean(), request.getBpmHistogramFirstPeakMedian(), request.getBpmHistogramSecondPeakMean(), request.getBpmHistogramSecondPeakMedian(), request.getDanceability(), request.getOnsetRate(), request.getTuningFrequency(), request.getTuningEqualTemperedDeviation());
-    //     return new ResponseEntity<>(result, HttpStatus.OK);
-    // }
-
     @PostMapping("/spotify-history")
     public ResponseEntity<SpotifyHistoryResponse> getSpotifyHistory(@RequestBody GetSpotifyHistoryRequest request) {
         SpotifyHistoryResponse response = songService.getSpotifyHistory(request.getUsername());
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/testMbid")
-    public ResponseEntity<Map<String, String>> postMethodName(@RequestBody String entity) {
-        Map<String, String> name = songService.getSongFeaturesByMBID(entity);
-        return new ResponseEntity<>(name, HttpStatus.OK);
     }
 
     @PostMapping("/suggestions")
@@ -127,11 +108,5 @@ public class SongController {
         List<Song> songs = songService.getSongSuggestions(request.getName());
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
-
-    // @PostMapping("/testSpotify")
-    // public ResponseEntity<Song> postMethodName(@RequestBody SongArtistName entity) throws UnsupportedEncodingException {
-    //     Song name = songService.getSongByNameAndArtistFromSpotify(entity);
-    //     return new ResponseEntity<>(name, HttpStatus.OK);
-    // }
     
 }

@@ -64,7 +64,7 @@ function App() {
                 <Route path="/games" element={<Games />} />
 
                 <Route
-                  path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType"
+                  path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType/:recommendingByID"
                   element={<RecommendationResults />}
                 />
 

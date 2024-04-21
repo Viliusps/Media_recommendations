@@ -65,6 +65,9 @@ public class Game {
     @Column(name = "platforms")
     private String platforms;
 
+    @Column(name = "rawg_id")
+    private Integer rawgID;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "game")
     private List<Comment> comments = new ArrayList<>();

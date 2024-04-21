@@ -181,7 +181,7 @@ public class RecommendationService {
 
         if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
         {
-            originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
+            originalSong = songService.getSongByISRCFromSpotify(originalRequest.getRecommendingByID());
             originalSong = songService.getSongFeatures(originalSong);
             if(!songService.existsSong(originalSong)) {
                 songService.createSong(originalSong);
@@ -191,7 +191,7 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingByType().compareTo("Movie") == 0)
         {
-            originalMovie = movieService.getMovieFromOmdb(originalRequest.getRecommendingBy());
+            originalMovie = movieService.getMovieFromOmdbByIMBDID(originalRequest.getRecommendingByID());
             if(!movieService.existsMovie(originalMovie)) {
                 movieService.createMovie(originalMovie);
             }
@@ -200,7 +200,7 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingByType().compareTo("Game") == 0)
         {
-            originalGame = gameService.getGameFromRAWG(originalRequest.getRecommendingBy());
+            originalGame = gameService.getGameFromRAWGByID(originalRequest.getRecommendingByID());
             if(!gameService.existsGame(originalGame)) {
                 gameService.createGame(originalGame);
             }
@@ -329,7 +329,7 @@ public class RecommendationService {
         //SHOULD REUSE FROM CHATGPT METHOD!!!!!
         if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
         {
-            originalSong = songService.getSongByNameFromSpotify(originalRequest.getRecommendingBy());
+            originalSong = songService.getSongByISRCFromSpotify(originalRequest.getRecommendingByID());
             originalSong = songService.getSongFeatures(originalSong);
             if(originalSong.getDynamicComplexity() == null) return null;
             if(!songService.existsSong(originalSong)) {
@@ -339,7 +339,7 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingByType().compareTo("Movie") == 0)
         {
-            originalMovie = movieService.getMovieFromOmdb(originalRequest.getRecommendingBy());
+            originalMovie = movieService.getMovieFromOmdbByIMBDID(originalRequest.getRecommendingByID());
             if(!movieService.existsMovie(originalMovie)) {
                 movieService.createMovie(originalMovie);
             }
@@ -347,7 +347,7 @@ public class RecommendationService {
 
         else if(originalRequest.getRecommendingByType().compareTo("Game") == 0)
         {
-            originalGame = gameService.getGameFromRAWG(originalRequest.getRecommendingBy());
+            originalGame = gameService.getGameFromRAWGByID(originalRequest.getRecommendingByID());
             if(!gameService.existsGame(originalGame)) {
                 gameService.createGame(originalGame);
             }

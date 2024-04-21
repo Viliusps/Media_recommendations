@@ -46,5 +46,6 @@ export const getSpotifyHistory = async () => {
 
 export const getSongSuggestions = async (name) => {
   const response = await axios.post(`${URL}/songs/suggestions`, { name: name }, authHeader());
+  console.log(response);
   return response.data;
 };

@@ -11,8 +11,10 @@ import {
   ModalCloseButton,
   Select
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getSongSuggestions } from '../api/songs-axios';
+import { getMovieSuggestions } from '../api/movies-axios';
+import { getGameSuggestions } from '../api/games-axios';
 
 export default function RecommendationModal({
   handleClose,
@@ -20,25 +22,57 @@ export default function RecommendationModal({
   open,
   setSelection,
   type,
-  recommendBy,
-  errorLabel
+  recommendBy
 }) {
   const [suggestions, setSuggestions] = useState([]);
   const [enteredName, setEnteredName] = useState('');
-  const [songErrorLabel, setSongErrorLabel] = useState('');
+  const [foundErrorLabel, setFoundErrorLabel] = useState('');
   const getSuggestions = () => {
+    setFoundErrorLabel('');
+    setSuggestions([]);
     if (recommendBy === 'Song') {
       getSongSuggestions(enteredName).then((response) => {
-        if (response.length === 0) setSongErrorLabel('No songs found.');
+        if (response.length === 0) setFoundErrorLabel('No songs found.');
         else {
-          setSongErrorLabel('');
+          setFoundErrorLabel('');
+          setSuggestions(response);
+        }
+      });
+    } else if (recommendBy === 'Movie') {
+      getMovieSuggestions(enteredName).then((response) => {
+        if (response.length === 0) setFoundErrorLabel('No movies found.');
+        else {
+          setFoundErrorLabel('');
+          setSuggestions(response);
+        }
+      });
+    } else if (recommendBy === 'Game') {
+      getGameSuggestions(enteredName).then((response) => {
+        if (response.length === 0) setFoundErrorLabel('No games found.');
+        else {
+          setFoundErrorLabel('');
           setSuggestions(response);
         }
       });
     }
   };
+  useEffect(() => {}, []);
+
+  const handleSelectionChange = (event) => {
+    console.log('Event target value: ' + event.target.value);
+    const index = parseInt(event.target.value, 10);
+    console.log('Setting selected option: ');
+    console.log(suggestions[index]);
+    setSelection(suggestions[index]);
+  };
+
   return (
-    <Modal isOpen={open} onClose={handleClose}>
+    <Modal
+      isOpen={open}
+      onClose={() => {
+        setSuggestions([]);
+        handleClose();
+      }}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -47,14 +81,8 @@ export default function RecommendationModal({
         <ModalCloseButton />
         <ModalBody>
           <Text>Please enter the name of the {recommendBy.toLowerCase()}.</Text>
-          <Input
-            onChange={(event) =>
-              recommendBy === 'Song'
-                ? setEnteredName(event.target.value)
-                : setSelection(event.target.value)
-            }
-          />
-          <Text style={{ color: 'red' }}>{songErrorLabel || errorLabel}</Text>
+          <Input onChange={(event) => setEnteredName(event.target.value)} />
+          <Text style={{ color: 'red' }}>{foundErrorLabel}</Text>
           <Button
             marginTop={2}
             px={8}
@@ -65,16 +93,18 @@ export default function RecommendationModal({
               transform: 'translateY(-2px)',
               boxShadow: 'lg'
             }}
-            onClick={() => (recommendBy === 'Song' ? getSuggestions() : handleClick())}>
+            onClick={() => getSuggestions()}>
             Continue
           </Button>
           {suggestions.length > 0 && (
             <>
               <Text marginTop={5}>Please specify your {recommendBy.toLowerCase()}.</Text>
-              <Select>
+              <Select onChange={handleSelectionChange}>
                 {suggestions.map((suggestion, index) => (
-                  <option key={index} value={suggestion} onClick={() => setSelection(suggestion)}>
-                    &quot;{suggestion.title}&quot; by {suggestion.singer}
+                  <option key={index} value={index}>
+                    {recommendBy === 'Song' && `"${suggestion.title}" by ${suggestion.singer}`}
+                    {recommendBy === 'Movie' && ` "${suggestion.title}" (${suggestion.year})`}
+                    {recommendBy === 'Game' && ` "${suggestion.name}" (${suggestion.releaseDate})`}
                   </option>
                 ))}
               </Select>
@@ -88,7 +118,7 @@ export default function RecommendationModal({
                   transform: 'translateY(-2px)',
                   boxShadow: 'lg'
                 }}
-                onClick={() => handleClick()}>
+                onClick={() => handleClick(suggestions)}>
                 Recommend!
               </Button>
             </>
