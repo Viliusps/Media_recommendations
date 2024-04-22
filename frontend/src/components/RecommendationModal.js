@@ -30,30 +30,36 @@ export default function RecommendationModal({
   const getSuggestions = () => {
     setFoundErrorLabel('');
     setSuggestions([]);
-    if (recommendBy === 'Song') {
-      getSongSuggestions(enteredName).then((response) => {
-        if (response.length === 0) setFoundErrorLabel('No songs found.');
-        else {
-          setFoundErrorLabel('');
-          setSuggestions(response);
-        }
-      });
-    } else if (recommendBy === 'Movie') {
-      getMovieSuggestions(enteredName).then((response) => {
-        if (response.length === 0) setFoundErrorLabel('No movies found.');
-        else {
-          setFoundErrorLabel('');
-          setSuggestions(response);
-        }
-      });
-    } else if (recommendBy === 'Game') {
-      getGameSuggestions(enteredName).then((response) => {
-        if (response.length === 0) setFoundErrorLabel('No games found.');
-        else {
-          setFoundErrorLabel('');
-          setSuggestions(response);
-        }
-      });
+    if (enteredName === '' || enteredName == null) setFoundErrorLabel('Please enter a name');
+    else {
+      if (recommendBy === 'Song') {
+        getSongSuggestions(enteredName).then((response) => {
+          if (response.length === 0) setFoundErrorLabel('No songs found.');
+          else {
+            setFoundErrorLabel('');
+            setSuggestions(response);
+            setSelection(response[0]);
+          }
+        });
+      } else if (recommendBy === 'Movie') {
+        getMovieSuggestions(enteredName).then((response) => {
+          if (response.length === 0) setFoundErrorLabel('No movies found.');
+          else {
+            setFoundErrorLabel('');
+            setSuggestions(response);
+            setSelection(response[0]);
+          }
+        });
+      } else if (recommendBy === 'Game') {
+        getGameSuggestions(enteredName).then((response) => {
+          if (response.length === 0) setFoundErrorLabel('No games found.');
+          else {
+            setFoundErrorLabel('');
+            setSuggestions(response);
+            setSelection(response[0]);
+          }
+        });
+      }
     }
   };
   useEffect(() => {}, []);
