@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 import tensorflow as tf
 import json
+from keras import backend as K
 
 
 df = pd.read_csv('neuralModel/GameGame/GameGame.csv')
@@ -41,6 +42,11 @@ X_test = np.concatenate((X_test_numerical_scaled, X_test_genre), axis=1)
 y_train = np.concatenate((y_train_numerical_scaled, y_train_genre), axis=1)
 y_test = np.concatenate((y_test_numerical_scaled, y_test_genre), axis=1)
 
+def r_squared(y_true, y_pred):
+    SS_res =  K.sum(K.square(y_true - y_pred)) 
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true))) 
+    return (1 - SS_res/(SS_tot + K.epsilon()))
+
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
     Dropout(0.2),
@@ -52,7 +58,7 @@ model = Sequential([
 ])
 
 adam = Adam(learning_rate=0.001)
-model.compile(optimizer=adam, loss='mse', metrics=['mae'])
+model.compile(optimizer=adam, loss='mse', metrics=['mae', r_squared])
 
 history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
 
@@ -81,13 +87,30 @@ with open('neuralModel/scaling_parameters_gg.json', 'w') as f:
 #print(X_test_numerical_scaled[0], " vs ", X_test_numerical[0])
 
 
-# plt.plot(history.history['loss'], label='Train')
-# plt.plot(history.history['val_loss'], label='Validation')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+plt.plot(history.history['loss'], label='Train')
+plt.plot(history.history['val_loss'], label='Validation')
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(loc='upper right')
+plt.show()
+
+y_pred = model.predict(X_test)
+
+actual = y_test[:, 0]
+predicted = y_pred[:, 0]
+
+plt.figure(figsize=(10, 6))
+plt.scatter(actual, predicted, alpha=0.5)
+plt.title('Actual vs. Predicted for the First Feature')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.grid(True)
+
+# Plot a line of perfect prediction
+plt.plot([actual.min(), actual.max()], [actual.min(), actual.max()], 'k--', lw=2)
+plt.show()
+
 
 # test_loss, test_mae = model.evaluate(X_test, y_test_scaled)
 # print(f'Test Loss: {test_loss}, Test MAE: {test_mae}')
@@ -113,6 +136,8 @@ with open('neuralModel/scaling_parameters_gg.json', 'w') as f:
 # print(f'Mean Cosine Similarity: {cosine_sim}')
 # print(f'Mean Euclidean Distance: {euclidean_dist}')
 # print(y_pred[0], " vs ", y_test[0])
+
+
 
 # for i in range(y_test.shape[1]):
 #     plt.figure()
