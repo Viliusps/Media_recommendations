@@ -299,7 +299,15 @@ public class RecommendationService {
             recommendation.setSecondType(recommendingType);
             recommendation.setUser(userService.userByUsername(request.getUsername()));
             System.out.println("BEFORE EXISTS");
-            if(!recommendationExists(recommendation)) recommendationRepository.save(recommendation);
+            if(!recommendationExists(recommendation)) {
+                recommendationRepository.save(recommendation);
+                Long count = recommendationRepository.countByFirstTypeAndSecondType(recommendingByType, recommendingType);
+                System.out.println("COunt: " + count);
+                if(count % 100 == 0) {
+                    System.out.println("UPDATE MODEL");
+                    executePythonScript(recommendingByType, recommendingType);
+                }
+            }
         }
     }
 
@@ -319,7 +327,7 @@ public class RecommendationService {
     // }
     public RecommendationResponse getModelRecommendation(RecommendationRequest originalRequest) {
         String modelPath = "neuralModel/model_";
-        String scalerPath = "neuralModel/scaling_parameters_";
+        String scalerPath = "neuralModel/scalingParameters/scaling_parameters_";
         float[] features = new float[0];
 
         Movie originalMovie = new Movie();
@@ -597,9 +605,10 @@ public class RecommendationService {
         return results;
     }
     
-    public String executePythonScript() {
+    public String executePythonScript(String firstType, String secondType) {
          try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "testScript.py");
+            ProcessBuilder processBuilder = new ProcessBuilder("python", "neuralModel/modelScripts/neuralModelRetrain.py", firstType, secondType);
+            processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
 
             StringBuilder output = new StringBuilder();
@@ -614,7 +623,7 @@ public class RecommendationService {
             if (exitVal == 0) {
                 return output.toString();
             } else {
-                return "Script execution failed!";
+                return "Script execution failed!:\n" + output.toString();
             }
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();

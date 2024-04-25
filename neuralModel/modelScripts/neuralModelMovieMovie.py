@@ -1,29 +1,24 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Conv1D, BatchNormalization, MaxPooling1D, Flatten
-from scipy.spatial.distance import cosine, euclidean
-from sklearn.metrics import pairwise_distances
+from keras.layers import Dense, Dropout
 from keras.regularizers import l2
-import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 import tensorflow as tf
 import json
 
 
-df = pd.read_csv('neuralModel/GameMovies/MovieGame.csv')
+df = pd.read_csv('neuralModel/datasets/MovieMovie.csv')
 
-game_numerical_features = ['game_releaseDate', 'game_rating', 'game_playtime']
-movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
+firstMovie_numerical_features = ['firstMovie_Released', 'firstMovie_Runtime', 'firstMovie_imdbVotes', 'firstMovie_imdbRating']
+secondMovie_numerical_features = ['secondMovie_Released', 'secondMovie_Runtime', 'secondMovie_imdbVotes', 'secondMovie_imdbRating']
 
-X_numerical = df[game_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['game_genres_0'], dtype='float32')
-
-y_numerical = df[movie_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['movie_Genre_0'], dtype='float32')
-
+y_numerical = df[secondMovie_numerical_features].astype('float32')
+y_genre = pd.get_dummies(df['secondMovie_Genre_0'], dtype='float32')
+X_numerical = df[firstMovie_numerical_features].astype('float32')
+X_genre = pd.get_dummies(df['firstMovie_Genre_0'], dtype='float32')
 
 X_train_numerical, X_test_numerical, y_train_numerical, y_test_numerical = train_test_split(X_numerical, y_numerical, test_size=0.2, random_state=42)
 X_train_genre, X_test_genre, y_train_genre, y_test_genre = train_test_split(X_genre, y_genre, test_size=0.2, random_state=42)
@@ -61,21 +56,21 @@ history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_spli
 def model_serving(dense_input):
     return model(dense_input, training=False)
 
-tf.saved_model.save(model, 'neuralModel/model_gm', signatures={'serving_default': model_serving})
+tf.saved_model.save(model, 'neuralModel/model_mm', signatures={'serving_default': model_serving})
 
-input_genre_encoding = X_genre.columns.tolist()
-output_genre_encoding = y_genre.columns.tolist()
+in_genre_encoding = X_genre.columns.tolist()
+out_genre_encoding = y_genre.columns.tolist()
 
 scaling_parameters = {
     "input_min": scaler_X_numerical.data_min_.tolist(),
     "input_max": scaler_X_numerical.data_max_.tolist(),
     "output_min": scaler_y_numerical.data_min_.tolist(),
     "output_max": scaler_y_numerical.data_max_.tolist(),
-    "input_game_genre_encoding": input_genre_encoding,
-    "output_movie_genre_encoding": output_genre_encoding
+    "input_movie_genre_encoding": in_genre_encoding,
+    "output_movie_genre_encoding": out_genre_encoding
 }
 
-with open('neuralModel/scaling_parameters_gm.json', 'w') as f:
+with open('neuralModel/scalingParameters/scaling_parameters_mm.json', 'w') as f:
     json.dump(scaling_parameters, f)
 
 

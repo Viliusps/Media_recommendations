@@ -1,47 +1,45 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import StandardScaler
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Conv1D, BatchNormalization, MaxPooling1D, Flatten
-from scipy.spatial.distance import cosine, euclidean
-from sklearn.metrics import pairwise_distances
+from keras.layers import Dense, Dropout
 from keras.regularizers import l2
-import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 import tensorflow as tf
 import json
 
 
-df = pd.read_csv('neuralModel/SongMovies/SongMovies1k.csv')
+df = pd.read_csv('neuralModel/datasets/SongSong.csv')
 
-song_features = [
-    'song_bpmHistogramFirstPeakBpmMean', 'song_danceability', 
-    'song_bpmHistogramSecondPeakBpmMedian', 'song_tuningEqualTemperedDeviation', 
-    'song_tuningFrequency', 'song_bpmHistogramSecondPeakBpmMean', 
-    'song_bpm', 'song_bpmHistogramFirstPeakBpmMedian', 'song_mfccZeroMean', 
-    'song_onsetRate', 'song_averageLoudness', 'song_dynamicComplexity'
+firstSong_features = [
+    'firstSong_bpmHistogramFirstPeakBpmMean', 'firstSong_danceability', 
+    'firstSong_bpmHistogramSecondPeakBpmMedian', 'firstSong_tuningEqualTemperedDeviation', 
+    'firstSong_tuningFrequency', 'firstSong_bpmHistogramSecondPeakBpmMean', 
+    'firstSong_bpm', 'firstSong_bpmHistogramFirstPeakBpmMedian', 'firstSong_mfccZeroMean', 
+    'firstSong_onsetRate', 'firstSong_averageLoudness', 'firstSong_dynamicComplexity'
 ]
 
-movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
+secondSong_features = [
+    'secondSong_bpmHistogramFirstPeakBpmMean', 'secondSong_danceability', 
+    'secondSong_bpmHistogramSecondPeakBpmMedian', 'secondSong_tuningEqualTemperedDeviation', 
+    'secondSong_tuningFrequency', 'secondSong_bpmHistogramSecondPeakBpmMean', 
+    'secondSong_bpm', 'secondSong_bpmHistogramFirstPeakBpmMedian', 'secondSong_mfccZeroMean', 
+    'secondSong_onsetRate', 'secondSong_averageLoudness', 'secondSong_dynamicComplexity'
+]
 
-X = df[song_features].astype('float32')
-y_numerical = df[movie_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['movie_Genre_0'], dtype='float32')
+X = df[firstSong_features].astype('float32')
+y = df[secondSong_features].astype('float32')
 
-X_train, X_test, y_train_numerical, y_test_numerical = train_test_split(X, y_numerical, test_size=0.2, random_state=42)
-_, _, y_train_genre, y_test_genre = train_test_split(X, y_genre, test_size=0.2, random_state=42) # Ensure matching indices
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 scaler_X = StandardScaler().fit(X_train)
-scaler_y_numerical = MinMaxScaler().fit(y_train_numerical)
+scaler_y = StandardScaler().fit(y_train)
 
 X_train_scaled = scaler_X.transform(X_train)
 X_test_scaled = scaler_X.transform(X_test)
-y_train_numerical_scaled = scaler_y_numerical.transform(y_train_numerical)
-y_test_numerical_scaled = scaler_y_numerical.transform(y_test_numerical)
-
-y_train = np.concatenate((y_train_numerical_scaled, y_train_genre), axis=1)
-y_test = np.concatenate((y_test_numerical_scaled, y_test_genre), axis=1)
+y_train_scaled = scaler_y.transform(y_train)
+y_test_scaled = scaler_y.transform(y_test)
 
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train_scaled.shape[1],), name='dense_input'),
@@ -50,32 +48,30 @@ model = Sequential([
     Dropout(0.2),
     Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
     Dropout(0.2),
-    Dense(y_train.shape[1], activation='linear')
+    Dense(y_train_scaled.shape[1], activation='linear')
 ])
 
 adam = Adam(learning_rate=0.001)
 model.compile(optimizer=adam, loss='mse', metrics=['mae'])
 
-history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+history = model.fit(X_train_scaled, y_train_scaled, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
 
 @tf.function(input_signature=[tf.TensorSpec(shape=[None, X_train_scaled.shape[1]], dtype=tf.float32, name='dense_input')])
 def model_serving(dense_input):
     return model(dense_input, training=False)
 
-tf.saved_model.save(model, 'neuralModel/model_sm', signatures={'serving_default': model_serving})
-genre_encoding = y_genre.columns.tolist()
+tf.saved_model.save(model, 'neuralModel/model_ss', signatures={'serving_default': model_serving})
 
 # Create a dictionary with all the necessary scaling parameters
 scaling_parameters = {
     "input_mean": scaler_X.mean_.tolist(),
     "input_std": scaler_X.scale_.tolist(),
-    "output_min": scaler_y_numerical.data_min_.tolist(),
-    "output_max": scaler_y_numerical.data_max_.tolist(),
-    "output_movie_genre_encoding": genre_encoding
+    "output_mean": scaler_y.mean_.tolist(),
+    "output_std": scaler_y.mean_.tolist()
 }
 
 # Write to a JSON file
-with open('neuralModel/scaling_parameters_sm.json', 'w') as f:
+with open('neuralModel/scalingParameters/scaling_parameters_ss.json', 'w') as f:
     json.dump(scaling_parameters, f)
 
 

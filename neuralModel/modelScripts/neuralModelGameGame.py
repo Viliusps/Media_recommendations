@@ -1,50 +1,52 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Conv1D, BatchNormalization, MaxPooling1D, Flatten
-from scipy.spatial.distance import cosine, euclidean
-from sklearn.metrics import pairwise_distances
+from keras.layers import Dense, Dropout
 from keras.regularizers import l2
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 import tensorflow as tf
 import json
+from keras import backend as K
 
 
-df = pd.read_csv('neuralModel/GameSong/GameSong.csv')
+df = pd.read_csv('neuralModel/datasets/GameGame.csv')
 
-song_features = [
-    'song_bpmHistogramFirstPeakBpmMean', 'song_danceability', 
-    'song_bpmHistogramSecondPeakBpmMedian', 'song_tuningEqualTemperedDeviation', 
-    'song_tuningFrequency', 'song_bpmHistogramSecondPeakBpmMean', 
-    'song_bpm', 'song_bpmHistogramFirstPeakBpmMedian', 'song_mfccZeroMean', 
-    'song_onsetRate', 'song_averageLoudness', 'song_dynamicComplexity'
-]
+in_game_numerical_features = ['firstGame_releaseDate', 'firstGame_rating', 'firstGame_playtime']
+out_game_numerical_features = ['secondGame_releaseDate', 'secondGame_rating', 'secondGame_playtime']
 
-game_numerical_features = ['game_releaseDate', 'game_rating', 'game_playtime']
+X_numerical = df[in_game_numerical_features].astype('float32')
+X_genre = pd.get_dummies(df['firstGame_genres_0'], dtype='float32')
 
-X = df[song_features].astype('float32')
-y_numerical = df[game_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['game_genres_0'], dtype='float32')
+y_numerical = df[out_game_numerical_features].astype('float32')
+y_genre = pd.get_dummies(df['secondGame_genres_0'], dtype='float32')
 
-X_train, X_test, y_train_numerical, y_test_numerical = train_test_split(X, y_numerical, test_size=0.2, random_state=42)
-_, _, y_train_genre, y_test_genre = train_test_split(X, y_genre, test_size=0.2, random_state=42)
+X_train_numerical, X_test_numerical, y_train_numerical, y_test_numerical = train_test_split(X_numerical, y_numerical, test_size=0.2, random_state=42)
+X_train_genre, X_test_genre, y_train_genre, y_test_genre = train_test_split(X_genre, y_genre, test_size=0.2, random_state=42)
 
+scaler_X_numerical = MinMaxScaler().fit(X_train_numerical)
 scaler_y_numerical = MinMaxScaler().fit(y_train_numerical)
-scaler_X = StandardScaler().fit(X_train)
 
+X_train_numerical_scaled = scaler_X_numerical.transform(X_train_numerical)
+X_test_numerical_scaled = scaler_X_numerical.transform(X_test_numerical)
 y_train_numerical_scaled = scaler_y_numerical.transform(y_train_numerical)
 y_test_numerical_scaled = scaler_y_numerical.transform(y_test_numerical)
-X_train_scaled = scaler_X.transform(X_train)
-X_test_scaled = scaler_X.transform(X_test)
+
+X_train = np.concatenate((X_train_numerical_scaled, X_train_genre), axis=1)
+X_test = np.concatenate((X_test_numerical_scaled, X_test_genre), axis=1)
 
 y_train = np.concatenate((y_train_numerical_scaled, y_train_genre), axis=1)
 y_test = np.concatenate((y_test_numerical_scaled, y_test_genre), axis=1)
 
+def r_squared(y_true, y_pred):
+    SS_res =  K.sum(K.square(y_true - y_pred)) 
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true))) 
+    return (1 - SS_res/(SS_tot + K.epsilon()))
+
 model = Sequential([
-    Dense(64, activation='relu', input_shape=(X_train_scaled.shape[1],), name='dense_input'),
+    Dense(64, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
     Dropout(0.2),
     Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
     Dropout(0.2),
@@ -54,40 +56,59 @@ model = Sequential([
 ])
 
 adam = Adam(learning_rate=0.001)
-model.compile(optimizer=adam, loss='mse', metrics=['mae'])
+model.compile(optimizer=adam, loss='mse', metrics=['mae', r_squared])
 
-history = model.fit(X_train_scaled, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
 
 @tf.function(input_signature=[tf.TensorSpec(shape=[None, X_train.shape[1]], dtype=tf.float32, name='dense_input')])
 def model_serving(dense_input):
     return model(dense_input, training=False)
 
-tf.saved_model.save(model, 'neuralModel/model_sg', signatures={'serving_default': model_serving})
+tf.saved_model.save(model, 'neuralModel/model_gg', signatures={'serving_default': model_serving})
 
-genre_encoding = y_genre.columns.tolist()
+input_genre_encoding = X_genre.columns.tolist()
+output_genre_encoding = y_genre.columns.tolist()
 
 scaling_parameters = {
+    "input_min": scaler_X_numerical.data_min_.tolist(),
+    "input_max": scaler_X_numerical.data_max_.tolist(),
     "output_min": scaler_y_numerical.data_min_.tolist(),
     "output_max": scaler_y_numerical.data_max_.tolist(),
-    "input_mean": scaler_X.mean_.tolist(),
-    "input_std": scaler_X.scale_.tolist(),
-    "output_game_genre_encoding": genre_encoding
+    "input_game_genre_encoding": input_genre_encoding,
+    "output_game_genre_encoding": output_genre_encoding
 }
 
-with open('neuralModel/scaling_parameters_sg.json', 'w') as f:
+with open('neuralModel/scalingParameters/scaling_parameters_gg.json', 'w') as f:
     json.dump(scaling_parameters, f)
 
 
 #print(X_test_numerical_scaled[0], " vs ", X_test_numerical[0])
 
 
-# plt.plot(history.history['loss'], label='Train')
-# plt.plot(history.history['val_loss'], label='Validation')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+plt.plot(history.history['loss'], label='Train')
+plt.plot(history.history['val_loss'], label='Validation')
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(loc='upper right')
+plt.show()
+
+y_pred = model.predict(X_test)
+
+actual = y_test[:, 0]
+predicted = y_pred[:, 0]
+
+plt.figure(figsize=(10, 6))
+plt.scatter(actual, predicted, alpha=0.5)
+plt.title('Actual vs. Predicted for the First Feature')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.grid(True)
+
+# Plot a line of perfect prediction
+plt.plot([actual.min(), actual.max()], [actual.min(), actual.max()], 'k--', lw=2)
+plt.show()
+
 
 # test_loss, test_mae = model.evaluate(X_test, y_test_scaled)
 # print(f'Test Loss: {test_loss}, Test MAE: {test_mae}')
@@ -113,6 +134,8 @@ with open('neuralModel/scaling_parameters_sg.json', 'w') as f:
 # print(f'Mean Cosine Similarity: {cosine_sim}')
 # print(f'Mean Euclidean Distance: {euclidean_dist}')
 # print(y_pred[0], " vs ", y_test[0])
+
+
 
 # for i in range(y_test.shape[1]):
 #     plt.figure()
