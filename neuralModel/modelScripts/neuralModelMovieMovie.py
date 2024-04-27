@@ -12,13 +12,13 @@ import json
 
 df = pd.read_csv('neuralModel/datasets/MovieMovie.csv')
 
-firstMovie_numerical_features = ['firstMovie_Released', 'firstMovie_Runtime', 'firstMovie_imdbVotes', 'firstMovie_imdbRating']
-secondMovie_numerical_features = ['secondMovie_Released', 'secondMovie_Runtime', 'secondMovie_imdbVotes', 'secondMovie_imdbRating']
+firstMovie_numerical_features = ['First_Movie_released', 'First_Movie_runtime', 'First_Movie_imdb_votes', 'First_Movie_imdb_rating']
+secondMovie_numerical_features = ['Second_Movie_released', 'Second_Movie_runtime', 'Second_Movie_imdb_votes', 'Second_Movie_imdb_rating']
 
 y_numerical = df[secondMovie_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['secondMovie_Genre_0'], dtype='float32')
+y_genre = pd.get_dummies(df['Second_Movie_genre_0'], dtype='float32')
 X_numerical = df[firstMovie_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['firstMovie_Genre_0'], dtype='float32')
+X_genre = pd.get_dummies(df['First_Movie_genre_0'], dtype='float32')
 
 X_train_numerical, X_test_numerical, y_train_numerical, y_test_numerical = train_test_split(X_numerical, y_numerical, test_size=0.2, random_state=42)
 X_train_genre, X_test_genre, y_train_genre, y_test_genre = train_test_split(X_genre, y_genre, test_size=0.2, random_state=42)

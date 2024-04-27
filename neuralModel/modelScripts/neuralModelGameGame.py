@@ -14,14 +14,14 @@ from keras import backend as K
 
 df = pd.read_csv('neuralModel/datasets/GameGame.csv')
 
-in_game_numerical_features = ['firstGame_releaseDate', 'firstGame_rating', 'firstGame_playtime']
-out_game_numerical_features = ['secondGame_releaseDate', 'secondGame_rating', 'secondGame_playtime']
+in_game_numerical_features = ['First_Game_release_date', 'First_Game_rating', 'First_Game_playtime']
+out_game_numerical_features = ['Second_Game_release_date', 'Second_Game_rating', 'Second_Game_playtime']
 
 X_numerical = df[in_game_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['firstGame_genres_0'], dtype='float32')
+X_genre = pd.get_dummies(df['First_Game_genres_0'], dtype='float32')
 
 y_numerical = df[out_game_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['secondGame_genres_0'], dtype='float32')
+y_genre = pd.get_dummies(df['Second_Game_genres_0'], dtype='float32')
 
 X_train_numerical, X_test_numerical, y_train_numerical, y_test_numerical = train_test_split(X_numerical, y_numerical, test_size=0.2, random_state=42)
 X_train_genre, X_test_genre, y_train_genre, y_test_genre = train_test_split(X_genre, y_genre, test_size=0.2, random_state=42)

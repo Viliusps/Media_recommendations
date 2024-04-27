@@ -10,18 +10,16 @@ import tensorflow as tf
 import json
 
 
-df = pd.read_csv('neuralModel/datasets/MovieGame.csv')
+df = pd.read_csv('neuralModel/datasets/GameMovie.csv')
 
-game_numerical_features = ['game_releaseDate', 'game_rating', 'game_playtime']
-
-df['game_ReleaseDate'] = pd.to_datetime(df['game_releaseDate']).dt.year.astype('float32')
-movie_numerical_features = ['movie_Released', 'movie_Runtime', 'movie_imdbVotes', 'movie_imdbRating']
+game_numerical_features = ['Game_release_date', 'Game_rating', 'Game_playtime']
+movie_numerical_features = ['Movie_released', 'Movie_runtime', 'Movie_imdb_votes', 'Movie_imdb_rating']
 
 X_numerical = df[movie_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['movie_Genre_0'], dtype='float32')
+X_genre = pd.get_dummies(df['Movie_genre_0'], dtype='float32')
 
 y_numerical = df[game_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['game_genres_0'], dtype='float32')
+y_genre = pd.get_dummies(df['Game_genres_0'], dtype='float32')
 
 
 X_train_numerical, X_test_numerical, y_train_numerical, y_test_numerical = train_test_split(X_numerical, y_numerical, test_size=0.2, random_state=42)

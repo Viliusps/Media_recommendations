@@ -13,18 +13,18 @@ import json
 df = pd.read_csv('neuralModel/datasets/GameSong.csv')
 
 song_features = [
-    'song_bpmHistogramFirstPeakBpmMean', 'song_danceability', 
-    'song_bpmHistogramSecondPeakBpmMedian', 'song_tuningEqualTemperedDeviation', 
-    'song_tuningFrequency', 'song_bpmHistogramSecondPeakBpmMean', 
-    'song_bpm', 'song_bpmHistogramFirstPeakBpmMedian', 'song_mfccZeroMean', 
-    'song_onsetRate', 'song_averageLoudness', 'song_dynamicComplexity'
+    'Song_bpm_histogram_first_peak_bpm_mean', 'Song_danceability', 
+    'Song_bpm_histogram_second_peak_bpm_median', 'Song_tuning_equal_tempered_deviation', 
+    'Song_tuning_frequency', 'Song_bpm_histogram_second_peak_bpm_mean', 
+    'Song_bpm', 'Song_bpm_histogram_first_peak_bpm_median', 'Song_mfcc_zero_mean', 
+    'Song_onset_rate', 'Song_average_loudness', 'Song_dynamic_complexity'
 ]
 
-game_numerical_features = ['game_releaseDate', 'game_rating', 'game_playtime']
+game_numerical_features = ['Game_release_date', 'Game_rating', 'Game_playtime']
 
 X = df[song_features].astype('float32')
 y_numerical = df[game_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['game_genres_0'], dtype='float32')
+y_genre = pd.get_dummies(df['Game_genres_0'], dtype='float32')
 
 X_train, X_test, y_train_numerical, y_test_numerical = train_test_split(X, y_numerical, test_size=0.2, random_state=42)
 _, _, y_train_genre, y_test_genre = train_test_split(X, y_genre, test_size=0.2, random_state=42)

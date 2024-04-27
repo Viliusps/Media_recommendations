@@ -13,19 +13,19 @@ import json
 df = pd.read_csv('neuralModel/datasets/SongSong.csv')
 
 firstSong_features = [
-    'firstSong_bpmHistogramFirstPeakBpmMean', 'firstSong_danceability', 
-    'firstSong_bpmHistogramSecondPeakBpmMedian', 'firstSong_tuningEqualTemperedDeviation', 
-    'firstSong_tuningFrequency', 'firstSong_bpmHistogramSecondPeakBpmMean', 
-    'firstSong_bpm', 'firstSong_bpmHistogramFirstPeakBpmMedian', 'firstSong_mfccZeroMean', 
-    'firstSong_onsetRate', 'firstSong_averageLoudness', 'firstSong_dynamicComplexity'
+    'First_Song_bpm_histogram_first_peak_bpm_mean', 'First_Song_danceability', 
+    'First_Song_bpm_histogram_second_peak_bpm_median', 'First_Song_tuning_equal_tempered_deviation', 
+    'First_Song_tuning_frequency', 'First_Song_bpm_histogram_second_peak_bpm_mean', 
+    'First_Song_bpm', 'First_Song_bpm_histogram_first_peak_bpm_median', 'First_Song_mfcc_zero_mean', 
+    'First_Song_onset_rate', 'First_Song_average_loudness', 'First_Song_dynamic_complexity'
 ]
 
 secondSong_features = [
-    'secondSong_bpmHistogramFirstPeakBpmMean', 'secondSong_danceability', 
-    'secondSong_bpmHistogramSecondPeakBpmMedian', 'secondSong_tuningEqualTemperedDeviation', 
-    'secondSong_tuningFrequency', 'secondSong_bpmHistogramSecondPeakBpmMean', 
-    'secondSong_bpm', 'secondSong_bpmHistogramFirstPeakBpmMedian', 'secondSong_mfccZeroMean', 
-    'secondSong_onsetRate', 'secondSong_averageLoudness', 'secondSong_dynamicComplexity'
+    'Second_Song_bpm_histogram_first_peak_bpm_mean', 'Second_Song_danceability', 
+    'Second_Song_bpm_histogram_second_peak_bpm_median', 'Second_Song_tuning_equal_tempered_deviation', 
+    'Second_Song_tuning_frequency', 'Second_Song_bpm_histogram_second_peak_bpm_mean', 
+    'Second_Song_bpm', 'Second_Song_bpm_histogram_first_peak_bpm_median', 'Second_Song_mfcc_zero_mean', 
+    'Second_Song_onset_rate', 'Second_Song_average_loudness', 'Second_Song_dynamic_complexity'
 ]
 
 X = df[firstSong_features].astype('float32')

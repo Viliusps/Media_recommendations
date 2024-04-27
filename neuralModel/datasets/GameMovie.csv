@@ -1,4 +1,4 @@
-game_genres_0,movie_id,movie_Released,movie_Genre_1,game_releaseDate,game_rating,game_playtime,game_genres_1,movie_Runtime,movie_imdbVotes,movie_imdbRating,movie_Genre_0
+Game_genres_0,Movie_id,Movie_released,Movie_genre_1,Game_release_date,Game_rating,Game_playtime,Game_genres_1,Movie_runtime,Movie_imdb_votes,Movie_imdb_rating,Movie_genre_0
 Adventure,0,2001,Drama,2020,4.37,2,Fantasy,100,944526,8.2,Horror
 Adventure,,2017,Crime,2011,4.4,47,Fantasy,120,2071776,7.8,Animation
 Action,,2003,Adventure,2023,4.2,0,Adventure,102,1078789,8.8,Animation
