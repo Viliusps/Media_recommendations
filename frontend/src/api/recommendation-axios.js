@@ -21,7 +21,7 @@ export const recommend = async (
   return response.data;
 };
 
-export const testNeural = async (
+export const neuralRecommend = async (
   recommendingType,
   recommendingByType,
   recommendingBy,
@@ -31,7 +31,7 @@ export const testNeural = async (
   if (recommendingByType === 'Spotify' || recommendingByType === 'Steam')
     username = localStorage.getItem('userName');
   const response = await axios.post(
-    `${URL}/recommend/test`,
+    `${URL}/recommend/neural`,
     { recommendingType, recommendingByType, recommendingBy, username, recommendingByID },
     authHeader()
   );

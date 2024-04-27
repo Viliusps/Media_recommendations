@@ -3,7 +3,6 @@ package com.media.recommendations.service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -47,12 +46,10 @@ public class ScalingService {
         float[] inputStd = jsonArrayToFloatArray(jsonObject.getJSONArray("input_std"));
         StandardScaler outputScaler = new StandardScaler(inputMean, inputStd);
         float[] scaledFeatures = outputScaler.transform(originalFeatures);
-        System.out.println("Transformed song features: " + Arrays.toString(scaledFeatures));
         return scaledFeatures;
     }
     
     public float[] rescaleSongFeatures(float[] scaledFeatures, String filePath) {
-        System.out.println("Features before trying to rescale: " + Arrays.toString(scaledFeatures));
         JSONObject jsonObject = getJsonObject(filePath);
         float[] outputMean = jsonArrayToFloatArray(jsonObject.getJSONArray("output_mean"));
         float[] outputStd = jsonArrayToFloatArray(jsonObject.getJSONArray("output_std"));
@@ -105,8 +102,6 @@ public class ScalingService {
         float rescaledImdbVotes = inputScaler.inverseTransform(scaledFeatures[2], 2);
         float rescaledImdbRating = inputScaler.inverseTransform(scaledFeatures[3], 3);
 
-        System.out.println("MOVIE GENRES: " + Arrays.toString(encoder));
-        System.out.println("MOVIE RESPONSE GENRES: " + Arrays.toString(scaledFeatures));
         String genre = "";
         double maxVal = scaledFeatures[4];
         int maxInd = 0;
@@ -117,8 +112,6 @@ public class ScalingService {
             }
         }
         genre = encoder[maxInd];
-        System.out.println("Highest genre value: " + maxVal);
-        System.out.println("genre: " + genre);
         rescaledFeatures.setImdbVotes((int)rescaledImdbVotes);
         rescaledFeatures.setImdbRating(rescaledImdbRating);
         rescaledFeatures.setRuntime((int)rescaledRuntime);
@@ -140,11 +133,8 @@ public class ScalingService {
         float scaledRating = inputScaler.scale((float)features.getRating(), 1);
         float scaledPlaytime = inputScaler.scale((float)features.getPlaytime(), 2);
 
-        System.out.println("Unscaled genre: " + features.getGenre());
         float[] genreEncoded = new float[encoder.length];
-        System.out.println(encoder);
         Integer genreIndex = java.util.Arrays.asList(encoder).indexOf(features.getGenre());
-        System.out.println("Index: " + genreIndex);
         if (genreIndex != null && genreIndex != -1) {
             genreEncoded[genreIndex] = 1;
         }
@@ -168,13 +158,8 @@ public class ScalingService {
         MinMaxScaler inputScaler = new MinMaxScaler(outputMin, outputMax);
 
         int year = (int) inputScaler.inverseTransform(scaledFeatures[0], 0);
-        System.out.println("Rescaled year: " + year);
-        
         float rescaledRating = inputScaler.inverseTransform(scaledFeatures[1], 1);
-        System.out.println("Rescaled rating: " + rescaledRating);
-
         float rescaledPlaytime = inputScaler.inverseTransform(scaledFeatures[2], 2);
-        System.out.println("Rescaled playtime: " + rescaledPlaytime);
         String genre = "";
         double maxVal = scaledFeatures[3];
         int maxInd = 0;

@@ -16,7 +16,7 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
 
     List<Recommendation> getByUser(User user);
     
-    @Query(value = "SELECT COUNT(*) FROM recommendations WHERE first_type = :firstType AND second_type = :secondType", nativeQuery = true)
-    Long countByFirstTypeAndSecondType(String firstType, String secondType);
+    @Query(value = "SELECT COUNT(*) FROM recommendations WHERE first_type = :firstType AND second_type = :secondType AND rating = true", nativeQuery = true)
+    Long countByFirstTypeAndSecondTypeAndPositive(String firstType, String secondType);
 
 }

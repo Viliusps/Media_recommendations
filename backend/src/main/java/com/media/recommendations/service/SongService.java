@@ -146,6 +146,32 @@ public class SongService {
         return songRepository.save(songFromDb);
     }
 
+    private void updateSongAddFeatures(String mbid, Map<String, String> features) {
+        Song songFromDb = songRepository.getBymbid(mbid);
+
+        songFromDb.setMfccZeroMean(features.get("mfccZeroMean"));
+        songFromDb.setDynamicComplexity(features.get("dynamicComplexity"));
+        songFromDb.setAverageLoudness(features.get("averageLoudness"));
+        songFromDb.setOnsetRate(features.get("onsetRate"));
+        songFromDb.setBpmHistogramSecondPeakBpmMedian(features.get("bpmHistogramSecondPeakBpmMedian"));
+        songFromDb.setBpmHistogramSecondPeakBpmMean(features.get("bpmHistogramSecondPeakBpmMean"));
+        songFromDb.setBpmHistogramFirstPeakBpmMedian(features.get("bpmHistogramFirstPeakBpmMedian"));
+        songFromDb.setBpmHistogramFirstPeakBpmMean(features.get("bpmHistogramFirstPeakBpmMean"));
+        songFromDb.setBpm(features.get("bpm"));
+        songFromDb.setDanceability(features.get("danceability"));
+        songFromDb.setTuningFrequency(features.get("tuningFrequency"));
+        songFromDb.setTuningEqualTemperedDeviation(features.get("tuningEqualTemperedDeviation"));
+
+        songRepository.save(songFromDb);
+    }
+
+    private void updateSongAddMbid(String mbid, String isrc) {
+        Song songFromDb = songRepository.getByisrc(isrc);
+
+        songFromDb.setMbid(mbid);
+        songRepository.save(songFromDb);
+    }
+
     public void deleteSong(Long id) {
         songRepository.deleteById(id);
     }
@@ -162,6 +188,22 @@ public class SongService {
             return response;
         }
         return new SpotifyHistoryResponse();
+    }
+
+    public String getSpotifyHistoryNames(String username) {
+        User user = userService.userByUsername(username);
+        Long userId = user.getId();
+        List<SpotifyHistory> history = spotifyRepository.findAllByUserId(userId);
+        if(history.size() > 0) {
+            List<Song> songs = history.stream()
+                .map(SpotifyHistory::getSong)
+                .collect(Collectors.toList());
+            String allSongNames = songs.stream()
+                .map(Song::getTitle)
+                .collect(Collectors.joining(", "));
+            return allSongNames;
+        }
+        return "";
     }
 
     public String getAccessToken() {
@@ -351,7 +393,6 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public List<Song> getSongSuggestions(String name) {
-        System.out.println("Suggestions for song: " + name);
         List<Song> songs = new ArrayList<>();
         String accessToken = getAccessToken();
 
@@ -369,7 +410,6 @@ public class SongService {
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            System.out.println(builder.toUriString());
             ResponseEntity<Map> response = new RestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Map.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
@@ -388,7 +428,6 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Song getSongByNameFromSpotify(String name) {
-        System.out.println("Searching for this song on spotify: " + name);
         String accessToken = getAccessToken();
         Song song = null;
 
@@ -421,7 +460,6 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Song getSongByISRCFromSpotify(String isrc) {
-        System.out.println("Getting song by isrc: " + isrc);
         String accessToken = getAccessToken();
         Song song = null;
 
@@ -447,7 +485,6 @@ public class SongService {
                 List<Map<String, Object>> tracks = (List<Map<String, Object>>) ((Map<String, Object>) responseBody.get("tracks")).get("items");
                 if (!tracks.isEmpty()) {
                     song = parseSpotifyResponse(tracks, 0);
-                    System.out.println("Got song: " + song.getTitle());
                 }
             }
         }
@@ -504,9 +541,11 @@ public class SongService {
         String trackId = song.getSpotifyId();
         String title = song.getTitle();
         String isrc = getISRCByTrackId(trackId);
+        song.setIsrc(isrc);
         if(isrc != null) {
             String mbid = getMBIDByISRC(isrc, title);
-            if(mbid != null) {
+            song.setMbid(mbid);
+            if(mbid != null && song.getBpm() == null) {
                 Map<String, String> features = getSongFeaturesByMBID(mbid);
                 song.setMfccZeroMean(features.get("mfccZeroMean"));
                 song.setDynamicComplexity(features.get("dynamicComplexity"));
@@ -550,7 +589,7 @@ public class SongService {
                     if (mbidNode.size() == 1 && mbidNode.has("0")) {
                         mbidNode = mbidNode.get("0");
                     }
-                    return extractFeaturesFromNode(mbidNode);
+                    return extractFeaturesFromNode(mbidNode, mbid);
                 } else {
                     // If multiple MBIDs are provided, calculate average features
                     return calculateAverageFeatures(rootNode);
@@ -581,7 +620,7 @@ public class SongService {
                 mbidNode = mbidNode.get("0");
             }
 
-            Map<String, String> features = extractFeaturesFromNode(mbidNode);
+            Map<String, String> features = extractFeaturesFromNode(mbidNode, entry.getKey());
 
             // Accumulate feature values
             for (Map.Entry<String, String> featureEntry : features.entrySet()) {
@@ -606,7 +645,7 @@ public class SongService {
         return averageFeatures;
     }
 
-    private Map<String, String> extractFeaturesFromNode(JsonNode rootNode) {
+    private Map<String, String> extractFeaturesFromNode(JsonNode rootNode, String mbid) {
         Map<String, String> selectedFeatures = new HashMap<>();
 
         JsonNode tonalNode = rootNode.path("tonal");
@@ -626,6 +665,8 @@ public class SongService {
         selectedFeatures.put("averageLoudness", lowlevelNode.path("average_loudness").asText());
         selectedFeatures.put("dynamicComplexity", lowlevelNode.path("dynamic_complexity").asText());
         selectedFeatures.put("mfccZeroMean", lowlevelNode.path("mfcc").path("mean").get(0).asText());
+
+        updateSongAddFeatures(mbid, selectedFeatures);
 
         return selectedFeatures;
     }
@@ -651,44 +692,54 @@ public class SongService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getMBIDByISRC(String isrc, String title) {
-        try {
-            Thread.sleep(1500);
-            System.out.println("Getting");
-            String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
+        Song songFromDb = songRepository.getByisrc(isrc);
+        String mbidFromDb = songFromDb.getMbid();
+        if(mbidFromDb != null) return mbidFromDb;
+        else {
+            try {
+                Thread.sleep(1500);
+                String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
-                    .queryParam("query", "isrc:" + isrc)
-                    .queryParam("fmt", "json");
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(musicBrainzUrl)
+                        .queryParam("query", "isrc:" + isrc)
+                        .queryParam("fmt", "json");
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set(HttpHeaders.USER_AGENT, "MyUniProject/0.0.1 (viliusps@gmail.com)");
+                HttpHeaders headers = new HttpHeaders();
+                headers.set(HttpHeaders.USER_AGENT, "MyUniProject/0.0.1 (viliusps@gmail.com)");
 
-            RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, builder.build().toUri());
+                RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, builder.build().toUri());
 
-            ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
+                ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
 
-            if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                List<Map<String, String>> recordings = Optional.ofNullable(responseEntity.getBody())
-                        .map(body -> (List<Map<String, String>>) body.get("recordings"))
-                        .orElse(null);
+                //Muy importante, no deleto por favor!!!!
+                String rateLimitRemaining = responseEntity.getHeaders().getFirst("X-RateLimit-Remaining");
+                System.out.println("MusicBrainz X-RateLimit-Remaining: " + rateLimitRemaining);
+                //----------------------------------------
 
-                if (recordings != null && !recordings.isEmpty()) {
-                    Optional<Map<String, String>> matchingRecording = recordings.stream()
-                            .filter(entry -> isSubstring(entry.get("title"), title) || isSubstring(title, entry.get("title")))
-                            .findFirst();
+                if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                    List<Map<String, String>> recordings = Optional.ofNullable(responseEntity.getBody())
+                            .map(body -> (List<Map<String, String>>) body.get("recordings"))
+                            .orElse(null);
 
-                    return matchingRecording.map(entry -> entry.get("id")).orElse(null);
+                    if (recordings != null && !recordings.isEmpty()) {
+                        Optional<Map<String, String>> matchingRecording = recordings.stream()
+                                .filter(entry -> isSubstring(entry.get("title"), title) || isSubstring(title, entry.get("title")))
+                                .findFirst();
+
+                        String mbid = matchingRecording.map(entry -> entry.get("id")).orElse(null);
+                        updateSongAddMbid(mbid, isrc);
+                        return mbid;
+                    }
+                } else {
+                    System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCode());
                 }
-            } else {
-                System.err.println("MusicBrainz API request failed with status code: " + responseEntity.getStatusCode());
+                return null;
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+                return null;
             }
 
-            return null;
-        } catch(InterruptedException e) {
-            e.printStackTrace();
-            return null;
         }
-        
     }
 
     private static boolean isSubstring(String str1, String str2) {
@@ -798,25 +849,15 @@ public class SongService {
         resultSong.setTitle(songAndArtistName.getSongName());
         resultSong.setSinger(songAndArtistName.getArtistName());
 
-        // Song songFromSpotify = getSongByNameAndArtistFromSpotify(songAndArtistName);
-        // System.out.println("Got song from spotify");
-        // resultSong.setImageUrl(songFromSpotify.getImageUrl());
-        // resultSong.setIsrc(songFromSpotify.getIsrc());
-        // resultSong.setSinger(songFromSpotify.getSinger());
-        // resultSong.setSpotifyId(songFromSpotify.getSpotifyId());
-        // resultSong.setTitle(songFromSpotify.getTitle());
-
         return resultSong;
     }
     public SongArtistName getSongAndArtistNameFromMbid(String mbid) {
-        System.out.println("Getting song and artist from mbid: " + mbid);
         String url = "https://musicbrainz.org/ws/2/recording/?query=mbid:" + mbid + "&fmt=json&inc=isrcs";
          try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(url);
             request.addHeader("User-Agent", "MyUniProject/0.0.1 (viliusps@gmail.com)");
             HttpResponse response = client.execute(request);
             String jsonResponse = EntityUtils.toString(response.getEntity());
-            System.out.println(jsonResponse);
             
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(jsonResponse);
@@ -825,8 +866,6 @@ public class SongService {
             JsonNode artistCreditNode = recordingNode.path("artist-credit").get(0);
             String artistName = artistCreditNode.path("name").asText();
 
-            System.out.println("Song Name: " + songName);
-            System.out.println("Artist Name: " + artistName);
             SongArtistName songArtistName = new SongArtistName();
             songArtistName.setSongName(songName);
             songArtistName.setArtistName(artistName);

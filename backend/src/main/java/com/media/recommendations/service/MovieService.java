@@ -158,10 +158,8 @@ public class MovieService {
     }
 
     public Movie getMovieFromOmdbByIMBDID(String imdbId) {
-        System.out.println("Geting movie by imdbid: " + imdbId);
         String apiUrl = String.format("%s?apikey=%s&i=%s", omdbApiUrl, apiKey, imdbId);
         Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
-        System.out.println("Got movie: " + omdbMovie.getTitle());
         return omdbMovie;
     }
 
@@ -176,7 +174,6 @@ public class MovieService {
         double minDistance = Double.MAX_VALUE;
         String filePath = "movieFeaturesFinal.tsv";
         double threshold = 0.1;
-        System.out.println("Model recommendation: " + genre + " " + year + " " + runtime + " " + imdbRating);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -210,8 +207,6 @@ public class MovieService {
             e.printStackTrace();
             return null;
         }
-        System.out.println("Closest row: " + closestRow);
-
         String imdbId = closestRow.split("\t")[0];
         return getMovieFromOmdbByIMBDID(imdbId);
     }

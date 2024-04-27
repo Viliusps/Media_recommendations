@@ -25,4 +25,6 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     boolean existsByisrc(String isrc);
 
     Song getByisrc(String isrc);
+
+    Song getBymbid(String mbid);
 }

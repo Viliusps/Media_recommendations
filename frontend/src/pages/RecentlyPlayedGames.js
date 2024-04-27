@@ -62,9 +62,7 @@ const RecentlyPlayedGames = () => {
   };
 
   const getRecommendation = () => {
-    const gameNames = recentGames.map((game) => game.name);
-    const resultString = gameNames.join(', ');
-    navigate(`/recommendationResults/${type}/${resultString}/${'Steam'}`);
+    navigate(`/recommendationResults/${type}/games/Steam/id`);
   };
 
   return (

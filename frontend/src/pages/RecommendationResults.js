@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { rateRecommendation, recommend, testNeural } from '../api/recommendation-axios';
+import { rateRecommendation, recommend, neuralRecommend } from '../api/recommendation-axios';
 import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
@@ -21,11 +21,7 @@ const RecommendationResults = () => {
   useEffect(() => {
     setLoadingGPT(true);
     setLoadingNeural(true);
-    const selection = localStorage.getItem('selection');
-    console.log('Selection: ' + selection);
-    console.log('Recommending type: ' + recommendingType);
-    console.log('recommending by type: ' + recommendingByType);
-    console.log('recommending by: ' + recommendingBy);
+    console.log(recommendingType, recommendingByType, recommendingBy, recommendingByID);
     recommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
         console.log(result);
@@ -44,7 +40,7 @@ const RecommendationResults = () => {
       .finally(() => {
         setLoadingGPT(false);
       });
-    testNeural(recommendingType, recommendingByType, recommendingBy, recommendingByID)
+    neuralRecommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
         console.log(result);
         if (result.type == 'Movie') setNeuralRecommendation(result.movie);
