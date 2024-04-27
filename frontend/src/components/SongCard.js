@@ -7,6 +7,8 @@ export default function SongCard({ song }) {
   const Navigate = useNavigate();
   return (
     <Card
+      width={300}
+      height={420}
       transition="transform 0.2s ease-in-out, box-shadow 0.3s ease"
       _hover={{
         transform: 'scale(1.05)',
@@ -37,7 +39,8 @@ export default function SongCard({ song }) {
             style={{
               width: 'fit-content',
               height: 'fit-content',
-              margin: 'auto'
+              margin: 'auto',
+              color: 'green'
             }}>
             <PlayCircleOutlineIcon />
           </Button>

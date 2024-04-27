@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getPageMovies, searchMovies } from '../api/movies-axios';
 import { useNavigate } from 'react-router-dom';
-import DisplayCard from '../components/MovieCard';
+import MovieCard from '../components/MovieCard';
 import LoadingWrapper from '../components/LoadingWrapper';
 import { Input, Button, Grid, GridItem, useColorModeValue, Heading } from '@chakra-ui/react';
 import styled from 'styled-components';
@@ -98,7 +98,7 @@ export default function Movies() {
             <Grid templateColumns="repeat(5, 1fr)" gap={6}>
               {movies.map((movie) => (
                 <GridItem key={movie.id}>
-                  <DisplayCard movie={movie} />
+                  <MovieCard movie={movie} />
                 </GridItem>
               ))}
             </Grid>

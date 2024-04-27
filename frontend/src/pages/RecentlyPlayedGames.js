@@ -6,26 +6,13 @@ import {
   Text,
   Input,
   Container,
-  Image,
   useColorModeValue,
   Heading,
   Tooltip,
-  Flex,
-  Grid,
-  GridItem
+  Flex
 } from '@chakra-ui/react';
-import styled from 'styled-components';
 import { RxQuestionMarkCircled } from 'react-icons/rx';
-
-const GameCard = styled('div')`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
+import SteamGamesList from '../components/SteamGamesList';
 
 const RecentlyPlayedGames = () => {
   const [recentGames, setRecentGames] = useState([]);
@@ -129,23 +116,13 @@ const RecentlyPlayedGames = () => {
           Get Games
         </Button>
         {recentGames.length > 0 && (
-          <div>
+          <>
             <Heading as="h3" size="md" marginTop={5} marginBottom={3}>
               Recently Played Games:
             </Heading>
-            <Grid templateColumns={`repeat(${recentGames.length}, 1fr)`} gap={6}>
-              {recentGames.map((game) => (
-                <GridItem key={game.appid}>
-                  <GameCard>
-                    <Image
-                      src={`https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg`}
-                      alt={game.name}
-                    />
-                    <Text>{game.name}</Text>
-                  </GameCard>
-                </GridItem>
-              ))}
-            </Grid>
+            <Flex justifyContent="center" width="100%">
+              <SteamGamesList games={recentGames} />
+            </Flex>
             <Button
               marginTop={2}
               px={8}
@@ -159,7 +136,7 @@ const RecentlyPlayedGames = () => {
               onClick={() => getRecommendation()}>
               Continue
             </Button>
-          </div>
+          </>
         )}
       </Container>
     </>

@@ -1,36 +1,32 @@
 import { useParams } from 'react-router-dom';
-import { rateRecommendation, recommend } from '../api/recommendation-axios';
+import { rateRecommendation, recommend, testNeural } from '../api/recommendation-axios';
 import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
 import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
 import ObjectFeatures from '../components/ObjectFeatures';
-import {
-  Button,
-  Card,
-  Grid,
-  GridItem,
-  Heading,
-  Stack,
-  Text,
-  useColorModeValue
-} from '@chakra-ui/react';
+import { Button, Card, Grid, GridItem, Heading, Stack, useColorModeValue } from '@chakra-ui/react';
 
 const RecommendationResults = () => {
   const params = useParams();
-  const { recommendingType, recommendingBy, recommendingByType } = params;
+  const { recommendingType, recommendingBy, recommendingByType, recommendingByID } = params;
   const [recommendation, setRecommendation] = useState(null);
+  const [neuralRecommendation, setNeuralRecommendation] = useState(null);
   const [originalRequest, setOriginalRequest] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingGPT, setLoadingGPT] = useState(false);
+  const [loadingNeural, setLoadingNeural] = useState(false);
   const [error, setError] = useState(false);
   const [openRating, setOpenRating] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
+    setLoadingGPT(true);
+    setLoadingNeural(true);
+    const selection = localStorage.getItem('selection');
+    console.log('Selection: ' + selection);
     console.log('Recommending type: ' + recommendingType);
     console.log('recommending by type: ' + recommendingByType);
     console.log('recommending by: ' + recommendingBy);
-    recommend(recommendingType, recommendingByType, recommendingBy)
+    recommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
         console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
@@ -46,7 +42,21 @@ const RecommendationResults = () => {
         setError(true);
       })
       .finally(() => {
-        setLoading(false);
+        setLoadingGPT(false);
+      });
+    testNeural(recommendingType, recommendingByType, recommendingBy, recommendingByID)
+      .then((result) => {
+        console.log(result);
+        if (result.type == 'Movie') setNeuralRecommendation(result.movie);
+        else if (result.type == 'Song') setNeuralRecommendation(result.song);
+        else if (result.type == 'Game') setNeuralRecommendation(result.game);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError(true);
+      })
+      .finally(() => {
+        setLoadingNeural(false);
       });
   }, []);
 
@@ -68,23 +78,41 @@ const RecommendationResults = () => {
   return (
     <>
       <Stack>
-        <Heading>Recommending a: {recommendingType}</Heading>
-        <Text>
-          Recommending by: {recommendingBy} which is a {recommendingByType}
-        </Text>
+        {recommendingByType === 'Spotify' && (
+          <Heading>
+            Recommending a {recommendingType.toLowerCase()} based on your Spotify playlist.
+          </Heading>
+        )}
+        {recommendingByType === 'Steam' && (
+          <Heading>
+            Recommending a {recommendingType.toLowerCase()} based on your Steam playlist.
+          </Heading>
+        )}
+        {(recommendingByType === 'Game' ||
+          recommendingByType === 'Movie' ||
+          recommendingByType === 'Song') && (
+          <Heading>
+            Recommending a {recommendingType.toLowerCase()} based on a{' '}
+            {recommendingByType.toLowerCase()}.
+          </Heading>
+        )}
       </Stack>
-      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+      <Grid marginTop={2} templateColumns="repeat(2, 1fr)" gap={6}>
         <GridItem colSpan={2}>
           <Card>
-            <Heading>Details analyzed by the model:</Heading>
+            <Heading as="h3" size="md">
+              Details analyzed by the model:
+            </Heading>
             <ObjectFeatures object={originalRequest} type={recommendingByType} />
           </Card>
         </GridItem>
 
         <GridItem colSpan={1}>
           <Card>
-            <Heading>ChatGPT recommendation</Heading>
-            <LoadingWrapper loading={loading} error={error}>
+            <Heading as="h3" size="md">
+              ChatGPT recommendation
+            </Heading>
+            <LoadingWrapper loading={loadingGPT} error={error}>
               <RecommendationResultDisplay
                 recommendation={recommendation}
                 recommendingType={recommendingType}
@@ -92,6 +120,7 @@ const RecommendationResults = () => {
             </LoadingWrapper>
           </Card>
           <Button
+            marginTop={2}
             px={8}
             bg={useColorModeValue('#151f21', 'gray.900')}
             color={'white'}
@@ -106,10 +135,12 @@ const RecommendationResults = () => {
         </GridItem>
         <GridItem colSpan={1}>
           <Card>
-            <Heading>Neural model recommendation</Heading>
-            <LoadingWrapper loading={loading} error={error}>
+            <Heading as="h3" size="md">
+              Neural model recommendation
+            </Heading>
+            <LoadingWrapper loading={loadingNeural} error={error}>
               <RecommendationResultDisplay
-                recommendation={recommendation}
+                recommendation={neuralRecommendation}
                 recommendingType={recommendingType}
               />
             </LoadingWrapper>
