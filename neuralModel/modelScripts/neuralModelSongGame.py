@@ -24,7 +24,7 @@ game_numerical_features = ['Game_release_date', 'Game_rating', 'Game_playtime']
 
 X = df[song_features].astype('float32')
 y_numerical = df[game_numerical_features].astype('float32')
-y_genre = pd.get_dummies(df['Game_genres_0'], dtype='float32')
+y_genre = pd.get_dummies(df['Game_genre_0'], dtype='float32')
 
 X_train, X_test, y_train_numerical, y_test_numerical = train_test_split(X, y_numerical, test_size=0.2, random_state=42)
 _, _, y_train_genre, y_test_genre = train_test_split(X, y_genre, test_size=0.2, random_state=42)

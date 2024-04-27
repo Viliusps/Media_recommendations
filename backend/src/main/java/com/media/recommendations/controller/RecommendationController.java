@@ -56,7 +56,7 @@ public class RecommendationController {
 
     @GetMapping("/testScript")
     public String test() {
-        return recommendationService.executePythonScript("Song", "Movie");
+        return recommendationService.executePythonScript("Movie", "Game");
     }
 
     @PostMapping("/temp")

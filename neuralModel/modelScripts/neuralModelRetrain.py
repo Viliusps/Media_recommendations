@@ -119,7 +119,7 @@ for first_id, second_id, first_type, second_type in records:
 
 data_df = process_data(records)
 
-print(data_df.to_string(index=False))
+#print(data_df.to_string(index=False))
 
 cur.close()
 conn.close()
@@ -137,6 +137,8 @@ combined_df = pd.concat([existing_df, data_df], ignore_index=True)
 
 combined_df.to_csv(existing_csv_path, index=False)
 
-filename = f"neuralModel/modelScripts/{first_type}{second_type}.py"
+filename = f"neuralModel/modelScripts/neuralModel{first_type}{second_type}.py"
 with open(filename, 'r') as file:
     exec(file.read())
+
+print("Success")

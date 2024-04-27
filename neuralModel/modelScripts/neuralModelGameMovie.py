@@ -16,7 +16,7 @@ game_numerical_features = ['Game_release_date', 'Game_rating', 'Game_playtime']
 movie_numerical_features = ['Movie_released', 'Movie_runtime', 'Movie_imdb_votes', 'Movie_imdb_rating']
 
 X_numerical = df[game_numerical_features].astype('float32')
-X_genre = pd.get_dummies(df['Game_genres_0'], dtype='float32')
+X_genre = pd.get_dummies(df['Game_genre_0'], dtype='float32')
 
 y_numerical = df[movie_numerical_features].astype('float32')
 y_genre = pd.get_dummies(df['Movie_genre_0'], dtype='float32')
