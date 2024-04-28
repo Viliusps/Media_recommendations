@@ -248,38 +248,51 @@ public class GameService {
     }
 
     public Game getGameFromRAWGByID(String gameId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("User-Agent", "MyUniProject/v1.0");
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        Game gameFromDb = gameRepository.getByrawgID(Integer.parseInt(gameId));
+        if(gameFromDb != null) {
+            return gameFromDb;
+        }
+        else {       
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("User-Agent", "MyUniProject/v1.0");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String gameDetailsUrl = RAWG_API_BASE_URL + "games/" + gameId + "?key=" + rawgApiKey;
-        String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
+            String gameDetailsUrl = RAWG_API_BASE_URL + "games/" + gameId + "?key=" + rawgApiKey;
+            String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
 
-        return parseGameFromDetailsResponse(gameDetailsResponse);
+            return parseGameFromDetailsResponse(gameDetailsResponse);
+        }
+ 
     }
 
     public Game getGameFromRAWG(String gameName) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("User-Agent", "MyUniProject/v1.0");
+         Game gameFromDb = gameRepository.getByName(gameName);
+        if(gameFromDb != null) {
+            return gameFromDb;
+        }
+        else {     
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("User-Agent", "MyUniProject/v1.0");
 
-        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
-        String searchUrl = RAWG_API_BASE_URL + "games?search=" + encodedGameName + "&key=" + rawgApiKey;
+            String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+            String searchUrl = RAWG_API_BASE_URL + "games?search=" + encodedGameName + "&key=" + rawgApiKey;
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        String gameSearchResponse = restTemplate.exchange(searchUrl, HttpMethod.GET, entity, String.class).getBody();
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            String gameSearchResponse = restTemplate.exchange(searchUrl, HttpMethod.GET, entity, String.class).getBody();
 
-        String gameId = parseGameIdFromSearchResponse(gameSearchResponse);
+            String gameId = parseGameIdFromSearchResponse(gameSearchResponse);
 
-        if (gameId != null) {
-            return getGameFromRAWGByID(gameId);
-        } else {
-            return null;
+            if (gameId != null) {
+                return getGameFromRAWGByID(gameId);
+            } else {
+                return null;
+            }
         }
     }
 
-    private Game parseRAWGJsonNode (JsonNode node) {
+    private Game parseRAWGJsonNode(JsonNode node) {
         Game game = new Game();
         game.setName(node.get("name").asText());
         game.setReleaseDate(node.get("released").asText());
@@ -339,6 +352,7 @@ public class GameService {
             game.setPlaytime(root.get("playtime").asInt());
             game.setBackgroundImage(root.get("background_image").asText());
             game.setRawgID(root.get("id").asInt());
+            if(!gameRepository.existsByName(game.getName())) gameRepository.save(game);
             return game;
         } catch (IOException e) {
             e.printStackTrace();
