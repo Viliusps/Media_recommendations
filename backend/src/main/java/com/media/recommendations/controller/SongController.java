@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Song;
-import com.media.recommendations.model.requests.GetClosestSongRequest;
 import com.media.recommendations.model.requests.GetSpotifyHistoryRequest;
 import com.media.recommendations.model.requests.NameRequest;
 import com.media.recommendations.model.requests.SongSearchRequest;
@@ -91,21 +90,9 @@ public class SongController {
         return new ResponseEntity<>(songs, HttpStatus.OK);
     }
 
-    @PostMapping("/check")
-    public ResponseEntity<Boolean> checkIfSongExists(@RequestBody NameRequest request) {
-        Boolean result = songService.checkIfSongExists(request.getName());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
     @PostMapping("/isrc")
     public ResponseEntity<String> getSongISRC(@RequestBody NameRequest request) {
         String result = songService.getISRCBySongName(request.getName());
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @PostMapping("/search-closest")
-    public ResponseEntity<String> searchClosestSongFeature(@RequestBody GetClosestSongRequest request) {
-        String result = songService.getClosestSongFromFeatures(request.getBpm(), request.getAverageLoudness(), request.getDynamicComplexity(), request.getMfccZeroMean(), request.getBpmHistogramFirstPeakMean(), request.getBpmHistogramFirstPeakMedian(), request.getBpmHistogramSecondPeakMean(), request.getBpmHistogramSecondPeakMedian(), request.getDanceability(), request.getOnsetRate(), request.getTuningFrequency(), request.getTuningEqualTemperedDeviation());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -114,4 +101,12 @@ public class SongController {
         SpotifyHistoryResponse response = songService.getSpotifyHistory(request.getUsername());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping("/suggestions")
+    public ResponseEntity<List<Song>> getSongSuggestions(@RequestBody NameRequest request)
+    {
+        List<Song> songs = songService.getSongSuggestions(request.getName());
+        return new ResponseEntity<>(songs, HttpStatus.OK);
+    }
+    
 }

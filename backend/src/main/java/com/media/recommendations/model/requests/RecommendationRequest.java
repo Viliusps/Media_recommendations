@@ -11,4 +11,6 @@ public class RecommendationRequest {
     private String recommendingType;
     private String recommendingByType;
     private String recommendingBy;
+    private String recommendingByID;
+    private String username;
 }

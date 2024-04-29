@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Text } from '@chakra-ui/react';
 
 const RecommendationText = styled.p`
   font-size: 18px;
@@ -10,15 +11,13 @@ const RecommendationText = styled.p`
 export default function RecommendationResultDisplay({ recommendation, recommendingType }) {
   return (
     <>
-      {recommendation && (
+      {recommendation ? (
         <>
-          {recommendingType === 'Song' && recommendation.spotifyId.length > 22 ? (
-            <RecommendationText>{recommendation.spotifyId}</RecommendationText>
-          ) : (
-            recommendingType === 'Song' && (
-              <>
-                <h3>{recommendation.title}</h3>
-                <h4>By: {recommendation.singer}</h4>
+          {recommendingType === 'Song' && (
+            <>
+              <h3>{recommendation.title}</h3>
+              <h4>By: {recommendation.singer}</h4>
+              {recommendation.spotifyId != null && (
                 <RecommendationText
                   onClick={() => {
                     const spotifyUri = `spotify:track:${recommendation.spotifyId}`;
@@ -26,8 +25,8 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
                   }}>
                   Click here!
                 </RecommendationText>
-              </>
-            )
+              )}
+            </>
           )}
           {recommendingType === 'Movie' && recommendation.imdbID.length > 9 ? (
             <RecommendationText>{recommendation.imdbID}</RecommendationText>
@@ -35,13 +34,15 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
             recommendingType === 'Movie' && (
               <>
                 <h3>{recommendation.Title}</h3>
-                <h4>By: {recommendation.Director}</h4>
-                <RecommendationText
-                  onClick={() =>
-                    window.open(`https://www.imdb.com/title/${recommendation.imdbID}`, '_blank')
-                  }>
-                  Click here!
-                </RecommendationText>
+                {recommendation.Director != null && <h4>By: {recommendation.Director}</h4>}
+                {recommendation.imdbID != null && (
+                  <RecommendationText
+                    onClick={() =>
+                      window.open(`https://www.imdb.com/title/${recommendation.imdbID}`, '_blank')
+                    }>
+                    Click here!
+                  </RecommendationText>
+                )}
               </>
             )
           )}
@@ -49,6 +50,8 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
             <RecommendationText>{recommendation.name}</RecommendationText>
           )}
         </>
+      ) : (
+        <Text>Recommendation could not be provided.</Text>
       )}
     </>
   );

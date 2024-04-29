@@ -2,9 +2,16 @@ package com.media.recommendations.service;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.media.recommendations.model.Movie;
 import com.media.recommendations.model.responses.MoviePageResponse;
+import com.media.recommendations.model.responses.OMDBSearchResponse;
 import com.media.recommendations.repository.MovieRepository;
 
 @Service
@@ -109,9 +117,51 @@ public class MovieService {
         movieRepository.deleteById(id);
     }
 
+    public List<OMDBSearchResponse> getMovieSuggestions(String title) throws IOException {
+        List<OMDBSearchResponse> movies = new ArrayList<>();
+        String apiUrl = String.format("%s?apikey=%s&s=%s", omdbApiUrl, apiKey, title.replace(" ", "+"));
+        URL url = new URL(apiUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+
+        if (responseCode != 200) {
+            throw new RuntimeException("HttpResponseCode: " + responseCode);
+        } else {
+            StringBuilder inline = new StringBuilder();
+            Scanner scanner = new Scanner(url.openStream());
+
+            while (scanner.hasNext()) {
+                inline.append(scanner.nextLine());
+            }
+            scanner.close();
+
+            JSONObject dataObject = new JSONObject(inline.toString());
+            JSONArray searchArray = dataObject.getJSONArray("Search");
+
+            for (int i = 0; i < Math.min(searchArray.length(), 5); i++) {
+                JSONObject movieJson = searchArray.getJSONObject(i);
+                String movieTitle = movieJson.getString("Title");
+                String movieYear = movieJson.getString("Year");
+                String imdbId = movieJson.getString("imdbID");
+                movies.add(new OMDBSearchResponse(movieTitle, movieYear, imdbId));
+            }
+        }
+        return movies;
+    }
+
     public Movie getMovieFromOmdb(String title) {
         String apiUrl = String.format("%s?apikey=%s&t=%s", omdbApiUrl, apiKey, title);
         Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
+        return omdbMovie;
+    }
+
+    public Movie getMovieFromOmdbByIMBDID(String imdbId) {
+        System.out.println("Geting movie by imdbid: " + imdbId);
+        String apiUrl = String.format("%s?apikey=%s&i=%s", omdbApiUrl, apiKey, imdbId);
+        Movie omdbMovie = restTemplate.getForObject(apiUrl, Movie.class);
+        System.out.println("Got movie: " + omdbMovie.getTitle());
         return omdbMovie;
     }
 
@@ -121,42 +171,49 @@ public class MovieService {
         return response;
     }
 
-    public String getClosestMovieFromFeatures(String genres, int year, int runtime) {
+    public Movie getClosestMovieFromFeatures(String genre, int year, int runtime, Double imdbRating) {
         String closestRow = "";
         double minDistance = Double.MAX_VALUE;
-        String filePath = "movie_features.tsv";
+        String filePath = "movieFeaturesFinal.tsv";
         double threshold = 0.1;
+        System.out.println("Model recommendation: " + genre + " " + year + " " + runtime + " " + imdbRating);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 String[] values = line.split("\t");
-                String rowGenres = values[8];
+                List<String> rowGenres = Arrays.asList(values[8].split(","));
                 int rowYear = values[5].equals("\\N") ? 0 : Integer.parseInt(values[5]);
                 int rowRuntime = values[7].equals("\\N") ? 0 : Integer.parseInt(values[7]);
+                Double rowRating = values[9].equals("\\N") ? 0 : Double.parseDouble(values[9]);
 
-                boolean genresMatch = rowGenres.equals(genres);
+                boolean genresMatch = genre.isEmpty() || rowGenres.contains(genre);
 
+                double distance = Math.sqrt(Math.pow(year - rowYear, 2) +
+                                            Math.pow(runtime - rowRuntime, 2) +
+                                            Math.pow(imdbRating - rowRating, 2));
+                
                 if (genresMatch) {
-                    double distance = Math.sqrt(Math.pow(year - rowYear, 2) +
-                                                Math.pow(runtime - rowRuntime, 2));
+                    distance *= 0.75;
+                }
 
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestRow = line;
-                        if (minDistance <= threshold) {
-                            break;
-                        }
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestRow = line;
+                    if (minDistance <= threshold) {
+                        break;
                     }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return "Error reading the TSV file.";
+            return null;
         }
+        System.out.println("Closest row: " + closestRow);
 
-        return closestRow;
+        String imdbId = closestRow.split("\t")[0];
+        return getMovieFromOmdbByIMBDID(imdbId);
     }
 
     public void increasePopularity(Movie movie) {

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getUserSpotifySongs } from '../api/songs-axios';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Text, Tooltip, Icon, useColorModeValue, Heading } from '@chakra-ui/react';
+import { Button, useColorModeValue, Heading, VStack } from '@chakra-ui/react';
+import SpotifySongsList from '../components/SpotifySongsList';
 
 // eslint-disable-next-line no-undef
 const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -13,46 +13,13 @@ const PageContainer = styled.div`
   text-align: center;
 `;
 
-const SongListContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-`;
-
-const SongCard = styled.div`
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  overflow: hidden;
-  width: 200px;
-  text-align: center;
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-`;
-
-const SongImg = styled.img`
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-`;
-
-const SongCardContent = styled.div`
-  padding: 10px;
-`;
-
 export default function RecentlyPlayedSongs() {
   const [userSongs, setUserSongs] = useState([]);
   const [loggedin, setLoggedin] = useState(false);
-  const [showSongs, setShowSongs] = useState(false);
   const params = useParams();
   const { type } = params;
   const navigate = useNavigate();
-
+  const [showSongs, setShowSongs] = useState(false);
   const handleShowSongs = () => {
     setShowSongs(!showSongs);
   };
@@ -90,54 +57,36 @@ export default function RecentlyPlayedSongs() {
     <PageContainer>
       {loggedin ? (
         <>
-          <Heading>Recommending based on a playlist.</Heading>
-          <Button
-            marginTop={2}
-            px={8}
-            bg={useColorModeValue('#151f21', 'gray.900')}
-            color={'white'}
-            rounded={'md'}
-            _hover={{
-              transform: 'translateY(-2px)',
-              boxShadow: 'lg'
-            }}
-            onClick={handleShowSongs}>
-            {showSongs ? 'Hide songs' : 'Show my most recent songs'}
-          </Button>
-          <SongListContainer style={{ display: showSongs ? 'flex' : 'none' }}>
-            {userSongs.map((song, index) => (
-              <SongCard key={index}>
-                <SongImg src={song.imageUrl || 'placeholder-image-url'} alt="Album Cover" />
-                <SongCardContent>
-                  <Text variant="h6">{song.title}</Text>
-                  <Text variant="body2">{song.artist}</Text>
-                  <Tooltip hasArrow label="Listen on Spotify">
-                    <Icon
-                      cursor={'pointer'}
-                      onClick={() => {
-                        const spotifyUri = `spotify:track:${song.spotifyId}`;
-                        window.location.href = spotifyUri;
-                      }}
-                      as={PlayCircleOutlineIcon}
-                    />
-                  </Tooltip>
-                </SongCardContent>
-              </SongCard>
-            ))}
-          </SongListContainer>
-          <Button
-            marginTop={2}
-            px={8}
-            bg={useColorModeValue('#151f21', 'gray.900')}
-            color={'white'}
-            rounded={'md'}
-            _hover={{
-              transform: 'translateY(-2px)',
-              boxShadow: 'lg'
-            }}
-            onClick={() => getRecommendation()}>
-            Continue
-          </Button>
+          <Heading>Recommending based on your Spotify playlist.</Heading>
+          <VStack>
+            <Button
+              marginTop={2}
+              px={8}
+              bg={useColorModeValue('#151f21', 'gray.900')}
+              color={'white'}
+              rounded={'md'}
+              _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg'
+              }}
+              onClick={handleShowSongs}>
+              {showSongs ? 'Hide songs' : 'Show my most recent songs'}
+            </Button>
+            {showSongs && <SpotifySongsList songs={userSongs} />}
+            <Button
+              marginTop={2}
+              px={8}
+              bg={useColorModeValue('#151f21', 'gray.900')}
+              color={'white'}
+              rounded={'md'}
+              _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg'
+              }}
+              onClick={() => getRecommendation()}>
+              Continue
+            </Button>
+          </VStack>
         </>
       ) : (
         <>

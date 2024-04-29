@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Comment;
+import com.media.recommendations.model.requests.CommentRequest;
 import com.media.recommendations.service.CommentService;
 
 
@@ -42,8 +43,8 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<Comment> createComment(@Valid @RequestBody Comment comment) {
-        return new ResponseEntity<>(commentService.createComment(comment), HttpStatus.CREATED);
+    public ResponseEntity<Comment> createComment(@Valid @RequestBody CommentRequest commentRequest) {
+        return new ResponseEntity<>(commentService.createComment(commentRequest), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

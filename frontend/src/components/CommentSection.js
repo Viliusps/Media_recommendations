@@ -6,7 +6,16 @@ import { getMovie } from '../api/movies-axios';
 import { getGame } from '../api/games-axios';
 import { getSong } from '../api/songs-axios';
 import { toast } from 'react-toastify';
-import { Text, Input, Button, Divider, useColorModeValue, Heading } from '@chakra-ui/react';
+import {
+  Text,
+  Input,
+  Button,
+  Divider,
+  useColorModeValue,
+  Heading,
+  Avatar,
+  HStack
+} from '@chakra-ui/react';
 import { Pagination } from '@mui/material';
 
 const CommentContainer = styled.div`
@@ -50,6 +59,7 @@ export default function CommentSection({ object, id, setObject, type }) {
 
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
+  console.log(object?.comments);
   const currentComments = (object?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
 
   const handlePageChange = (event, value) => {
@@ -147,9 +157,13 @@ export default function CommentSection({ object, id, setObject, type }) {
         currentComments.map((comment, index) => (
           <StyledDiv key={index}>
             <StyledDivider />
-            <Text key={index} variant="body2">
-              {comment.commentText}
-            </Text>
+            <HStack align="center">
+              <Avatar size={'sm'} />
+              <Text>
+                {comment.user.username}- {comment.commentText}
+              </Text>
+            </HStack>
+
             <StarRating rating={comment.rating} onRatingChange={() => {}} />
           </StyledDiv>
         ))

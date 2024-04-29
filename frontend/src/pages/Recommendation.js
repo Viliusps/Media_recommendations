@@ -6,20 +6,16 @@ import gameImage from '../images/game.png';
 import RecommendationModal from '../components/RecommendationModal';
 import SelectionModal from '../components/SelectionModal';
 import { useNavigate } from 'react-router-dom';
-import { checkIfMovieExists } from '../api/movies-axios';
-import { checkIfSongExists } from '../api/songs-axios';
-import { checkIfGameExists } from '../api/games-axios';
 import { getRole } from '../api/auth-axios';
 import { Grid, GridItem, Heading } from '@chakra-ui/react';
 
 export default function Recommendation() {
   const [openSelection, setOpenSelection] = useState(false);
   const [openRecommendation, setOpenRecommendation] = useState(false);
-  const [selection, setSelection] = useState('');
+  const [selection, setSelection] = useState();
   const [type, setType] = useState('');
   const [recommendBy, setRecommendBy] = useState('');
   const navigate = useNavigate();
-  const [errorLabel, setErrorLabel] = useState('');
   const [role, setRole] = useState('');
 
   useEffect(() => {
@@ -39,34 +35,24 @@ export default function Recommendation() {
     setOpenRecommendation(true);
     setOpenSelection(false);
   };
-  const handleCloseRecommendation = () => setOpenRecommendation(false);
+  const handleCloseRecommendation = () => {
+    setOpenRecommendation(false);
+  };
 
   const handleClick = () => {
-    setErrorLabel('');
+    console.log('SELECTION: ' + selection);
     if (recommendBy === 'Movie') {
-      checkIfMovieExists(selection).then((result) => {
-        if (result) {
-          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
-        } else {
-          setErrorLabel('Movie not found.');
-        }
-      });
+      navigate(
+        `/recommendationResults/${type}/${selection.title}/${recommendBy}/${selection.imdbID}`
+      );
     } else if (recommendBy === 'Song') {
-      checkIfSongExists(selection).then((result) => {
-        if (result) {
-          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
-        } else {
-          setErrorLabel('Song not found.');
-        }
-      });
+      navigate(
+        `/recommendationResults/${type}/${selection.title}/${recommendBy}/${selection.isrc}`
+      );
     } else if (recommendBy === 'Game') {
-      checkIfGameExists(selection).then((result) => {
-        if (result) {
-          navigate(`/recommendationResults/${type}/${selection}/${recommendBy}`);
-        } else {
-          setErrorLabel('Game not found.');
-        }
-      });
+      navigate(
+        `/recommendationResults/${type}/${selection.name}/${recommendBy}/${selection.rawgID}`
+      );
     }
   };
 
@@ -125,7 +111,6 @@ export default function Recommendation() {
         setSelection={setSelection}
         type={type}
         recommendBy={recommendBy}
-        errorLabel={errorLabel}
       />
     </>
   );

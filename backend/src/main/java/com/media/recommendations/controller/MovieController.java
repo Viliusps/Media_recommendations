@@ -3,6 +3,7 @@ package com.media.recommendations.controller;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.media.recommendations.model.Movie;
-import com.media.recommendations.model.requests.GetClosestMovieRequest;
 import com.media.recommendations.model.requests.MovieSearchRequest;
 import com.media.recommendations.model.requests.OmdbRequest;
 import com.media.recommendations.model.responses.MoviePageResponse;
+import com.media.recommendations.model.responses.OMDBSearchResponse;
 import com.media.recommendations.service.MovieService;
 
 
@@ -92,10 +93,9 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    @PostMapping("/search-closest")
-    public ResponseEntity<String> searchClosestMovieFeatures(@RequestBody GetClosestMovieRequest request) {
-        String response = movieService.getClosestMovieFromFeatures(request.getGenres(), request.getYear(), request.getRuntime());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    @PostMapping("/suggestions")
+    public ResponseEntity<List<OMDBSearchResponse>> getMovieSuggestions(@RequestBody OmdbRequest request) throws IOException {
+        List<OMDBSearchResponse> list = movieService.getMovieSuggestions(request.getTitle());
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
-    
 }
