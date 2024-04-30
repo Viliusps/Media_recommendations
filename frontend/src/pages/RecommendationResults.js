@@ -5,7 +5,16 @@ import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
 import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
 import ObjectFeatures from '../components/ObjectFeatures';
-import { Button, Card, Grid, GridItem, Heading, Stack, useColorModeValue } from '@chakra-ui/react';
+import {
+  Button,
+  Card,
+  Grid,
+  GridItem,
+  Heading,
+  Stack,
+  Text,
+  useColorModeValue
+} from '@chakra-ui/react';
 
 const RecommendationResults = () => {
   const params = useParams();
@@ -50,8 +59,10 @@ const RecommendationResults = () => {
         else if (result.type == 'Game') setNeuralRecommendation(result.game);
 
         if (result.originalType == 'Movie') setOriginalRequest(result.originalMovie);
-        else if (result.originalType == 'Song') setOriginalRequest(result.originalSong);
-        else if (result.originalType == 'Game') setOriginalRequest(result.originalGame);
+        else if (result.originalType == 'Song' || result.originalType == 'Spotify')
+          setOriginalRequest(result.originalSong);
+        else if (result.originalType == 'Game' || result.originalType == 'Steam')
+          setOriginalRequest(result.originalGame);
       })
       .catch((error) => {
         console.error(error);
@@ -78,6 +89,7 @@ const RecommendationResults = () => {
     });
   };
 
+  const checkIfVisible = () => {};
   return (
     <>
       <Stack>
@@ -106,6 +118,9 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               Details analyzed by the model:
             </Heading>
+            {(recommendingByType == 'Spotify' || recommendingByType == 'Steam') && (
+              <Text>(The average of you playlist.)</Text>
+            )}
             <LoadingWrapper loading={loadingDetails} error={error}>
               <ObjectFeatures object={originalRequest} type={recommendingByType} />
             </LoadingWrapper>
@@ -125,6 +140,7 @@ const RecommendationResults = () => {
             </LoadingWrapper>
           </Card>
           <Button
+            visibility={checkIfVisible()}
             marginTop={2}
             px={8}
             bg={useColorModeValue('#151f21', 'gray.900')}
