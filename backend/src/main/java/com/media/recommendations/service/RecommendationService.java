@@ -374,6 +374,7 @@ public class RecommendationService {
                         scalerPath += "sm.json";
                         modelPath += "sm";
                         Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        originalSong = averageSong;
                         float[] spotifySong = prepareSongFeatures(averageSong);
                         features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
                         break;
@@ -387,6 +388,7 @@ public class RecommendationService {
                         scalerPath += "gm.json";
                         modelPath += "gm";
                         Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        originalGame = averageGame;
                         NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
                         features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
@@ -412,6 +414,7 @@ public class RecommendationService {
                         scalerPath += "ss.json";
                         modelPath += "ss";
                         Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        originalSong = averageSong;
                         float[] spotifySong = prepareSongFeatures(averageSong);
                         features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
                         break;
@@ -425,6 +428,7 @@ public class RecommendationService {
                         scalerPath += "gs.json";
                         modelPath += "gs";
                         Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        originalGame = averageGame;
                         NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
                         features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
@@ -450,6 +454,7 @@ public class RecommendationService {
                         scalerPath += "sg.json";
                         modelPath += "sg";
                         Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        originalSong = averageSong;
                         float[] spotifySong = prepareSongFeatures(averageSong);
                         features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
                         break;
@@ -463,6 +468,7 @@ public class RecommendationService {
                         scalerPath += "gg.json";
                         modelPath += "gg";
                         Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        originalGame = averageGame;
                         NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
                         features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;

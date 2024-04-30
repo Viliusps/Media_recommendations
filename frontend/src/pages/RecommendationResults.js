@@ -13,6 +13,7 @@ const RecommendationResults = () => {
   const [recommendation, setRecommendation] = useState(null);
   const [neuralRecommendation, setNeuralRecommendation] = useState(null);
   const [originalRequest, setOriginalRequest] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(null);
   const [loadingGPT, setLoadingGPT] = useState(false);
   const [loadingNeural, setLoadingNeural] = useState(false);
   const [error, setError] = useState(false);
@@ -21,6 +22,7 @@ const RecommendationResults = () => {
   useEffect(() => {
     setLoadingGPT(true);
     setLoadingNeural(true);
+    setLoadingDetails(true);
     console.log(recommendingType, recommendingByType, recommendingBy, recommendingByID);
     recommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
@@ -46,12 +48,17 @@ const RecommendationResults = () => {
         if (result.type == 'Movie') setNeuralRecommendation(result.movie);
         else if (result.type == 'Song') setNeuralRecommendation(result.song);
         else if (result.type == 'Game') setNeuralRecommendation(result.game);
+
+        if (result.originalType == 'Movie') setOriginalRequest(result.originalMovie);
+        else if (result.originalType == 'Song') setOriginalRequest(result.originalSong);
+        else if (result.originalType == 'Game') setOriginalRequest(result.originalGame);
       })
       .catch((error) => {
         console.error(error);
         setError(true);
       })
       .finally(() => {
+        setLoadingDetails(false);
         setLoadingNeural(false);
       });
   }, []);
@@ -99,7 +106,9 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               Details analyzed by the model:
             </Heading>
-            <ObjectFeatures object={originalRequest} type={recommendingByType} />
+            <LoadingWrapper loading={loadingDetails} error={error}>
+              <ObjectFeatures object={originalRequest} type={recommendingByType} />
+            </LoadingWrapper>
           </Card>
         </GridItem>
 
@@ -141,6 +150,19 @@ const RecommendationResults = () => {
               />
             </LoadingWrapper>
           </Card>
+          <Button
+            marginTop={2}
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={() => handleOpenRating()}>
+            Rate the recommendation.
+          </Button>
         </GridItem>
       </Grid>
       <RatingModal

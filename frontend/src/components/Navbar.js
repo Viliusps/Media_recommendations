@@ -33,12 +33,19 @@ import logo from '../images/logo.png';
 const LinkItems = [
   { name: 'Movies', icon: BiMovie, link: '/movies' },
   { name: 'Songs', icon: FiMusic, link: '/songs' },
-  { name: 'Games', icon: IoGameControllerOutline, link: '/games' },
-  { name: 'Recommend', icon: FaWandMagicSparkles, link: '/recommendation' }
+  { name: 'Games', icon: IoGameControllerOutline, link: '/games' }
 ];
 
 const SidebarContent = ({ onClose, ...rest }) => {
   const Navigate = useNavigate();
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    getRole().then((data) => {
+      setRole(data);
+    });
+  }, [location.pathname]);
+
   return (
     <Box
       transition="3s ease"
@@ -63,6 +70,11 @@ const SidebarContent = ({ onClose, ...rest }) => {
           {link.name}
         </NavItem>
       ))}
+      {role !== 'GUEST' && (
+        <NavItem onClick={() => Navigate('/recommendation')} icon={FaWandMagicSparkles}>
+          {'Recommend'}
+        </NavItem>
+      )}
     </Box>
   );
 };

@@ -2,7 +2,13 @@ import React from 'react';
 import { CircularProgress, Alert, AlertIcon, AlertTitle, AlertDescription } from '@chakra-ui/react';
 
 export default function LoadingWrapper(children) {
-  if (children.loading) return <CircularProgress isIndeterminate />;
+  if (children.loading)
+    return (
+      <div
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <CircularProgress isIndeterminate />
+      </div>
+    );
   else if (children.error)
     return (
       <Alert status="error">
