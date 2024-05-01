@@ -9,7 +9,6 @@ export const recommend = async (
   recommendingBy,
   recommendingByID
 ) => {
-  console.log(recommendingType, recommendingByType, recommendingBy);
   var username = '';
   if (recommendingByType === 'Spotify' || recommendingByType === 'Steam')
     username = localStorage.getItem('userName');
@@ -35,7 +34,6 @@ export const neuralRecommend = async (
     { recommendingType, recommendingByType, recommendingBy, username, recommendingByID },
     authHeader()
   );
-  console.log(response);
   return response.data;
 };
 

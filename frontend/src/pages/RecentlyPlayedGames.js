@@ -28,14 +28,12 @@ const RecentlyPlayedGames = () => {
     const trimmedUserId = userId.trim();
 
     if (!trimmedUserId) {
-      console.log('h');
       setIncorrect(true);
       setNonNumeric(false);
       return;
     }
 
     if (!/^\d+$/.test(trimmedUserId)) {
-      console.log('h');
       setNonNumeric(true);
       setIncorrect(false);
       return;

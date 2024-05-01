@@ -15,6 +15,7 @@ import {
   Text,
   useColorModeValue
 } from '@chakra-ui/react';
+import { toast } from 'react-toastify';
 
 const RecommendationResults = () => {
   const params = useParams();
@@ -27,15 +28,16 @@ const RecommendationResults = () => {
   const [loadingNeural, setLoadingNeural] = useState(false);
   const [error, setError] = useState(false);
   const [openRating, setOpenRating] = useState(false);
+  const [ratingName, setRatingName] = useState('');
+  const [ratedGPT, setRatedGPT] = useState(false);
+  const [ratedNeural, setRatedNeural] = useState(false);
 
   useEffect(() => {
     setLoadingGPT(true);
     setLoadingNeural(true);
     setLoadingDetails(true);
-    console.log(recommendingType, recommendingByType, recommendingBy, recommendingByID);
     recommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
-        console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
         else if (result.type == 'Song') setRecommendation(result.song);
         else if (result.type == 'Game') setRecommendation(result.game);
@@ -53,7 +55,6 @@ const RecommendationResults = () => {
       });
     neuralRecommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
-        console.log(result);
         if (result.type == 'Movie') setNeuralRecommendation(result.movie);
         else if (result.type == 'Song') setNeuralRecommendation(result.song);
         else if (result.type == 'Game') setNeuralRecommendation(result.game);
@@ -74,10 +75,15 @@ const RecommendationResults = () => {
       });
   }, []);
 
-  const handleOpenRating = () => setOpenRating(true);
+  const handleOpenRating = (buttonName) => {
+    setRatingName(buttonName);
+    setOpenRating(true);
+  };
   const handleCloseRating = () => setOpenRating(false);
 
-  const handleRatingClick = (rating) => {
+  const handleRatingClick = (rating, name) => {
+    if (name === 'ChatGPT') setRatedGPT(true);
+    if (name === 'Neural model') setRatedNeural(true);
     rateRecommendation(
       recommendingType,
       recommendingByType,
@@ -85,11 +91,33 @@ const RecommendationResults = () => {
       originalRequest,
       rating
     ).then(() => {
-      console.log('DONE');
+      showToastMessage();
     });
   };
 
-  const checkIfVisible = () => {};
+  const showToastMessage = () => {
+    toast.success('Thank you, your rating has been saved!', {
+      position: 'top-center',
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: 'light'
+    });
+  };
+
+  const checkIfVisible = () => {
+    if (originalRequest == null) return false;
+    else if (
+      originalRequest.bpm == null &&
+      originalRequest.Rating == null &&
+      originalRequest.imdbRating == null
+    )
+      return false;
+    else return true;
+  };
   return (
     <>
       <Stack>
@@ -140,7 +168,7 @@ const RecommendationResults = () => {
             </LoadingWrapper>
           </Card>
           <Button
-            visibility={checkIfVisible()}
+            hidden={!checkIfVisible() || ratedGPT}
             marginTop={2}
             px={8}
             bg={useColorModeValue('#151f21', 'gray.900')}
@@ -150,7 +178,7 @@ const RecommendationResults = () => {
               transform: 'translateY(-2px)',
               boxShadow: 'lg'
             }}
-            onClick={() => handleOpenRating()}>
+            onClick={() => handleOpenRating('ChatGPT')}>
             Rate the recommendation.
           </Button>
         </GridItem>
@@ -167,6 +195,7 @@ const RecommendationResults = () => {
             </LoadingWrapper>
           </Card>
           <Button
+            hidden={!checkIfVisible() || ratedNeural}
             marginTop={2}
             px={8}
             bg={useColorModeValue('#151f21', 'gray.900')}
@@ -176,7 +205,7 @@ const RecommendationResults = () => {
               transform: 'translateY(-2px)',
               boxShadow: 'lg'
             }}
-            onClick={() => handleOpenRating()}>
+            onClick={() => handleOpenRating('Neural model')}>
             Rate the recommendation.
           </Button>
         </GridItem>
@@ -185,6 +214,7 @@ const RecommendationResults = () => {
         handleClose={handleCloseRating}
         open={openRating}
         handleClick={handleRatingClick}
+        name={ratingName}
       />
     </>
   );

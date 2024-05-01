@@ -25,7 +25,6 @@ export default function Recommendation() {
   }, []);
 
   const handleOpenSelection = (calledBy) => {
-    console.log('clicked');
     setType(calledBy);
     setOpenSelection(true);
   };
@@ -40,7 +39,6 @@ export default function Recommendation() {
   };
 
   const handleClick = () => {
-    console.log('SELECTION: ' + selection);
     if (recommendBy === 'Movie') {
       navigate(
         `/recommendationResults/${type}/${selection.title}/${recommendBy}/${selection.imdbID}`

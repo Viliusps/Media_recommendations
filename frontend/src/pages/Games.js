@@ -26,7 +26,7 @@ export default function Games() {
   const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
-  const gamesPerPage = 12;
+  const gamesPerPage = 28;
 
   const handleSearch = async () => {
     setLoading(true);
@@ -95,7 +95,14 @@ export default function Games() {
       <LoadingWrapper loading={loading} error={error}>
         {totalGames > 0 ? (
           <>
-            <Grid templateColumns="repeat(4, 1fr)" gap={6}>
+            <Grid
+              templateColumns={{
+                base: 'repeat(5, 1fr)',
+                md: 'repeat(5, 1fr)',
+                lg: 'repeat(5, 1fr)',
+                xl: 'repeat(7, 1fr)'
+              }}
+              gap={6}>
               {games.map((game) => (
                 <GridItem key={game.id}>
                   <GameCard game={game} />

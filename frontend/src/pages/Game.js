@@ -19,7 +19,6 @@ export default function Game() {
   useEffect(() => {
     getGame(id)
       .then((data) => {
-        console.log(data);
         setError(false);
         setGame(data);
       })

@@ -65,10 +65,7 @@ export default function RecommendationModal({
   useEffect(() => {}, []);
 
   const handleSelectionChange = (event) => {
-    console.log('Event target value: ' + event.target.value);
     const index = parseInt(event.target.value, 10);
-    console.log('Setting selected option: ');
-    console.log(suggestions[index]);
     setSelection(suggestions[index]);
   };
 

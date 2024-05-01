@@ -95,7 +95,14 @@ export default function Movies() {
       <LoadingWrapper loading={loading} error={error}>
         {totalMovies > 0 ? (
           <>
-            <Grid templateColumns="repeat(4, 1fr)" gap={6}>
+            <Grid
+              templateColumns={{
+                base: 'repeat(4, 1fr)',
+                md: 'repeat(4, 1fr)',
+                lg: 'repeat(4, 1fr)',
+                xl: 'repeat(6, 1fr)'
+              }}
+              gap={6}>
               {movies.map((movie) => (
                 <GridItem key={movie.id}>
                   <MovieCard movie={movie} />

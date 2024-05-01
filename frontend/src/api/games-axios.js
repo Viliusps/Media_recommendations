@@ -40,6 +40,5 @@ export const getGame = async (id) => {
 
 export const getGameSuggestions = async (name) => {
   const response = await axios.post(`${URL}/games/suggestions`, { name: name }, authHeader());
-  console.log(response);
   return response.data;
 };
