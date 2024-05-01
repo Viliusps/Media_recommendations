@@ -1,0 +1,4 @@
+ALTER TABLE recommendations
+ALTER COLUMN rating TYPE INTEGER USING rating::INTEGER;;
+ALTER TABLE recommendations
+ALTER COLUMN rating SET DEFAULT 0;

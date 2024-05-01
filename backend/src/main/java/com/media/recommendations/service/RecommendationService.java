@@ -215,11 +215,13 @@ public class RecommendationService {
     }
 
     public void rateRecommendation(RecommendationRatingRequest request) {
+        System.out.println("RATING");
         String recommendingType = request.getRecommendingType();
         String recommendingByType = request.getRecommendingByType();
         Object recommending = request.getRecommending();
         Object recommendingBy = request.getRecommendingBy();
         Boolean rating = request.getRating();
+        Integer ratingValue = rating ? 1 : -1;
 
         Movie movie = null;
         Song song = null;
@@ -234,6 +236,7 @@ public class RecommendationService {
         ObjectMapper mapper = new ObjectMapper();
 
         if ("Movie".equals(recommendingType)) {
+            System.out.println("MOVIE");
             movie = mapper.convertValue(recommending, Movie.class);
             if(!movieService.existsMovie(movie)) {
                 Movie newMovie = movieService.createMovie(movie);
@@ -283,40 +286,47 @@ public class RecommendationService {
                 recommendingByID = newSong.getId();
             }
         } else if ("Game".equals(recommendingByType)) {
+            System.out.println("GAME");
             gameBy = mapper.convertValue(recommendingBy, Game.class);
             if(!gameService.existsGame(gameBy)) {
                 Game newGame = gameService.createGame(gameBy);
                 recommendingByID = newGame.getId();
             } else {
                 Game newGame = gameService.getByName(gameBy.getName());
-                recommendingID = newGame.getId();
+                recommendingByID = newGame.getId();
             }
         }
 
         if(recommendingByID != -1 && recommendingID != -1) {
+            System.out.println("FIRST IF WORKED");
             Recommendation recommendation = new Recommendation();
             recommendation.setDate(LocalDate.now());
             recommendation.setFirst(recommendingByID);
             recommendation.setSecond(recommendingID);
-            recommendation.setRating(rating);
+            recommendation.setRating(ratingValue);
             recommendation.setFirstType(recommendingByType);
             recommendation.setSecondType(recommendingType);
             recommendation.setUser(userService.userByUsername(request.getUsername()));
             if(!recommendationExists(recommendation)) {
+                System.out.println("SAVING");
                 recommendationRepository.save(recommendation);
                 Long count = recommendationRepository.countByFirstTypeAndSecondTypeAndPositive(recommendingByType, recommendingType);
-                System.out.println("Count: " + count);
                 if(count % 100 == 0) {
-                    System.out.println("UPDATE MODEL");
                     executePythonScript(recommendingByType, recommendingType);
                 }
+            }
+            else {
+                Recommendation recommendationFromDb = recommendationRepository.getByFirstAndSecondAndFirstTypeAndSecondType(recommendation.getFirst(),
+                    recommendation.getSecond(), recommendation.getFirstType(), recommendation.getSecondType());
+                recommendationFromDb.setRating(recommendationFromDb.getRating() + ratingValue);
+                recommendationRepository.save(recommendationFromDb);
             }
         }
     }
 
     private Boolean recommendationExists(Recommendation recommendation) {
-        return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondTypeAndUser(recommendation.getFirst(),
-            recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType(), recommendation.getUser());
+        return recommendationRepository.existsByFirstAndSecondAndFirstTypeAndSecondType(recommendation.getFirst(),
+            recommendation.getSecond(), recommendation.getFirstType(), recommendation.getSecondType());
     }
 
     public RecommendationResponse getModelRecommendation(RecommendationRequest originalRequest) {

@@ -26,7 +26,8 @@ const RecommendationResults = () => {
   const [loadingDetails, setLoadingDetails] = useState(null);
   const [loadingGPT, setLoadingGPT] = useState(false);
   const [loadingNeural, setLoadingNeural] = useState(false);
-  const [error, setError] = useState(false);
+  const [ChatGPTError, setChatGPTError] = useState(false);
+  const [neuralError, setNeuralError] = useState(false);
   const [openRating, setOpenRating] = useState(false);
   const [ratingName, setRatingName] = useState('');
   const [ratedGPT, setRatedGPT] = useState(false);
@@ -48,7 +49,7 @@ const RecommendationResults = () => {
       })
       .catch((error) => {
         console.error(error);
-        setError(true);
+        setChatGPTError(true);
       })
       .finally(() => {
         setLoadingGPT(false);
@@ -67,7 +68,7 @@ const RecommendationResults = () => {
       })
       .catch((error) => {
         console.error(error);
-        setError(true);
+        setNeuralError(true);
       })
       .finally(() => {
         setLoadingDetails(false);
@@ -112,7 +113,7 @@ const RecommendationResults = () => {
     if (originalRequest == null) return false;
     else if (
       originalRequest.bpm == null &&
-      originalRequest.Rating == null &&
+      originalRequest.rating == null &&
       originalRequest.imdbRating == null
     )
       return false;
@@ -149,7 +150,7 @@ const RecommendationResults = () => {
             {(recommendingByType == 'Spotify' || recommendingByType == 'Steam') && (
               <Text>(The average of you playlist.)</Text>
             )}
-            <LoadingWrapper loading={loadingDetails} error={error}>
+            <LoadingWrapper loading={loadingDetails} error={neuralError}>
               <ObjectFeatures object={originalRequest} type={recommendingByType} />
             </LoadingWrapper>
           </Card>
@@ -160,7 +161,7 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               ChatGPT recommendation
             </Heading>
-            <LoadingWrapper loading={loadingGPT} error={error}>
+            <LoadingWrapper loading={loadingGPT} error={ChatGPTError}>
               <RecommendationResultDisplay
                 recommendation={recommendation}
                 recommendingType={recommendingType}
@@ -187,7 +188,7 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               Neural model recommendation
             </Heading>
-            <LoadingWrapper loading={loadingNeural} error={error}>
+            <LoadingWrapper loading={loadingNeural} error={neuralError}>
               <RecommendationResultDisplay
                 recommendation={neuralRecommendation}
                 recommendingType={recommendingType}
