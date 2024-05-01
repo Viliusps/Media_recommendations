@@ -215,7 +215,6 @@ public class RecommendationService {
     }
 
     public void rateRecommendation(RecommendationRatingRequest request) {
-        System.out.println("RATING");
         String recommendingType = request.getRecommendingType();
         String recommendingByType = request.getRecommendingByType();
         Object recommending = request.getRecommending();
@@ -236,7 +235,6 @@ public class RecommendationService {
         ObjectMapper mapper = new ObjectMapper();
 
         if ("Movie".equals(recommendingType)) {
-            System.out.println("MOVIE");
             movie = mapper.convertValue(recommending, Movie.class);
             if(!movieService.existsMovie(movie)) {
                 Movie newMovie = movieService.createMovie(movie);
@@ -286,7 +284,6 @@ public class RecommendationService {
                 recommendingByID = newSong.getId();
             }
         } else if ("Game".equals(recommendingByType)) {
-            System.out.println("GAME");
             gameBy = mapper.convertValue(recommendingBy, Game.class);
             if(!gameService.existsGame(gameBy)) {
                 Game newGame = gameService.createGame(gameBy);
@@ -298,7 +295,6 @@ public class RecommendationService {
         }
 
         if(recommendingByID != -1 && recommendingID != -1) {
-            System.out.println("FIRST IF WORKED");
             Recommendation recommendation = new Recommendation();
             recommendation.setDate(LocalDate.now());
             recommendation.setFirst(recommendingByID);
@@ -308,7 +304,6 @@ public class RecommendationService {
             recommendation.setSecondType(recommendingType);
             recommendation.setUser(userService.userByUsername(request.getUsername()));
             if(!recommendationExists(recommendation)) {
-                System.out.println("SAVING");
                 recommendationRepository.save(recommendation);
                 Long count = recommendationRepository.countByFirstTypeAndSecondTypeAndPositive(recommendingByType, recommendingType);
                 if(count % 100 == 0) {
