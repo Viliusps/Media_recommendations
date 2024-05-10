@@ -46,17 +46,14 @@ def r_squared(y_true, y_pred):
     return (1 - SS_res/(SS_tot + K.epsilon()))
 
 model = Sequential([
-    Dense(64, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
-    Dropout(0.2),
-    Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
-    Dense(256, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
+    Dense(2, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
+    Dense(4, activation='relu'),
+    Dense(8, activation='relu'),
     Dense(y_train.shape[1], activation='linear')
 ])
 
 adam = Adam(learning_rate=0.001)
-model.compile(optimizer=adam, loss='mse', metrics=['mae', r_squared])
+model.compile(optimizer=adam, loss='mae', metrics=['mse', r_squared])
 
 history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
 

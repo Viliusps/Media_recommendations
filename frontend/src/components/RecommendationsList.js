@@ -24,7 +24,7 @@ export default function RecommendationsList({ recommendations }) {
               <h2>
                 <AccordionButton>
                   <Box as="span" flex={1} textAlign={'left'}>
-                    {index + 1}. Input: <strong>{entry.originalType}</strong> Output:
+                    {index + 1}. Input: <strong>{entry.originalType}</strong> Output:{' '}
                     <strong>{entry.type}</strong>
                   </Box>
                   <AccordionIcon />

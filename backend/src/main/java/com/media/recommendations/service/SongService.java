@@ -168,8 +168,10 @@ public class SongService {
     private void updateSongAddMbid(String mbid, String isrc) {
         Song songFromDb = songRepository.getByisrc(isrc);
 
-        songFromDb.setMbid(mbid);
-        songRepository.save(songFromDb);
+        if(songFromDb != null) {
+            songFromDb.setMbid(mbid);
+            songRepository.save(songFromDb);
+        }
     }
 
     public void deleteSong(Long id) {
@@ -691,7 +693,8 @@ public class SongService {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public String getMBIDByISRC(String isrc, String title) {
         Song songFromDb = songRepository.getByisrc(isrc);
-        String mbidFromDb = songFromDb.getMbid();
+        String mbidFromDb = null;
+        if(songFromDb != null) mbidFromDb = songFromDb.getMbid();
         if(mbidFromDb != null) return mbidFromDb;
         else {
             try {
