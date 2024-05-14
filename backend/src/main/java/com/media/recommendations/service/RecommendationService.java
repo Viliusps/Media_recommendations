@@ -333,7 +333,6 @@ public class RecommendationService {
         Song originalSong = new Song();
         Game originalGame = new Game();
 
-        //SHOULD REUSE FROM CHATGPT METHOD!!!!!
         if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
         {
             originalSong = songService.getSongByISRCFromSpotify(originalRequest.getRecommendingByID());

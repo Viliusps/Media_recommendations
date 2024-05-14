@@ -575,10 +575,8 @@ public class SongService {
                 String.class
         );
 
-        //Muy importante, no deleto por favor!!!!
         String rateLimitRemaining = responseEntity.getHeaders().getFirst("X-RateLimit-Remaining");
         System.out.println("X-RateLimit-Remaining: " + rateLimitRemaining);
-        //----------------------------------------
 
         try {
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
@@ -712,10 +710,8 @@ public class SongService {
 
                 ResponseEntity<Map> responseEntity = new RestTemplate().exchange(requestEntity, Map.class);
 
-                //Muy importante, no deleto por favor!!!!
                 String rateLimitRemaining = responseEntity.getHeaders().getFirst("X-RateLimit-Remaining");
                 System.out.println("MusicBrainz X-RateLimit-Remaining: " + rateLimitRemaining);
-                //----------------------------------------
 
                 if (responseEntity.getStatusCode().is2xxSuccessful()) {
                     List<Map<String, String>> recordings = Optional.ofNullable(responseEntity.getBody())
@@ -828,7 +824,7 @@ public class SongService {
         songFromDb.setPopularity(songFromDb.getPopularity() + 1);
         songRepository.save(songFromDb);
     }
-    // efd4ed21-3374-4b8f-9fe8-271ec9852074,0,0.743034541607,4.40243434906,-688.681518555,0,109.252311707,110,110,105,105,1.03447961807,3.24817299843,0,C,major,436.708374023,0.0884697809815
+    
     public Song getSongFromSearchResults(String searchResult) {
         String[] values = searchResult.split(",");
         Song resultSong = new Song();
