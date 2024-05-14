@@ -28,14 +28,12 @@ const RecentlyPlayedGames = () => {
     const trimmedUserId = userId.trim();
 
     if (!trimmedUserId) {
-      console.log('h');
       setIncorrect(true);
       setNonNumeric(false);
       return;
     }
 
     if (!/^\d+$/.test(trimmedUserId)) {
-      console.log('h');
       setNonNumeric(true);
       setIncorrect(false);
       return;
@@ -62,9 +60,7 @@ const RecentlyPlayedGames = () => {
   };
 
   const getRecommendation = () => {
-    const gameNames = recentGames.map((game) => game.name);
-    const resultString = gameNames.join(', ');
-    navigate(`/recommendationResults/${type}/${resultString}/${'Steam'}`);
+    navigate(`/recommendationResults/${type}/games/Steam/id`);
   };
 
   return (

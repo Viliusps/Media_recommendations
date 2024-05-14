@@ -21,7 +21,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
   return (
     <Modal isOpen={open} onClose={handleClose}>
       <ModalOverlay />
-      <ModalContent width="90%" maxWidth="1200px">
+      <ModalContent width="60%" maxWidth="1200px">
         <ModalHeader>
           Recommend me a <b>{type}</b> based on...
         </ModalHeader>
@@ -30,7 +30,7 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
           <Grid
             templateColumns="repeat(6, 1fr)"
             templateRows={role !== 'GUEST' ? 'repeat(2, 1fr)' : 'repeat(1, 1fr)'}
-            gap={1}>
+            gap={7}>
             <GridItem rowSpan={1} colSpan={2}>
               <CustomCard
                 title="A movie"
@@ -39,8 +39,6 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                   setType('Movie');
                   handleOpen();
                 }}
-                cardHeight={350}
-                cardWidth={300}
                 zIndex={3}
               />
             </GridItem>
@@ -52,8 +50,6 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                   setType('Song');
                   handleOpen();
                 }}
-                cardHeight={350}
-                cardWidth={300}
                 zIndex={2}
               />
             </GridItem>
@@ -65,8 +61,6 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                   setType('Game');
                   handleOpen();
                 }}
-                cardHeight={350}
-                cardWidth={300}
                 zIndex={2}
               />
             </GridItem>
@@ -77,8 +71,6 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                     title="My Spotify history"
                     image={spotifyImage}
                     handleOpen={() => Navigate(`/playlistRecommendation/${type}`)}
-                    cardHeight={350}
-                    cardWidth={500}
                     zIndex={2}
                   />
                 </GridItem>
@@ -87,8 +79,6 @@ export default function SelectionModal({ type, handleClose, open, handleOpen, se
                     title="My Steam history"
                     image={steamImage}
                     handleOpen={() => Navigate(`/gamesPlaylist/${type}`)}
-                    cardHeight={350}
-                    cardWidth={500}
                     zIndex={2}
                   />
                 </GridItem>

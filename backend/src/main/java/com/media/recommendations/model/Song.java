@@ -1,6 +1,5 @@
 package com.media.recommendations.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -89,7 +88,10 @@ public class Song {
     @Column(name = "popularity", nullable = false)
     private int popularity;
 
+    @Column(name = "mbid")
+    private String mbid;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "song")
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 }

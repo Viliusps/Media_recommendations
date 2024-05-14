@@ -1,11 +1,21 @@
 import { useParams } from 'react-router-dom';
-import { rateRecommendation, recommend, testNeural } from '../api/recommendation-axios';
+import { rateRecommendation, recommend, neuralRecommend } from '../api/recommendation-axios';
 import RatingModal from '../components/RatingModal';
 import { useEffect, useState } from 'react';
 import LoadingWrapper from '../components/LoadingWrapper';
 import RecommendationResultDisplay from '../components/RecommendationResultDisplay';
 import ObjectFeatures from '../components/ObjectFeatures';
-import { Button, Card, Grid, GridItem, Heading, Stack, useColorModeValue } from '@chakra-ui/react';
+import {
+  Button,
+  Card,
+  Grid,
+  GridItem,
+  Heading,
+  Stack,
+  Text,
+  useColorModeValue
+} from '@chakra-ui/react';
+import { toast } from 'react-toastify';
 
 const RecommendationResults = () => {
   const params = useParams();
@@ -13,22 +23,22 @@ const RecommendationResults = () => {
   const [recommendation, setRecommendation] = useState(null);
   const [neuralRecommendation, setNeuralRecommendation] = useState(null);
   const [originalRequest, setOriginalRequest] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(null);
   const [loadingGPT, setLoadingGPT] = useState(false);
   const [loadingNeural, setLoadingNeural] = useState(false);
-  const [error, setError] = useState(false);
+  const [ChatGPTError, setChatGPTError] = useState(false);
+  const [neuralError, setNeuralError] = useState(false);
   const [openRating, setOpenRating] = useState(false);
+  const [ratingName, setRatingName] = useState('');
+  const [ratedGPT, setRatedGPT] = useState(false);
+  const [ratedNeural, setRatedNeural] = useState(false);
 
   useEffect(() => {
     setLoadingGPT(true);
     setLoadingNeural(true);
-    const selection = localStorage.getItem('selection');
-    console.log('Selection: ' + selection);
-    console.log('Recommending type: ' + recommendingType);
-    console.log('recommending by type: ' + recommendingByType);
-    console.log('recommending by: ' + recommendingBy);
+    setLoadingDetails(true);
     recommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
-        console.log(result);
         if (result.type == 'Movie') setRecommendation(result.movie);
         else if (result.type == 'Song') setRecommendation(result.song);
         else if (result.type == 'Game') setRecommendation(result.game);
@@ -39,31 +49,42 @@ const RecommendationResults = () => {
       })
       .catch((error) => {
         console.error(error);
-        setError(true);
+        setChatGPTError(true);
       })
       .finally(() => {
         setLoadingGPT(false);
       });
-    testNeural(recommendingType, recommendingByType, recommendingBy, recommendingByID)
+    neuralRecommend(recommendingType, recommendingByType, recommendingBy, recommendingByID)
       .then((result) => {
-        console.log(result);
         if (result.type == 'Movie') setNeuralRecommendation(result.movie);
         else if (result.type == 'Song') setNeuralRecommendation(result.song);
         else if (result.type == 'Game') setNeuralRecommendation(result.game);
+
+        if (result.originalType == 'Movie') setOriginalRequest(result.originalMovie);
+        else if (result.originalType == 'Song' || result.originalType == 'Spotify')
+          setOriginalRequest(result.originalSong);
+        else if (result.originalType == 'Game' || result.originalType == 'Steam')
+          setOriginalRequest(result.originalGame);
       })
       .catch((error) => {
         console.error(error);
-        setError(true);
+        setNeuralError(true);
       })
       .finally(() => {
+        setLoadingDetails(false);
         setLoadingNeural(false);
       });
   }, []);
 
-  const handleOpenRating = () => setOpenRating(true);
+  const handleOpenRating = (buttonName) => {
+    setRatingName(buttonName);
+    setOpenRating(true);
+  };
   const handleCloseRating = () => setOpenRating(false);
 
-  const handleRatingClick = (rating) => {
+  const handleRatingClick = (rating, name) => {
+    if (name === 'ChatGPT') setRatedGPT(true);
+    if (name === 'Neural model') setRatedNeural(true);
     rateRecommendation(
       recommendingType,
       recommendingByType,
@@ -71,10 +92,33 @@ const RecommendationResults = () => {
       originalRequest,
       rating
     ).then(() => {
-      console.log('DONE');
+      showToastMessage();
     });
   };
 
+  const showToastMessage = () => {
+    toast.success('Thank you, your rating has been saved!', {
+      position: 'top-center',
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: 'light'
+    });
+  };
+
+  const checkIfVisible = () => {
+    if (originalRequest == null) return false;
+    else if (
+      originalRequest.bpm == null &&
+      originalRequest.rating == null &&
+      originalRequest.imdbRating == null
+    )
+      return false;
+    else return true;
+  };
   return (
     <>
       <Stack>
@@ -103,7 +147,12 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               Details analyzed by the model:
             </Heading>
-            <ObjectFeatures object={originalRequest} type={recommendingByType} />
+            {(recommendingByType == 'Spotify' || recommendingByType == 'Steam') && (
+              <Text>(The average of you playlist.)</Text>
+            )}
+            <LoadingWrapper loading={loadingDetails} error={neuralError}>
+              <ObjectFeatures object={originalRequest} type={recommendingByType} />
+            </LoadingWrapper>
           </Card>
         </GridItem>
 
@@ -112,7 +161,7 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               ChatGPT recommendation
             </Heading>
-            <LoadingWrapper loading={loadingGPT} error={error}>
+            <LoadingWrapper loading={loadingGPT} error={ChatGPTError}>
               <RecommendationResultDisplay
                 recommendation={recommendation}
                 recommendingType={recommendingType}
@@ -120,6 +169,7 @@ const RecommendationResults = () => {
             </LoadingWrapper>
           </Card>
           <Button
+            hidden={!checkIfVisible() || ratedGPT}
             marginTop={2}
             px={8}
             bg={useColorModeValue('#151f21', 'gray.900')}
@@ -129,7 +179,7 @@ const RecommendationResults = () => {
               transform: 'translateY(-2px)',
               boxShadow: 'lg'
             }}
-            onClick={() => handleOpenRating()}>
+            onClick={() => handleOpenRating('ChatGPT')}>
             Rate the recommendation.
           </Button>
         </GridItem>
@@ -138,19 +188,34 @@ const RecommendationResults = () => {
             <Heading as="h3" size="md">
               Neural model recommendation
             </Heading>
-            <LoadingWrapper loading={loadingNeural} error={error}>
+            <LoadingWrapper loading={loadingNeural} error={neuralError}>
               <RecommendationResultDisplay
                 recommendation={neuralRecommendation}
                 recommendingType={recommendingType}
               />
             </LoadingWrapper>
           </Card>
+          <Button
+            hidden={!checkIfVisible() || ratedNeural}
+            marginTop={2}
+            px={8}
+            bg={useColorModeValue('#151f21', 'gray.900')}
+            color={'white'}
+            rounded={'md'}
+            _hover={{
+              transform: 'translateY(-2px)',
+              boxShadow: 'lg'
+            }}
+            onClick={() => handleOpenRating('Neural model')}>
+            Rate the recommendation.
+          </Button>
         </GridItem>
       </Grid>
       <RatingModal
         handleClose={handleCloseRating}
         open={openRating}
         handleClick={handleRatingClick}
+        name={ratingName}
       />
     </>
   );

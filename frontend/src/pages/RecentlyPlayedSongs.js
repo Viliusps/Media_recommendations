@@ -48,9 +48,7 @@ export default function RecentlyPlayedSongs() {
   }, []);
 
   const getRecommendation = () => {
-    const songNames = userSongs.map((song) => song.title);
-    const resultString = songNames.join(', ');
-    navigate(`/recommendationResults/${type}/${resultString}/${'Spotify'}`);
+    navigate(`/recommendationResults/${type}/songs/Spotify/id`);
   };
 
   return (

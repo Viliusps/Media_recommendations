@@ -5,10 +5,11 @@ const GameCard = styled('div')`
   background-color: #f0f0f0;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 10px;
   overflow: hidden;
   text-align: center;
   transition: transform 0.2s;
+  height: 100px;
+  width: 150px;
   &:hover {
     transform: scale(1.05);
   }

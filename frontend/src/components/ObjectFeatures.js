@@ -34,7 +34,7 @@ export default function ObjectFeatures({ object, type }) {
               )}
             </div>
           )}
-          {type === 'Song' && (
+          {(type === 'Song' || type === 'Spotify') && (
             <div>
               {Object.entries(object).some(
                 ([key, value]) => value === null && songFeatures.includes(key)
@@ -53,7 +53,7 @@ export default function ObjectFeatures({ object, type }) {
             </div>
           )}
 
-          {type === 'Game' && (
+          {(type === 'Game' || type === 'Steam') && (
             <div>
               {Object.entries(object).map(
                 ([key, value]) =>

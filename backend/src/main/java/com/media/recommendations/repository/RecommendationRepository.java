@@ -12,11 +12,13 @@ import com.media.recommendations.model.User;
 
 @Repository
 public interface RecommendationRepository extends JpaRepository<Recommendation, Long> {
-    boolean existsByFirstAndSecondAndRatingAndFirstTypeAndSecondTypeAndUser(long first, long second, boolean rating, String firstType, String secondType, User user);
+    boolean existsByFirstAndSecondAndFirstTypeAndSecondType(long first, long second, String firstType, String secondType);
 
     List<Recommendation> getByUser(User user);
     
-    @Query(value = "SELECT COUNT(*) FROM recommendations WHERE first_type = :firstType AND second_type = :secondType", nativeQuery = true)
-    Long countByFirstTypeAndSecondType(String firstType, String secondType);
+    @Query(value = "SELECT COUNT(*) FROM recommendations WHERE first_type = :firstType AND second_type = :secondType AND rating > 0", nativeQuery = true)
+    Long countByFirstTypeAndSecondTypeAndPositive(String firstType, String secondType);
+
+    Recommendation getByFirstAndSecondAndFirstTypeAndSecondType(long first, long second, String firstType, String secondType);
 
 }

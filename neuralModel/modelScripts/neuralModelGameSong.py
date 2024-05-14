@@ -52,11 +52,8 @@ print(y_train_scaled[0])
 
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
-    Dropout(0.2),
     Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
     Dense(256, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
     Dense(y_train_scaled.shape[1], activation='linear')
 ])
 

@@ -7,8 +7,7 @@ export default function SongCard({ song }) {
   const Navigate = useNavigate();
   return (
     <Card
-      width={300}
-      height={420}
+      height={'100%'}
       transition="transform 0.2s ease-in-out, box-shadow 0.3s ease"
       _hover={{
         transform: 'scale(1.05)',
@@ -31,8 +30,9 @@ export default function SongCard({ song }) {
             minHeight="1rem"
             minWidth="1rem"
             padding={0}
-            onClick={() => {
-              const spotifyUri = `spotify:track:${song.spotifyUrl}`;
+            onClick={(e) => {
+              e.stopPropagation();
+              const spotifyUri = `spotify:track:${song.spotifyId}`;
 
               window.location.href = spotifyUri;
             }}

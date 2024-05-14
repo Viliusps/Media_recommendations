@@ -38,7 +38,7 @@ public class Recommendation {
 
     @NotNull(message = "Rating is mandatory")
     @Column(name = "rating", nullable = false)
-    private boolean rating;
+    private Integer rating;
 
     @NotNull(message = "Date is mandatory")
     @Column(name = "date", nullable = false)

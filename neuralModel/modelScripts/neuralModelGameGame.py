@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers import Dense
 from keras.regularizers import l2
 import matplotlib.pyplot as plt
 from keras.optimizers import Adam
@@ -47,18 +47,14 @@ def r_squared(y_true, y_pred):
 
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train.shape[1],), name='dense_input'),
-    Dropout(0.2),
     Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
     Dense(256, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
     Dense(y_train.shape[1], activation='linear')
 ])
-
 adam = Adam(learning_rate=0.001)
-model.compile(optimizer=adam, loss='mse', metrics=['mae', r_squared])
+model.compile(optimizer=adam, loss='mae', metrics=['mse', 'mae', r_squared])
 
-history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+history = model.fit(X_train, y_train, epochs=200, batch_size=32, validation_split=0.2, verbose=1)
 
 @tf.function(input_signature=[tf.TensorSpec(shape=[None, X_train.shape[1]], dtype=tf.float32, name='dense_input')])
 def model_serving(dense_input):

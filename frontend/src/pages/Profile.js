@@ -35,24 +35,30 @@ export default function Profile() {
           <Tab borderWidth={2}>Recent games from Steam</Tab>
         </TabList>
         <TabPanels>
-          <TabPanel>
-            <Heading as="h3" size="md">
-              Your recent recommendations:{' '}
-            </Heading>
-            <RecommendationsList recommendations={recentRecommendations} />
-          </TabPanel>
-          <TabPanel>
-            <Heading as="h3" size="md">
-              Your recently listened songs:{' '}
-            </Heading>
-            <SpotifySongsList songs={spotifyHistory} />
-          </TabPanel>
-          <TabPanel>
-            <Heading as="h3" size="md">
-              Your recently played games:{' '}
-            </Heading>
-            <SteamGamesList games={steamHistory} />
-          </TabPanel>
+          {recentRecommendations && (
+            <TabPanel>
+              <Heading as="h3" size="md">
+                Your recent recommendations:{' '}
+              </Heading>
+              <RecommendationsList recommendations={recentRecommendations} />
+            </TabPanel>
+          )}
+          {spotifyHistory && (
+            <TabPanel>
+              <Heading as="h3" size="md">
+                Your recently listened songs:{' '}
+              </Heading>
+              <SpotifySongsList songs={spotifyHistory} />
+            </TabPanel>
+          )}
+          {steamHistory && (
+            <TabPanel>
+              <Heading as="h3" size="md">
+                Your recently played games:{' '}
+              </Heading>
+              <SteamGamesList games={steamHistory} />
+            </TabPanel>
+          )}
         </TabPanels>
       </Tabs>
     </>

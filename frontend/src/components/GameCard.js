@@ -5,8 +5,7 @@ export default function GameCard({ game }) {
   const Navigate = useNavigate();
   return (
     <Card
-      width={380}
-      height={300}
+      height={200}
       transition="transform 0.2s ease-in-out, box-shadow 0.3s ease"
       _hover={{
         transform: 'scale(1.05)',

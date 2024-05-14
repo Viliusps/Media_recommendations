@@ -30,6 +30,5 @@ export const searchMovies = async (search) => {
 
 export const getMovieSuggestions = async (title) => {
   const response = await axios.post(`${URL}/movies/suggestions`, { title: title }, authHeader());
-  console.log(response);
   return response.data;
 };

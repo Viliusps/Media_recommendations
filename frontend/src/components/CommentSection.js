@@ -59,7 +59,6 @@ export default function CommentSection({ object, id, setObject, type }) {
 
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-  console.log(object?.comments);
   const currentComments = (object?.comments || []).slice(indexOfFirstComment, indexOfLastComment);
 
   const handlePageChange = (event, value) => {

@@ -20,4 +20,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             nativeQuery = true
         )
     List<Game> findByNameContaining(String name);
+
+    Game getByrawgID(Integer rawgID);
 }

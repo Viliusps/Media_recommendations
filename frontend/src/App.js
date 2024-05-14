@@ -55,18 +55,12 @@ function App() {
             <ToastContainer />
             <Navbar>
               <Routes>
-                <Route path="/recommendation" element={<Recommendation />} />
                 <Route path="/movies" element={<Movies />} />
                 <Route path="/movies/:id" element={<Movie />} />
                 <Route path="/games/:id" element={<Game />} />
                 <Route path="/songs" element={<Songs />} />
                 <Route path="/songs/:id" element={<Song />} />
                 <Route path="/games" element={<Games />} />
-
-                <Route
-                  path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType/:recommendingByID"
-                  element={<RecommendationResults />}
-                />
 
                 {role === 'GUEST' && (
                   <>
@@ -83,6 +77,12 @@ function App() {
 
                 {role !== 'GUEST' && (
                   <>
+                    <Route path="/recommendation" element={<Recommendation />} />
+
+                    <Route
+                      path="/recommendationResults/:recommendingType/:recommendingBy/:recommendingByType/:recommendingByID"
+                      element={<RecommendationResults />}
+                    />
                     <Route path="/playlistRecommendation/:type" element={<RecentlyPlayedSongs />} />
                     <Route path="/gamesPlaylist/:type" element={<RecentlyPlayedGames />} />
                     <Route path="/profile" element={<Profile />} />

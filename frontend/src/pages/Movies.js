@@ -24,7 +24,7 @@ export default function Movies() {
   const [totalMovies, setTotalMovies] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const moviesPerPage = 15;
+  const moviesPerPage = 16;
   const [searchTerm, setSearchTerm] = useState('');
   const Navigate = useNavigate();
 
@@ -95,7 +95,14 @@ export default function Movies() {
       <LoadingWrapper loading={loading} error={error}>
         {totalMovies > 0 ? (
           <>
-            <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+            <Grid
+              templateColumns={{
+                base: 'repeat(4, 1fr)',
+                md: 'repeat(4, 1fr)',
+                lg: 'repeat(4, 1fr)',
+                xl: 'repeat(6, 1fr)'
+              }}
+              gap={6}>
               {movies.map((movie) => (
                 <GridItem key={movie.id}>
                   <MovieCard movie={movie} />

@@ -30,7 +30,7 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
-export default function RatingModal({ handleClose, open, handleClick }) {
+export default function RatingModal({ handleClose, open, handleClick, name }) {
   return (
     <Modal
       open={open}
@@ -39,13 +39,13 @@ export default function RatingModal({ handleClose, open, handleClick }) {
       aria-describedby="modal-modal-description">
       <StyledBox>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          Please rate the ChatGPT recommendation.
+          Please rate the {name} recommendation.
         </Typography>
         <IconsContainer>
           <StyledIconButton
             $hoverColor="green"
             onClick={() => {
-              handleClick(1);
+              handleClick(1, name);
               handleClose();
             }}>
             <IconThumbUp />
@@ -53,7 +53,7 @@ export default function RatingModal({ handleClose, open, handleClick }) {
           <StyledIconButton
             $hoverColor="red"
             onClick={() => {
-              handleClick(0);
+              handleClick(0, name);
               handleClose();
             }}>
             <IconThumbDown />

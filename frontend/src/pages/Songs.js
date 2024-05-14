@@ -99,7 +99,14 @@ export default function Songs() {
       </SearchWrapper>
       <LoadingWrapper loading={loading} error={error}>
         {totalSongs > 0 ? (
-          <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+          <Grid
+            templateColumns={{
+              base: 'repeat(5, 1fr)',
+              md: 'repeat(5, 1fr)',
+              lg: 'repeat(5, 1fr)',
+              xl: 'repeat(7, 1fr)'
+            }}
+            gap={6}>
             {songs.map((song) => (
               <GridItem key={song.id}>
                 <SongCard song={song} />

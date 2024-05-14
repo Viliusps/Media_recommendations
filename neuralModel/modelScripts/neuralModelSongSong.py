@@ -8,7 +8,7 @@ from keras.regularizers import l2
 from keras.optimizers import Adam
 import tensorflow as tf
 import json
-
+import matplotlib.pyplot as plt
 
 df = pd.read_csv('neuralModel/datasets/SongSong.csv')
 
@@ -43,16 +43,13 @@ y_test_scaled = scaler_y.transform(y_test)
 
 model = Sequential([
     Dense(64, activation='relu', input_shape=(X_train_scaled.shape[1],), name='dense_input'),
-    Dropout(0.2),
     Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
-    Dense(128, activation='relu', kernel_regularizer=l2(0.01)),
-    Dropout(0.2),
+    Dense(256, activation='relu', kernel_regularizer=l2(0.01)),
     Dense(y_train_scaled.shape[1], activation='linear')
 ])
 
 adam = Adam(learning_rate=0.001)
-model.compile(optimizer=adam, loss='mse', metrics=['mae'])
+model.compile(optimizer=adam, loss='mae', metrics=['mae, mse'])
 
 history = model.fit(X_train_scaled, y_train_scaled, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
 
@@ -75,16 +72,16 @@ with open('neuralModel/scalingParameters/scaling_parameters_ss.json', 'w') as f:
     json.dump(scaling_parameters, f)
 
 
-# print(X_test_scaled[0], " vs ", X_test.iloc[0])
+print(X_test_scaled[0], " vs ", X_test.iloc[0])
 
 
-# plt.plot(history.history['loss'], label='Train')
-# plt.plot(history.history['val_loss'], label='Validation')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+plt.plot(history.history['loss'], label='Train')
+plt.plot(history.history['val_loss'], label='Validation')
+plt.title('Model Loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(loc='upper right')
+plt.show()
 
 # test_loss, test_mae = model.evaluate(X_test_scaled, y_test)
 # print(f'Test Loss: {test_loss}, Test MAE: {test_mae}')

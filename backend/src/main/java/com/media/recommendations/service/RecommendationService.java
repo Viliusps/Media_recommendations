@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -92,13 +91,15 @@ public class RecommendationService {
                         prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, do not include artist.";
                         break;
                     case "Spotify":
-                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, do not include artist.";
+                        String songNames = songService.getSpotifyHistoryNames(originalRequest.getUsername());
+                        prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + songNames + " . Reply only with a name of your song, do not include artist.";
                         break;
                     case "Game":
                         prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your song, do not include artist.";
                         break;
                     case "Steam":
-                        prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your song, do not include artist.";
+                        String gameNames = gameService.getSteamHistoryNames(originalRequest.getUsername());
+                        prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + gameNames + " . Reply only with a name of your song, do not include artist.";
                         break;
                 }
                 break;
@@ -112,13 +113,15 @@ public class RecommendationService {
                             prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your movie, add nothing else.";
                             break;
                         case "Spotify":
-                            prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your movie, add nothing else.";
+                            String songNames = songService.getSpotifyHistoryNames(originalRequest.getUsername());
+                            prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + songNames + " . Reply only with a name of your movie, add nothing else.";
                             break;
                         case "Game":
                             prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your movie, add nothing else.";
                             break;
                         case "Steam":
-                            prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your movie, add nothing else.";
+                            String gameNames = gameService.getSteamHistoryNames(originalRequest.getUsername());
+                            prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + gameNames + " . Reply only with a name of your movie, add nothing else.";
                             break;
                     }
                     break;
@@ -132,13 +135,15 @@ public class RecommendationService {
                             prompt += "a movie that I like. The movie's name is " + originalRequest.getRecommendingBy() + ". Reply only with the name of your game, add nothing else.";
                             break;
                         case "Spotify":
-                            prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with the name of your game, add nothing else.";
+                            String songNames = songService.getSpotifyHistoryNames(originalRequest.getUsername());
+                            prompt += "a list of songs that I like. Here is a list of songs, separated by a comma and a space: " + songNames + " . Reply only with the name of your game, add nothing else.";
                             break;
                         case "Game":
                             prompt += "a game that I like. The game's name is " + originalRequest.getRecommendingBy() + ". Reply only with a name of your game, add nothing else.";
                             break;
                         case "Steam":
-                            prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + originalRequest.getRecommendingBy() + " . Reply only with a name of your game, add nothing else.";
+                            String gameNames = gameService.getSteamHistoryNames(originalRequest.getUsername());
+                            prompt += "a list of games that I like. Here is a list of games, separated by a comma and a space: " + gameNames + " . Reply only with a name of your game, add nothing else.";
                             break;
                     }
                     break;
@@ -147,7 +152,6 @@ public class RecommendationService {
         ChatRequest request = new ChatRequest(model, prompt);
         ChatResponse response = restTemplate.postForObject(apiUrl, request, ChatResponse.class);
         String chatGPTresponse = response.getChoices().get(0).getMessage().getContent();
-        System.out.println("Chat gpt response: " + chatGPTresponse);
 
         Movie movie = new Movie();
         Song song = new Song();
@@ -216,6 +220,7 @@ public class RecommendationService {
         Object recommending = request.getRecommending();
         Object recommendingBy = request.getRecommendingBy();
         Boolean rating = request.getRating();
+        Integer ratingValue = rating ? 1 : -1;
 
         Movie movie = null;
         Song song = null;
@@ -285,7 +290,7 @@ public class RecommendationService {
                 recommendingByID = newGame.getId();
             } else {
                 Game newGame = gameService.getByName(gameBy.getName());
-                recommendingID = newGame.getId();
+                recommendingByID = newGame.getId();
             }
         }
 
@@ -294,37 +299,31 @@ public class RecommendationService {
             recommendation.setDate(LocalDate.now());
             recommendation.setFirst(recommendingByID);
             recommendation.setSecond(recommendingID);
-            recommendation.setRating(rating);
+            recommendation.setRating(ratingValue);
             recommendation.setFirstType(recommendingByType);
             recommendation.setSecondType(recommendingType);
             recommendation.setUser(userService.userByUsername(request.getUsername()));
-            System.out.println("BEFORE EXISTS");
             if(!recommendationExists(recommendation)) {
                 recommendationRepository.save(recommendation);
-                Long count = recommendationRepository.countByFirstTypeAndSecondType(recommendingByType, recommendingType);
-                System.out.println("COunt: " + count);
+                Long count = recommendationRepository.countByFirstTypeAndSecondTypeAndPositive(recommendingByType, recommendingType);
                 if(count % 100 == 0) {
-                    System.out.println("UPDATE MODEL");
                     executePythonScript(recommendingByType, recommendingType);
                 }
+            }
+            else {
+                Recommendation recommendationFromDb = recommendationRepository.getByFirstAndSecondAndFirstTypeAndSecondType(recommendation.getFirst(),
+                    recommendation.getSecond(), recommendation.getFirstType(), recommendation.getSecondType());
+                recommendationFromDb.setRating(recommendationFromDb.getRating() + ratingValue);
+                recommendationRepository.save(recommendationFromDb);
             }
         }
     }
 
     private Boolean recommendationExists(Recommendation recommendation) {
-        return recommendationRepository.existsByFirstAndSecondAndRatingAndFirstTypeAndSecondTypeAndUser(recommendation.getFirst(),
-            recommendation.getSecond(), recommendation.isRating(), recommendation.getFirstType(), recommendation.getSecondType(), recommendation.getUser());
+        return recommendationRepository.existsByFirstAndSecondAndFirstTypeAndSecondType(recommendation.getFirst(),
+            recommendation.getSecond(), recommendation.getFirstType(), recommendation.getSecondType());
     }
 
-
-    //"data": [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]
-    // {
-    // "genre": "Drama",
-    // "date": "1988-06-18",
-    // "boxOffice": 165197633,
-    // "imdbRating": 7.2,
-    // "runtime": 106
-    // }
     public RecommendationResponse getModelRecommendation(RecommendationRequest originalRequest) {
         String modelPath = "neuralModel/model_";
         String scalerPath = "neuralModel/scalingParameters/scaling_parameters_";
@@ -334,7 +333,6 @@ public class RecommendationService {
         Song originalSong = new Song();
         Game originalGame = new Game();
 
-        //SHOULD REUSE FROM CHATGPT METHOD!!!!!
         if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
         {
             originalSong = songService.getSongByISRCFromSpotify(originalRequest.getRecommendingByID());
@@ -360,7 +358,7 @@ public class RecommendationService {
                 gameService.createGame(originalGame);
             }
         }
-        //String genre, String dateString, int boxOffice, double imdbRating, int runtime
+
         switch (originalRequest.getRecommendingType()) {
             case "Movie":
                 switch (originalRequest.getRecommendingByType()) {
@@ -380,6 +378,7 @@ public class RecommendationService {
                         scalerPath += "sm.json";
                         modelPath += "sm";
                         Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        originalSong = averageSong;
                         float[] spotifySong = prepareSongFeatures(averageSong);
                         features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
                         break;
@@ -393,6 +392,7 @@ public class RecommendationService {
                         scalerPath += "gm.json";
                         modelPath += "gm";
                         Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        originalGame = averageGame;
                         NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
                         features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
@@ -418,6 +418,7 @@ public class RecommendationService {
                         scalerPath += "ss.json";
                         modelPath += "ss";
                         Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        originalSong = averageSong;
                         float[] spotifySong = prepareSongFeatures(averageSong);
                         features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
                         break;
@@ -431,6 +432,7 @@ public class RecommendationService {
                         scalerPath += "gs.json";
                         modelPath += "gs";
                         Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        originalGame = averageGame;
                         NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
                         features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
@@ -456,6 +458,7 @@ public class RecommendationService {
                         scalerPath += "sg.json";
                         modelPath += "sg";
                         Song averageSong = songService.calculateAverage(originalRequest.getUsername());
+                        originalSong = averageSong;
                         float[] spotifySong = prepareSongFeatures(averageSong);
                         features = scalingService.scaleSongFeatures(spotifySong, scalerPath);
                         break;
@@ -469,6 +472,7 @@ public class RecommendationService {
                         scalerPath += "gg.json";
                         modelPath += "gg";
                         Game averageGame = gameService.calculateAverage(originalRequest.getUsername());
+                        originalGame = averageGame;
                         NeuralModelGameFeatures avgGameFeatures = prepareGameFeatures(averageGame);
                         features = scalingService.scaleGameFeatures(avgGameFeatures, scalerPath);
                         break;
@@ -505,18 +509,12 @@ public class RecommendationService {
                     break;
                 case "Song":
                     float[] songOutput = scalingService.rescaleSongFeatures(results, scalerPath);
-                    System.out.println("Neural model song features output: " + Arrays.toString(songOutput));
                     String closestString = songService.getClosestSongFromFeatures(songOutput);
-                    System.out.println("Found closest song: " + closestString);
                     song = songService.getSongFromSearchResults(closestString);
-                    //System.out.println("Actual value: [107,1.12116266,116,0.20831184,434.61829997,107,108.59205483,105,-676.75749994,3.49761907,0.61974842,4.24087519]");
                     break;
                 case "Game":
-                    System.out.println("Results before rescaling: " + Arrays.toString(results));
                     NeuralModelGameFeatures gameOutput = scalingService.rescaleGameFeatures(results, scalerPath);
-                    System.out.println("Model recommended game: " + gameOutput.getGenre() + " " + gameOutput.getPlaytime() + " " + gameOutput.getRating() + " " + gameOutput.getYear());
                     game = gameService.findGameFromFeatures(gameOutput);
-                    System.out.println("Closest found game: " + game.getName() + " " + game.getGenres() + " " + game.getPlaytime() + " " + game.getRating() + " " + game.getReleaseDate());
                     break;
                 default:
                     break;
@@ -554,7 +552,6 @@ public class RecommendationService {
     private NeuralModelGameFeatures prepareGameFeatures(Game game) {
         Integer year = LocalDate.parse(game.getReleaseDate()).getYear();
         String genre = game.getGenres().split(",")[0];
-        System.out.println(year + " " + genre + " " + game.getPlaytime() + " " + game.getRating());
         return new NeuralModelGameFeatures(genre, game.getPlaytime(), year, game.getRating());
     }
 

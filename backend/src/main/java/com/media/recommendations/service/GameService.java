@@ -124,6 +124,22 @@ public class GameService {
         return new SteamHistoryResponse();
     }
 
+    public String getSteamHistoryNames(String username) {
+        User user = userService.userByUsername(username);
+        Long userId = user.getId();
+        List<SteamHistory> history = steamRepository.findAllByUserId(userId);
+        if(history.size() > 0) {
+            List<Game> games = history.stream()
+                    .map(SteamHistory::getGame)
+                    .collect(Collectors.toList());
+            String allGameNames = games.stream()
+                    .map(Game::getName)
+                    .collect(Collectors.joining(", "));
+            return allGameNames;
+        }
+        return "";
+    }
+
     public ResponseEntity<String> getRecentlyPlayedGames(String userId, String username) {
         String apiUrl = "https://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v1/";
         String url = apiUrl + "?key=" + steamApiKey + "&steamid=" + userId + "&count=5";
@@ -131,9 +147,6 @@ public class GameService {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         List<Game> games = extractGamesFromSteamResponse(response);
-        for(Game game : games) {
-            System.out.println(game.getName());
-        }
         addGamesToHistory(games, username, userId);
         return response;
     }
@@ -215,7 +228,6 @@ public class GameService {
 
     public List<Game> getGameSuggestions(String gameName) throws JsonMappingException, JsonProcessingException {
         List<Game> games = new ArrayList<>();
-        System.out.println("Game name: " + gameName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("User-Agent", "MyUniProject/v1.0");
@@ -236,41 +248,51 @@ public class GameService {
     }
 
     public Game getGameFromRAWGByID(String gameId) {
-        System.out.println("getting game from game id: " + gameId);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("User-Agent", "MyUniProject/v1.0");
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        Game gameFromDb = gameRepository.getByrawgID(Integer.parseInt(gameId));
+        if(gameFromDb != null) {
+            return gameFromDb;
+        }
+        else {       
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("User-Agent", "MyUniProject/v1.0");
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        String gameDetailsUrl = RAWG_API_BASE_URL + "games/" + gameId + "?key=" + rawgApiKey;
-        String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
+            String gameDetailsUrl = RAWG_API_BASE_URL + "games/" + gameId + "?key=" + rawgApiKey;
+            String gameDetailsResponse = restTemplate.exchange(gameDetailsUrl, HttpMethod.GET, entity, String.class).getBody();
 
-        return parseGameFromDetailsResponse(gameDetailsResponse);
+            return parseGameFromDetailsResponse(gameDetailsResponse);
+        }
+ 
     }
 
     public Game getGameFromRAWG(String gameName) {
-        System.out.println("Game name: " + gameName);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("User-Agent", "MyUniProject/v1.0");
+         Game gameFromDb = gameRepository.getByName(gameName);
+        if(gameFromDb != null) {
+            return gameFromDb;
+        }
+        else {     
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("User-Agent", "MyUniProject/v1.0");
 
-        String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
-        String searchUrl = RAWG_API_BASE_URL + "games?search=" + encodedGameName + "&key=" + rawgApiKey;
+            String encodedGameName = URLEncoder.encode(gameName, StandardCharsets.UTF_8);
+            String searchUrl = RAWG_API_BASE_URL + "games?search=" + encodedGameName + "&key=" + rawgApiKey;
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        String gameSearchResponse = restTemplate.exchange(searchUrl, HttpMethod.GET, entity, String.class).getBody();
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            String gameSearchResponse = restTemplate.exchange(searchUrl, HttpMethod.GET, entity, String.class).getBody();
 
-        String gameId = parseGameIdFromSearchResponse(gameSearchResponse);
-        System.out.println("Game ID: " + gameId);
+            String gameId = parseGameIdFromSearchResponse(gameSearchResponse);
 
-        if (gameId != null) {
-            return getGameFromRAWGByID(gameId);
-        } else {
-            return null;
+            if (gameId != null) {
+                return getGameFromRAWGByID(gameId);
+            } else {
+                return null;
+            }
         }
     }
 
-    private Game parseRAWGJsonNode (JsonNode node) {
+    private Game parseRAWGJsonNode(JsonNode node) {
         Game game = new Game();
         game.setName(node.get("name").asText());
         game.setReleaseDate(node.get("released").asText());
@@ -330,7 +352,7 @@ public class GameService {
             game.setPlaytime(root.get("playtime").asInt());
             game.setBackgroundImage(root.get("background_image").asText());
             game.setRawgID(root.get("id").asInt());
-            System.out.println("Parsed game name: " + game.getName());
+            if(!gameRepository.existsByName(game.getName())) gameRepository.save(game);
             return game;
         } catch (IOException e) {
             e.printStackTrace();
@@ -362,9 +384,6 @@ public class GameService {
         double minimumRating = features.getRating();
         int playtime = features.getPlaytime();
         String dateRange = year + "-01-01," + year + "-12-31";
-
-        System.out.println("Searching for genre: " + genres);
-        System.out.println("Searching for dateRange: " + dateRange);
 
         String url = "https://api.rawg.io/api/games?key=" + rawgApiKey + "&genres=" + genres.toLowerCase() + "&dates=" + dateRange;
 

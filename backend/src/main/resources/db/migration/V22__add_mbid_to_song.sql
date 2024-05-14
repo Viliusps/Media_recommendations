@@ -1,0 +1,2 @@
+ALTER TABLE songs
+ADD COLUMN mbid VARCHAR(255);
