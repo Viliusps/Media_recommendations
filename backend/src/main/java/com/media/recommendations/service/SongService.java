@@ -696,6 +696,7 @@ public class SongService {
         if(songFromDb != null) mbidFromDb = songFromDb.getMbid();
         if(mbidFromDb != null) return mbidFromDb;
         else {
+            System.out.println("GETTING");
             try {
                 Thread.sleep(1500);
                 String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";
