@@ -28,7 +28,9 @@ export default function RecommendationResultDisplay({ recommendation, recommendi
               )}
             </>
           )}
-          {recommendingType === 'Movie' && recommendation.imdbID.length > 9 ? (
+          {recommendingType === 'Movie' &&
+          recommendation.imdbID != null &&
+          recommendation.imdbID.length > 9 ? (
             <RecommendationText>{recommendation.imdbID}</RecommendationText>
           ) : (
             recommendingType === 'Movie' && (

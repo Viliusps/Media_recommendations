@@ -148,21 +148,22 @@ public class SongService {
 
     private void updateSongAddFeatures(String mbid, Map<String, String> features) {
         Song songFromDb = songRepository.getBymbid(mbid);
+        if(songFromDb != null) {
+            songFromDb.setMfccZeroMean(features.get("mfccZeroMean"));
+            songFromDb.setDynamicComplexity(features.get("dynamicComplexity"));
+            songFromDb.setAverageLoudness(features.get("averageLoudness"));
+            songFromDb.setOnsetRate(features.get("onsetRate"));
+            songFromDb.setBpmHistogramSecondPeakBpmMedian(features.get("bpmHistogramSecondPeakBpmMedian"));
+            songFromDb.setBpmHistogramSecondPeakBpmMean(features.get("bpmHistogramSecondPeakBpmMean"));
+            songFromDb.setBpmHistogramFirstPeakBpmMedian(features.get("bpmHistogramFirstPeakBpmMedian"));
+            songFromDb.setBpmHistogramFirstPeakBpmMean(features.get("bpmHistogramFirstPeakBpmMean"));
+            songFromDb.setBpm(features.get("bpm"));
+            songFromDb.setDanceability(features.get("danceability"));
+            songFromDb.setTuningFrequency(features.get("tuningFrequency"));
+            songFromDb.setTuningEqualTemperedDeviation(features.get("tuningEqualTemperedDeviation"));
 
-        songFromDb.setMfccZeroMean(features.get("mfccZeroMean"));
-        songFromDb.setDynamicComplexity(features.get("dynamicComplexity"));
-        songFromDb.setAverageLoudness(features.get("averageLoudness"));
-        songFromDb.setOnsetRate(features.get("onsetRate"));
-        songFromDb.setBpmHistogramSecondPeakBpmMedian(features.get("bpmHistogramSecondPeakBpmMedian"));
-        songFromDb.setBpmHistogramSecondPeakBpmMean(features.get("bpmHistogramSecondPeakBpmMean"));
-        songFromDb.setBpmHistogramFirstPeakBpmMedian(features.get("bpmHistogramFirstPeakBpmMedian"));
-        songFromDb.setBpmHistogramFirstPeakBpmMean(features.get("bpmHistogramFirstPeakBpmMean"));
-        songFromDb.setBpm(features.get("bpm"));
-        songFromDb.setDanceability(features.get("danceability"));
-        songFromDb.setTuningFrequency(features.get("tuningFrequency"));
-        songFromDb.setTuningEqualTemperedDeviation(features.get("tuningEqualTemperedDeviation"));
-
-        songRepository.save(songFromDb);
+            songRepository.save(songFromDb);
+        }
     }
 
     private void updateSongAddMbid(String mbid, String isrc) {
@@ -695,6 +696,7 @@ public class SongService {
         if(songFromDb != null) mbidFromDb = songFromDb.getMbid();
         if(mbidFromDb != null) return mbidFromDb;
         else {
+            System.out.println("GETTING");
             try {
                 Thread.sleep(1500);
                 String musicBrainzUrl = "http://musicbrainz.org/ws/2/recording/";

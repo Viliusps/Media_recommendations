@@ -186,7 +186,7 @@ public class RecommendationService {
         if(originalRequest.getRecommendingByType().compareTo("Song") == 0)
         {
             originalSong = songService.getSongByISRCFromSpotify(originalRequest.getRecommendingByID());
-            originalSong = songService.getSongFeatures(originalSong);
+            //originalSong = songService.getSongFeatures(originalSong);
             if(!songService.existsSong(originalSong)) {
                 songService.createSong(originalSong);
             }
